@@ -20,3 +20,20 @@
 ## JS 메모리 구조
 
 - 가비지 컬렉션이 어떻게 동작하는지 살펴보기 전에, JS의 메모리 구조를 살펴봅니다.
+![JS 메모리 구조](./images/../../images/JS/JS_메모리구조.png)
+- 힙 메모리
+  - V8 엔진이 객체, 동적 데이터를 저장하는 공간. GC가 발생하는 곳이며 New space, Old space 공간만 가비지 수집으로 관리됩니다.
+  - New space
+    - 새로운 객체가 할당되는 곳으로 대부분 수명이 짧다. Minor GC에 의해 관리된다.
+  - Old space
+    - Minor GC가 두 번 동작하는 동안 New space에서 살아남으면 Old space로 이동하게 됩니다.
+    - Major GC(Mark-Sweep & Mark-Compact)에 의해 관리된다.
+  - Large Object space
+    - 다른 공간보다 크기가 큰 객체들이 사는 곳. GC에 의해 수집되지 않는다.
+  - Code space
+    - JIT 컴파일러가 컴파일 된 코드 블럭을 저장하는 곳. 실행가능한 메모리가 있는 유일한 공간
+  - Cell space, Property cell space, Map space
+    - 이 공간에는 Cells, PropertyCells가 포함된다.
+- 스택
+  - V8 프로세스 당 하나의 스택이 있다.
+  - 지역 변수, 함수 프레임, 객체에 대한 포인터를 포함하는 정적인 데이터가 저장된다.
