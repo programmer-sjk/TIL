@@ -56,6 +56,7 @@
 
 - 스캐빈저 알고리즘은 메모리 오버헤드가 있어 Mark-Sweep-Compact 알고리즘을 사용한다.
 <img src="https://i.imgur.com/rcjSZ0T.gif" width="500" height="250" />
+
 - Mark-Sweep-Compact 알고리즘은 아래 3단계로 동작한다.
   - mark: GC 루트부터 힙을 순회하여 사용중인 객체는 활성상태로 표시한다.
   - sweep: GC는 힙을 순회하고 사용되지 않는 객체의 메모리 주소를 사용이 가능하다고 표시한다.
