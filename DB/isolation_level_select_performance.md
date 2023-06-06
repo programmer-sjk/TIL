@@ -2,20 +2,20 @@
 
 ## 개요
 
-- MySQL의 InnoDB 스토리지 엔진은 REPEATABLE 격리수준을 기본 값으로 사용한다.
-- 최근 특정 기능에 대해 READ_COMMITTED 격리 수준으로 쓰라는 리뷰를 받았는데 이유는 아래와 같았다.
-  - SELECT 쿼리에서 특정 값에 해당하는 엔티티를 조회만 하기 때문에 굳이 phantom read를 막을 필요가 없기 때문이라는 말이었다.
+- MySQL의 InnoDB 스토리지 엔진은 `REPEATABLE` 격리수준을 기본 값으로 사용한다.
+- 최근 특정 기능에 대해 `READ_COMMITTED` 격리 수준으로 **변경하라는 리뷰**를 받았는데 이유는 아래와 같았다.
+  - SELECT 쿼리에서 특정 값에 해당하는 엔티티를 조회만 하기 때문에 굳이 `phantom read`를 막을 필요가 없기 때문이라는 말이었다.
 - 이런 리뷰를 받은 것도 좋은데, 이 내용에 대해 알아 볼 생각에 심장이 두근거린다. 여기서 이 내용에 대해 정리해보자.
 
 ## REPEATABLE 격리수준
 
-- REPEATABLE 격리수준을 쉽게 이야기하면 한 트랜잭션 내에서 select 결과가 같음을 보장한다.
-- READ_COMMITTED 격리수준은 A 트랜잭션이 끝나기 전에, B 트랜잭션이 값을 변경하고 COMMIT 하면 A 트랜잭션이 SELECT 할 때 변경된 값이 조회된다. 즉 한 트랜잭션 내에서 SELECT 결과가 다를 수 있다.
-- 일반적으로 REPEATABLE 격리수준에는 SELECT 개수가 달라질 수 있는 Phantom Read 현상이 발생하는데 MySQL의 InnodB 스토리지 엔진은 next key lock(record lock + gap lock)을 이용해 Phantom Read 현상을 막는다.
+- `REPEATABLE` 격리수준을 쉽게 이야기하면 **한 트랜잭션 내에서 select 결과가 같음**을 보장한다.
+- `READ_COMMITTED` 격리수준은 A 트랜잭션이 끝나기 전에, B 트랜잭션이 값을 변경하고 COMMIT 하면 A 트랜잭션이 SELECT 할 때 변경된 값이 조회된다. 즉 한 트랜잭션 내에서 SELECT 결과가 다를 수 있다.
+- 일반적으로 `REPEATABLE` 격리수준에는 SELECT 개수가 달라질 수 있는 Phantom Read 현상이 발생하는데 MySQL의 InnodB 스토리지 엔진은 next key lock(record lock + gap lock)을 이용해 Phantom Read 현상을 막는다.
 
 ## Phantom Read
 
-- SELECT 개수가 달라질 수 있는 Phantom Read 현상이 언제 발생하는지 아래 그림을 통해 알아보자.
+- SELECT 개수가 달라질 수 있는 `Phantom Read` 현상이 언제 발생하는지 아래 그림을 통해 알아보자.
   - 트랜잭션 1에서 남자를 조회해서 2개의 row를 얻었다.
   - 트랜잭션 1에서 잠시 다른일을 하는동안 트랜잭션 2에서 새로운 남자를 추가한다.
   - 트랜잭션 1에서 다시 남자를 조회하면 3개의 row를 조회하게 된다.
@@ -38,9 +38,9 @@ SELECT * FROM child WHERE id > 100
 
 ## 다시 격리수준과 SELECT 성능 예상
 
-- 다시 본 주제로 돌아오자. 주제에 해당되는 격리수준과 Phantom Read에 대해서는 위에서 설명했다.
-- 그렇다면 특정 값을 조회하는 쿼리에서 격리수준을 REPEATABLE -> READ_COMMITED로 바꾸면 어떤 성능의 이득을 예상할 수 있을까?
-- REPEATABLE은 Phantom Read를 막기 위해 Next Key 잠금을 수행하고, READ_COMMITED는 Phantom Read가 발생하고, COMMIT된 결과가 한 트랜잭션 내에서 조회되니 Next Key 잠금을 사용하지 않을 것을 짐작할 수 있다.
+- 다시 본 주제로 돌아오자. 주제에 해당되는 격리수준과 `Phantom Read`에 대해서는 위에서 설명했다.
+- 그렇다면 특정 값을 조회하는 쿼리에서 격리수준을 `REPEATABLE -> READ_COMMITED`로 바꾸면 어떤 성능의 이득을 예상할 수 있을까?
+- `REPEATABLE은` Phantom Read를 막기 위해 Next Key 잠금을 수행하고, `READ_COMMITED는` Phantom Read가 발생하고, COMMIT된 결과가 한 트랜잭션 내에서 조회되니 Next Key 잠금을 사용하지 않을 것을 짐작할 수 있다.
 - 옵티마이저가 여기에 관여하지 않는다고 가정하면 두 격리수준에서 실제 차이는 Next Key 잠금을 사용하느냐 사용하지 않느냐다.
 - 이 상태에서 쿼리 하나의 성능은 큰 차이가 없을 것이라 생각이 들었다. 그렇다면 10만건 이상 반복해서 조회한다면 성능에 영향이 날지 아래에서 정리하겠다.
 
