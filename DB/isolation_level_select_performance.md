@@ -9,11 +9,13 @@
 
 ## REPEATABLE 격리수준
 
-- it will be added
+- REPEATABLE 격리수준을 쉽게 이야기하면 한 트랜잭션 내에서 select 결과가 같음을 보장한다.
+- READ_COMMITTED 격리수준은 A 트랜잭션이 끝나기 전에, B 트랜잭션이 값을 변경하고 COMMIT 하면 A 트랜잭션이 SELECT 할 때 변경된 값이 조회된다. 즉 한 트랜잭션 내에서 SELECT 결과가 다를 수 있다.
+- 일반적으로 REPEATABLE 격리수준에는 SELECT 개수가 달라질 수 있는 Phantom Read 현상이 발생하는데 MySQL의 InnodB 스토리지 엔진은 next key lock(record lock + gap lock)을 이용해 Phantom Read 현상을 막는다.
 
 ## Phantom Read
 
-- it will be added
+- SELECT 개수가 달라질 수 있는 Phantom Read 현상이 언제 발생하는지 아래 그림을 통해 알아보자.
 
 ## MySQL은 Phantom Read를 어떻게 막을까
 
