@@ -779,3 +779,104 @@ public class FakeFileSystem implements FileSystem {
 #### 13.6.5 가짜 객체를 이용할 수 없다면
 
 - 최적화 관점에서 가짜 객체를 이용할 때도 있다. 실제 구현을 사용하는 테스트들 때문에 전체적으로 너무 느려졌다면 가짜 객체를 투입하여 더 빠르게 만드는 것이다. 하지만 속도 향상으로 얻는 혜택이 가짜 객체를 관리하는 비용보다 크지 않다면 실제 구현을 계속 사용하는게 더 낫다.
+
+### 13.7 뭉개기 (스텁)
+
+- 스텁은 원래는 없는 행위를 테스트가 함수에 덧씌우는 방법이다.
+
+#### 13.7.1 스텁 과용의 위험성
+
+- 스텁을 과용하면 테스트를 유지보수 할 일이 늘어나서 오히려 생산성을 갉아먹는다.
+- 불명확해진다.
+  - 스텁을 이용하면 함수에 행위를 덧씌우는 코드를 추가로 작성해야 한다. 이 추가코드는 읽는 이의 눈을 어지럽혀서
+  테스트의 의도를 파악하기 어렵게 한다.
+- 깨지기 쉬워진다.
+  - 스텁을 사용하면 대상 시스템의 내부 구현 방식이 테스트에 드러난다. 제품의 내부가 다르게 구현되면 테스트 코드도 함께 수정해야 한다. 좋은 테스트라면 공개 API가 아닌 한 내부가 어떻게 달라지든 영향받지 않아야 한다.
+- 테스트 효과가 감소한다
+  - 스텁으로 행위를 뭉개버리면 함수가 실제 구현과 똑같이 동작하는지 보장할 방법이 사라진다.
+- 스텁을 과용한 예
+  ```java
+    @Test
+    public void creditCardIsCharged() {
+      // 모의객체 프레임워크로 생성한 테스트 대역을 건넨다.
+      paymentProcessor = new PaymentProcessor(
+        mockCreditCardServer, mockTransactionProcessor
+      );
+
+      // 테스트 대역들이 함수를 스텁하여 뭉갠다.
+      when(mockCreditCardServer.isServerAvailable()).thenReturn(true);
+      when(mockTransactionProcessor.beginTransaction()).thenReturn(transaction);
+      when(mockCreditCardServer.initTransaction(transaction)).thenReturn(true);
+      when(mockCreditCardServer.pay(transaction, creditCard, 500)).thenReturn(false);
+      when(mockTransactionProcessor.endTransaction()).thenReturn(true);
+
+      // when
+      paymentProcessor.processPayment(creditCard, Money.dollor(500));
+
+      // pay 메서드가 거래내역을 실제로 전달했는지 확인할 방법이 없다.
+      // 검증할 수 있는 것은 그저 pay() 메서드가 호출되었다는 사실 뿐이다.
+      verify(mockCreditCardServer).pay(transaction, creditCard, 500);
+    }
+
+    // 스텁을 사용하지 않도록 리팩토링
+    @Test
+    public void creditCardIsCharged() {
+      paymentProcessor = new PaymentProcessor(creditCardServer, transactionProcessor);
+      paymentProcessor.processPayment(creditCard, Money.dollor(500));
+      assertThat(creditCardServer.getMostRecentCharge(creditCard)).isEqualTo(500);
+    }
+  ```
+
+- 위에서 테스트가 외부 신용카드 서버와 실제로 통신하는 건 원하지 않을테니 신용카드 서버는 가짜 객체로 대체하는 것이 좋다.
+
+#### 13.7.2 스텁이 적합한 경우
+
+- 스텁은 실제 구현을 포괄적으로 대체하기 보다 특정 함수가 특정 값을 반환하도록 하여 대상 시스템을 원하는 상태로 변경하려 할 때 제격이다. 실제 구현이나 가짜 객체로는 원하는 반환값을 얻거나 특정 오류를 일으키기가 불가능 할 수 있지만 스텁은 함수의 동작을 테스트 코드에서 정의할 수 있으므로 쉽게 원하는 결과를 얻을 수 있다.
+
+### 13.8 상호작용 테스트 하기
+
+- 상호작용 테스트는 함수가 어떻게 호출되는지를 검증하는 기법이다. 모의 객체 프레임워크를 이용하면 상호작용 테스트를 어렵지 않게 수행할 수 있지만, 테스트를 가치있고 잘 읽히고 변경하기 쉽게 관리하려면 꼭 필요할 때만 적용해야 한다.
+
+#### 13.8.1 상호작용 테스트보다 상태 테스트를 우선하자.
+
+- 상태 테스트란 시스템을 호출하여 올바른 값을 반환하는지 혹은 상태가 올바르게 변경되었는지 검증하는 테스트이다.
+- 상태 테스트 예
+
+  ```java
+    @Test
+    public void sortNumbers() {
+      NumberSorter numberSorter = new NumberSorter(quickSort, bubbleSort);
+      List sortedList = numberSorter.sortNumbers(newList(3, 1, 2));
+      // 결과가 올바르다면 어떤 정렬 알고리즘을 이용했든 상관없다.
+      assertThat(sortedList).isEuqalTo(newList(1,2,3));
+    }
+  ```
+
+- 이번엔 상호작용 테스트를 보자. 여기서는 반환값이 실제로 정렬되었는지 확인할 방법이 없다. 그래서 검증하는 기능은 대상 시스템이 정렬을 시도했다 라는 사실 뿐이다.
+
+  ```java
+    @Test
+    public void sortNumbers() {
+      NumberSorter numberSorter = new NumberSorter(mockQuickSort, mockBubbleSort);
+      numberSorter.sortNumbers(newList(3, 1, 2));
+      // mockQuickSort가 호출되지 않거나 잘못된 인수를 건네면 실패한다.
+      verify(mockQuickSort).sort(newList(3, 1, 2));
+    }
+  ```
+
+- 구글은 상테 테스트에 집중해야 제품과 테스틑 확장할 때 훨씬 유리하다는 사실을 깨달았다. 깨지기 쉬운 테스트가 줄어들고 나중에 테스트를 변경하거나 유지보수하기 쉬워진다.
+- 상호작용 테스트의 가장 큰 문제는 특정 함수가 호출되었는지만 알려줄 뿐 올바르게 작동하는지 말해주지 못한다는 점이다. 그래서 해당 코드가 올바르게 동작한다고 `가정하고 넘어가야` 한다.
+- 상호작용 테스트의 두 번째 문제는 상세 구현 방식을 활용한다는 점이다. 테스트가 대상 시스템이 그 함수를 호출할 것을 알야 하고, 제품 구현 방식이 바뀌면 테스트가 깨질 수 있다.
+
+#### 13.8.2 상호작용 테스트가 적합한 경우
+
+- 실제 구현이나 가짜 객체를 이용할 수 없어서 상태 테스트가 불가능한 경우.
+- 함수 호출 순서나 횟수가 달라지면 기대와 다르게 동작하는 경우, 상태 검증 테스트로는 검증하기 어려운 상황이므로 상호작용 테스트가 제 역할을 할 수 있다.
+- 상호작용 테스트는 상태 테스트를 완전히 대체하지 못한다. 따라서 단위 테스트에서 상태 테스트를 수행할 수 없다면 상호작용 테스트를 추가하는 대신, 더 큰 범위에서 상태 테스트를 수행(e2e는 상태 테스트, service는 상호작용 테스트)하는 것이 좋다.
+
+### 13.10 핵심 정리
+
+- 테스트 대역보다는 되도록 실제 구현을 사용해야 한다.
+- 테스트 대역에서 실제 구현을 사용할 수 없다면 가짜 객체가 최선일 때가 많다.
+- 스텁을 과용하면 테스트가 불명확해지고 꺠지기 쉬워진다.
+- 상호작용 테스트는 테스트를 깨지기 쉽게 만들기 때문에 피하는게 좋다.
