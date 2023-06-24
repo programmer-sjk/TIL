@@ -575,3 +575,86 @@ public void testName() {
 
 - 전체 문자열을 적자 URL에 슬래시를 두 번 썼음이 바로 드러난다. 테스트 코드에서는 스마트한 로직보다
 직설적인 코드를 고집해야 한다.
+
+## 12.4 테스트와 코드 공유: DRY가 아니라 DAMP
+
+- 대부분의 SW는 반복하지 말라는 DRY 원칙을 숭배한다. DRY는 코드 중복을 최소로 줄이면 유지보수 하기 쉽다고 이야기 한다. 보통 제품의 코드에는 장점으로 작용하지만 테스트 코드에서는 사정이 조금 다르다.
+- 좋은 테스트는 안정적이고 시스템 행위가 변경되면 실패하도록 설계된다. 테스트는 복잡해질수록 손해가 막심하여 DRY 보다는 DAMP가 되도록 노력해야 한다.
+- DAMP는 서술적이고 의미있는 문구를 뜻한다. 단순 명료하게 만들어준다면 테스트에서 다소의 중복은 허용된다.
+- 아래 예시를 보자
+  ```java
+  // DRY에 집착한 테스트
+  @Test
+  public void testName() {
+    List<User> users = createUsers(false, false);
+    Forum forum = createForumAndRegisterUsers(users);
+    validateForumAndUsers(forum, users);
+  }
+
+  // DAMP를 따른 테스트
+  @Test
+  public void testName() {
+    User user1 = newUser().build();
+    User user2 = newUser().build();
+
+    Forum forum = new Forum();
+    forum.register(user1);
+    forum.register(user2);
+
+    assertThat(forum.hasRegisteredUser(user1)).isTrue();
+    assertThat(forum.hasRegisteredUser(user2)).isTrue();
+  }
+  ```
+
+- 중복된 코드도 있고 본문은 길어졌지만 테스트 각각이 의미있어졌고 테스트 본문만 봐도 전체를 이해할 수 있게 되었다.
+- DAMP는 DRY를 대체하는게 아니라 보완하는 개념이다. 핵심은 테스트에서 리팩터링은 반복을 줄이는게 아니라 더 서술적이고 의미있게 하는 방향으로 이루어져야 한다는 점이다.
+
+### 12.4.1 공유 값
+
+- 공유 값으로 테스트에서 다양하게 활용하면 간결하게 만들 수 있지만 그보다 좋은 방법은 도우미 메서드를 활용하는 것이다.
+
+```java
+// 도우미 메서드 (매개변수에 기본값을 정의하여 생성자를 래핑함)
+private static Contact.Builder newContact() {
+  return Contact.newBuilder()
+    .setFirstName('서')
+    .setLastName('서')
+    .setPhoneNumber('01048921123');
+}
+
+// 호출부에는 필요한 매개변수만 덮어쓰고 나머지는 기본값으로 리턴된 값을 얻는다.
+@Test
+public void testName() {
+  Contact contact = newContact().setFirstName('하').build();
+}
+```
+
+### 12.4.2 공유 셋업
+
+- 셋업 메서드(Before, BeforeEach..)를 이용한 특정 값에 의존하는 테스트가 생겨나기 시작하면 악몽이 시작될 수 있다. 아래 테스트는 도널드 커누스라는 문자열이 어디서 왔는지 찾아내야 하므로 완벽하지 않다.
+
+```java
+private UserStore userStore;
+
+@Before
+public void setUp() {
+  nameService = new NameService();
+  nameService.set('user1', '도널드 커누스');
+  userStore = new UserStore(nameService);
+}
+
+@Test
+public void shouldReturnName() {
+  UserDetail user = userStore.get('user1');
+  assertThat(user.getName()).isEqualTo('도널드 커누스');
+}
+```
+
+- 위처럼 특정 값을 요구하는 테스트라면 그 값을 직접 기술해줘야 한다.
+
+## 12.6 핵심 정리
+
+- 변하지 않는 테스트를 만들기 위해 노력하라
+- 공개 API를 통해 테스트해라
+- 상호작용이 아닌, 상태를 테스트해라
+- 테스트 이름은 검사하는 행위가 잘 드러나게 지어라.
