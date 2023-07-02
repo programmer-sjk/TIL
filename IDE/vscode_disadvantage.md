@@ -1,6 +1,6 @@
 # Jetbrains IDE 3년 쓰다가 VScode를 쓰고 느끼는 점
 
-![logo](/images/IDE/1_logo.png)
+![logo](/images/ide/1_logo.png)
 
 Jetbrains가 제공하는 `webstorm, IntelliJ`를 3년 가까이 쓰다가 다시 `Visual Studio Code`로 넘어왔다. 그 동안 몰랐던 Jetbrains IDE에 감사함을 느끼며 VScode를 1주일 사용한 관점에서 어떤 점을 느꼈는지 정리하도록 하겠다.
 
@@ -18,7 +18,7 @@ Jetbrains가 제공하는 `webstorm, IntelliJ`를 3년 가까이 쓰다가 다�
 
 문제는 2020년에 만들어진 이 **PR이 아직도 open 상태**라는 것이다. 2022년에 이 기능을 담당하던 개발자가 좀 더 분석이 필요하다고 남긴 comment도 인상적이다.
 
-![pr](/images/IDE/2_pr.png)
+![pr](/images/ide/2_pr.png)
 
 ### 리팩토링 기능
 
@@ -51,11 +51,11 @@ function doSomething(data) {
 ```
 
 `isValidType` 함수는 아직 존재하지 않는 함수로, `Webstorm을` 쓴다면 커서만 위에 두고 단축키를 써서 외부에 함수로 정의할 수 있다. 반대로 VScode는 커서를 두고 리팩토링 단축키인 `command + .` 버튼을 클릭하면 아래와 같이 아무런 행동을 할 수 없다.
-![refactor1](/images/IDE/3_refactoring.png)
+![refactor1](/images/ide/3_refactoring.png)
 
 만약 마우스 드래그나 키보드로 `isValidType(data)` 부분을 지정하고 `command + .` 버튼을 누르면 리팩토링 기능을 쓸 수 있다.
 
-![refactor2](/images/IDE/4_refactoring.png)
+![refactor2](/images/ide/4_refactoring.png)
 
 정리하자면 리팩토링 할 때 **영역을 잘 잡아야(드래그 해야) 리팩토링 기능이 제공**된다. 이건 하나의 예시일 뿐 몇 가지 더 해보니 화가 난다.
 
@@ -84,13 +84,13 @@ VScode는 해당 부분을 `copy & paste` 한 뒤에 fs의 import 경로를 수�
 
 JetBrains IDE는 **대부분의 기능을 내장**하고 설정으로 이뤄지는 반면에 VSCode는 많은 기능들이 `Extension` 설치를 통해 제공한다. `Webstorm(Jetbrains node IDE)`에서 기본으로 제공되는 기능들을 VSCode에서는 어떻게 할 수 있는지 검색하고 그 기능을 지원하는 Extension을 설치하는 과정이 나에게는 꽤 번거로웠다.
 
-![extension](/images/IDE/5_extension.png)
+![extension](/images/ide/5_extension.png)
 
 ### 호출되지 않는 함수
 
 아래는 `controller와 service` 코드인데 **getHi** 함수는 어디에서도 호출되지 않는다. JetBrains 계열의 IDE는 이 경우 함수가 **회색빛으로 표현되어 호출되지 않는 함수인 걸 인지**할 수 있는데 VSCode는 직접 호출되고 있는지 클릭해서 확인해야 한다.
 
-![display](/images/IDE/6_display.png)
+![display](/images/ide/6_display.png)
 
 ## VScode의 장점 없을까?
 
