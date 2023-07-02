@@ -14,8 +14,8 @@
 
 ### 문화
 
-- [구글 엔지니어는 이렇게 일한다](/CULTRUE/google_work_culture.md)
+- [구글 엔지니어는 이렇게 일한다](BOOKS/CULTRUE/google_work_culture.md)
 
 ### 설계
 
-- [데이터 중심 어플리케이션 설계](/ARCHITECTURE/data-driven-application-architecture.md)
+- [데이터 중심 어플리케이션 설계](BOOKS/ARCHITECTURE/data-driven-application-architecture.md)
