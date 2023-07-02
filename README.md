@@ -1,5 +1,9 @@
 # Today I Learned (TIL)
 
+## Database
+
+- [READ_COMMITED 격리수준과 SELECT 성능](DB/isolation_level_select_performance.md)
+
 ## IDE
 
 - [VScode 설정 & 단축키](/IDE/vscode_setting.md)
