@@ -67,7 +67,7 @@
   - compact: 활성상태의 객체를 메모리의 동일한 페이지로 이동시킨다.
 - 코드네임 Orinoco
   - GC의 중요한 지표중 하나는, Main Thread가 GC를 수행하기 위해 중지되는 시간이 얼마나 짧은가.
-  - Orinoco는 Main Thread를 최대한 해방시켜 주기 위해 병렬, 증분, 동시성을 반영한 GC를 만들기 위한 코드네임
+  - Orinoco는 Main Thread를 최대한 해방시켜 주기 위해 병렬, 증분, 동시성을 반영한 GC를 만들기 위한 프로젝트 코드네임
   - 병렬
     - Main Thread, Hepler Thread가 동일한 시간동안 동일한 작업을 하는 것
     - `stop-the-world` 접근 방식이지만 중단되는 시간이 Thread 개수만큼 나뉘고 가장 쉬운 방법
@@ -81,12 +81,12 @@
     ![동시성](../images/concurrent.png)
 - V8은 Major GC에 대해 아래와 같은 기술을 사용
 ![동작방식](../images/js/가비지컬렉터.png)
-  - 메인 스레드가 JS를 실행하는 동안 백그라운드에서 헬퍼 스레드가 동시 마킹을 진행
-  - 동시 마킹이 완료되거나, 메모리 제한에 도달하면 GC는 메인 스레드를 사용해서 마킹 완료를 빠르게 수행하고 이때 약간의 일시중지 시간이 발생
+  - 메인 스레드가 JS를 실행하는 동안 백그라운드에서 헬퍼 스레드가 **동시 마킹**을 진행
+  - **동시 마킹이 완료되거나, 메모리 제한에 도달하면** GC는 메인 스레드를 사용해서 마킹 완료를 빠르게 수행하고 이때 약간의 일시중지 시간이 발생
   - Main Thread는 GC Root를 찾아 살아있는 개체가 모두 mark됨을 확인하고, 헬퍼 스레드와 함께 병렬적으로 사용되지 않는 메모리는 사용가능하다고 표시하고, 압축 및 포인터 업데이트를 시작.
 
-## 결론
+## 정리
 
-- JS 메모리는 크게 Stack, Heap으로 나뉘고 GC는 힙 메모리의 New Sapce와 Old Space에 관여한다.
-- Heap의 New Space는 스캐빈저라고 불리우는 Minor GC에 의해 관리되고 두 번의 Minor GC 동안 살아남은 객체는 Old Space로 이동한다.
-- Heap의 Old Space는 Mark-Sweep-Compact를 사용해 메모리를 관리하며 최대한 Main Thread가 중지되지 않는 기술(병렬, 증분, 동시성)들이 적용되어 메모리 정리하는 작업들이 사용자에게 최대한 영향이 없도록 한다.
+- JS 메모리는 크게 Stack, Heap으로 나뉘고 GC는 힙 메모리의 `New Sapce와 Old Space`에 관여한다.
+- Heap의 `New Space`는 스캐빈저라고 불리우는 Minor GC에 의해 관리되고 두 번의 Minor GC 동안 살아남은 객체는 Old Space로 이동한다.
+- Heap의 `Old Space`는 Mark-Sweep-Compact를 사용해 메모리를 관리하며 최대한 Main Thread가 중지되지 않는 기술(병렬, 증분, 동시성)들이 적용되어 메모리 정리하는 작업들이 사용자에게 최대한 영향이 없도록 한다.
