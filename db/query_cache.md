@@ -5,7 +5,7 @@
 - SELECT 쿼리가 DB에 전달되면 DB는 쿼리와 쿼리 결과를 저장하고, 동일한 쿼리가 전달되면 cache에 접근해 결과를 빠르게 응답한다.
 - 데이터가 자주 변경되지 않는 테이블이 있고, 동일한 쿼리를 많이 받는 환경에서 매우 유용하다.
 - 테이블이 수정되면, 테이블과 관련된 캐쉬된 쿼리들은 제거된다.
-- MySQL 5.6에서 기본적으로 비활성화 되었으며, 5.7.20에서 Deprecated 되었고 8.0 버전부터 제거된 기능이다.
+- MySQL `5.6`에서 기본적으로 비활성화 되었으며, `5.7.20`에서 Deprecated 되었고 `8.0` 버전부터 제거된 기능이다.
 
 ## 왜 사용하지 않을까?
 
@@ -26,11 +26,11 @@
 
 - Query Cache 사용하는지 확인
   - `SHOW VARIABLES LIKE 'query_cache_type';`
-  - 0 or OFF
+  - **0 or OFF**
     - Query Cache를 사용하지 않으며 결과를 캐시하지도 않는다.
-  - 1 or ON
+  - **1 or ON**
     - SELECT SQL_NO_CACHE 명령어를 제외하곤 캐시한다.
-  - 2 or DEMAND
+  - **2 or DEMAND**
     - SELECT SQL_CACHE로 시작하는 명령어만 캐시한다
 - 캐시 상태 변수 확인
   - `SHOW STATUS LIKE 'Qcache%';`
