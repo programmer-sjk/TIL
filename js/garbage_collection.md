@@ -86,9 +86,10 @@
     <img src="https://github.com/programmer-sjk/TIL/blob/main/images/concurrent.png" width="600">
 - V8은 Major GC에 대해 아래와 같은 기술을 사용
 <img src="https://github.com/programmer-sjk/TIL/blob/main/images/js/%EA%B0%80%EB%B9%84%EC%A7%80%EC%BB%AC%EB%A0%89%ED%84%B0.png" width="600">
-  - 메인 스레드가 JS를 실행하는 동안 백그라운드에서 헬퍼 스레드가 **동시 마킹**을 진행
-  - **동시 마킹이 완료되거나, 메모리 제한에 도달하면** GC는 메인 스레드를 사용해서 마킹 완료를 빠르게 수행하고 이때 약간의 일시중지 시간이 발생
-  - Main Thread는 GC Root를 찾아 살아있는 개체가 모두 mark됨을 확인하고, 헬퍼 스레드와 함께 병렬적으로 사용되지 않는 메모리는 사용가능하다고 표시하고, 압축 및 포인터 업데이트를 시작.
+
+- 메인 스레드가 JS를 실행하는 동안 백그라운드에서 헬퍼 스레드가 **동시 마킹**을 진행
+- **동시 마킹이 완료되거나, 메모리 제한에 도달하면** GC는 메인 스레드를 사용해서 마킹 완료를 빠르게 수행하고 이때 약간의 일시중지 시간이 발생
+- Main Thread는 GC Root를 찾아 살아있는 개체가 모두 mark됨을 확인하고, 헬퍼 스레드와 함께 병렬적으로 사용되지 않는 메모리는 사용가능하다고 표시하고, 압축 및 포인터 업데이트를 시작.
 
 ## 왜 Minor / Major GC로 나누었을까?
 
