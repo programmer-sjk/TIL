@@ -41,7 +41,6 @@
 - 특정 쿼리를 비활성화 시키려면 `SQL_NO_CACHE` 키워드를 사용한다.
   - `SELECT SQL_NO_CACHE id, name FROM customer;`
 
-
 ## 레퍼런스
 
 - https://dev.mysql.com/blog-archive/mysql-8-0-retiring-support-for-the-query-cache/
