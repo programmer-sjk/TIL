@@ -4,7 +4,7 @@
 
 - 가비지 컬렉션이 어떻게 동작하는지 살펴보기 전에, JS의 메모리 구조를 살펴봅니다.
 
-<img src="https://github.com/programmer-sjk/TIL/blob/main/images/js/JS_%EB%A9%94%EB%AA%A8%EB%A6%AC%EA%B5%AC%EC%A1%B0.png" width="500" height="400">
+<img src="https://github.com/programmer-sjk/TIL/blob/main/images/js/JS_%EB%A9%94%EB%AA%A8%EB%A6%AC%EA%B5%AC%EC%A1%B0.png" width="800" height="400">
 
 - **힙 메모리**
   - V8 엔진이 객체, 동적 데이터를 저장하는 공간. GC가 발생하는 곳이며 `New space, Old space` 공간만 GC로 관리됩니다.
