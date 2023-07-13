@@ -1,6 +1,6 @@
 # Jetbrains IDE 3년 쓰다가 VScode를 쓰고 느끼는 점
 
-![logo](/images/ide/1_logo.png)
+<img src="https://github.com/programmer-sjk/TIL/blob/main/images/ide/1_logo.png" width="600">
 
 Jetbrains가 제공하는 `webstorm, IntelliJ`를 3년 가까이 쓰다가 다시 `Visual Studio Code`로 넘어왔다. 그 동안 몰랐던 Jetbrains IDE에 감사함을 느끼며 VScode를 1주일 사용한 관점에서 어떤 점을 느꼈는지 정리하도록 하겠다.
 
@@ -51,11 +51,11 @@ function doSomething(data) {
 ```
 
 `isValidType` 함수는 아직 존재하지 않는 함수로, `Webstorm을` 쓴다면 커서만 위에 두고 단축키를 써서 외부에 함수로 정의할 수 있다. 반대로 VScode는 커서를 두고 리팩토링 단축키인 `command + .` 버튼을 클릭하면 아래와 같이 아무런 행동을 할 수 없다.
-![refactor1](/images/ide/3_refactoring.png)
+<img src="https://github.com/programmer-sjk/TIL/blob/main/images/ide/3_refactoring.png" width="400">
 
 만약 마우스 드래그나 키보드로 `isValidType(data)` 부분을 지정하고 `command + .` 버튼을 누르면 리팩토링 기능을 쓸 수 있다.
 
-![refactor2](/images/ide/4_refactoring.png)
+<img src="https://github.com/programmer-sjk/TIL/blob/main/images/ide/4_refactoring.png" width="400">
 
 정리하자면 리팩토링 할 때 **영역을 잘 잡아야(드래그 해야) 리팩토링 기능이 제공**된다. 이건 하나의 예시일 뿐 몇 가지 더 해보니 화가 난다.
 
