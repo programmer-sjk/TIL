@@ -20,6 +20,6 @@
 
 ## lint 관련
 
-![lint_space](../images/ide/8_lint_space.png)
+<img src="https://github.com/programmer-sjk/TIL/blob/main/images/ide/8_lint_space.png" width="500">
 - space 때문에 빨간 줄이 뜬다면 아래 설정 검색해서 enable
   - `trimTrailingWhitespace`
