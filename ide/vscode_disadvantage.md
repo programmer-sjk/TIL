@@ -18,7 +18,7 @@ Jetbrains가 제공하는 `webstorm, IntelliJ`를 3년 가까이 쓰다가 다�
 
 문제는 2020년에 만들어진 이 **PR이 아직도 open 상태**라는 것이다. 2022년에 이 기능을 담당하던 개발자가 좀 더 분석이 필요하다고 남긴 comment도 인상적이다.
 
-![pr](/images/ide/2_pr.png)
+<img src="https://github.com/programmer-sjk/TIL/blob/main/images/ide/2_pr.png" width="400">
 
 ### 리팩토링 기능
 
@@ -84,7 +84,7 @@ VScode는 해당 부분을 `copy & paste` 한 뒤에 fs의 import 경로를 수�
 
 JetBrains IDE는 **대부분의 기능을 내장**하고 설정으로 이뤄지는 반면에 VSCode는 많은 기능들이 `Extension` 설치를 통해 제공한다. `Webstorm(Jetbrains node IDE)`에서 기본으로 제공되는 기능들을 VSCode에서는 어떻게 할 수 있는지 검색하고 그 기능을 지원하는 Extension을 설치하는 과정이 나에게는 꽤 번거로웠다.
 
-![extension](/images/ide/5_extension.png)
+<img src="https://github.com/programmer-sjk/TIL/blob/main/images/ide/5_extension.png" width="400">
 
 ### 호출되지 않는 함수
 
