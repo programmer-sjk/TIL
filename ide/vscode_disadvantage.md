@@ -18,7 +18,7 @@ Jetbrains가 제공하는 `webstorm, IntelliJ`를 3년 가까이 쓰다가 다�
 
 문제는 2020년에 만들어진 이 **PR이 아직도 open 상태**라는 것이다. 2022년에 이 기능을 담당하던 개발자가 좀 더 분석이 필요하다고 남긴 comment도 인상적이다.
 
-<img src="https://github.com/programmer-sjk/TIL/blob/main/images/ide/2_pr.png" width="400">
+<img src="https://github.com/programmer-sjk/TIL/blob/main/images/ide/2_pr.png" width="700">
 
 ### 리팩토링 기능
 
