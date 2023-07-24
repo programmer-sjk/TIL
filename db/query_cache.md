@@ -2,7 +2,7 @@
 
 ## Query Cache
 
-![query-cache](../images/db/query-cache.png)
+<img src="https://github.com/programmer-sjk/TIL/blob/main/images/db/query-cache.png" width="600">
 
 - SELECT 쿼리가 DB에 전달되면 DB는 쿼리와 쿼리 결과를 저장하고, 동일한 쿼리가 전달되면 cache에 접근해 결과를 빠르게 응답한다.
 - 데이터가 자주 변경되지 않는 테이블이 있고, 동일한 쿼리를 많이 받는 환경에서 매우 유용하다.
