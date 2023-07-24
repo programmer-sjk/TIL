@@ -83,7 +83,7 @@
     <img src="https://github.com/programmer-sjk/TIL/blob/main/images/js/increment.png" width="600">
   - 동시성
     - Main Thread는 자바스크립트를 실행하고, Hepler Thread가 뒤에서 GC 작업을 수행
-    <img src="https://github.com/programmer-sjk/TIL/blob/main/images/concurrent.png" width="600">
+    <img src="https://github.com/programmer-sjk/TIL/blob/main/images/js/concurrent.png" width="600">
 - V8은 Major GC에 대해 아래와 같은 기술을 사용
 <img src="https://github.com/programmer-sjk/TIL/blob/main/images/js/%EA%B0%80%EB%B9%84%EC%A7%80%EC%BB%AC%EB%A0%89%ED%84%B0.png" width="600">
 
