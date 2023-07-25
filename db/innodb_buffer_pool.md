@@ -15,7 +15,7 @@
 ## Buffer Pool LRU 알고리즘
 
 - 새로운 페이지가 Buffer Pool에 추가되면 아래 그림과 같이 전체 링크드 리스트에서 중간 부분(Old SubList의 head)에 추가된다.
-  - <img src="https://github.com/programmer-sjk/TIL/blob/main/images/db/innodb_buffer_pool.png" width="600">
+  - <img src="https://github.com/programmer-sjk/TIL/blob/main/images/db/innodb_buffer_pool.png" width="500">
 - Buffer Pool 리스트는 크게 `New Sublist, Old Sublist`로 나뉘며, 이름에서 짐작할 수 있듯이 New는 최근 접근된 데이터가 유지되며 Old는 사용되지 않은 데이터의 리스트로 tail 쪽의 데이터는 최종적으로 제거될 수 있다.
 - 그림에서 볼 수 있듯, New Sublist는 버퍼 풀의 5/8 정도를 사용하고, Old Sublist는 3/8을 사용한다.
 - Buffer Pool의 LRU 알고리즘 동작에 대해 살펴보자.
