@@ -1,6 +1,6 @@
 # 내가 쓰는 vscode extension 정리
 
-![extension](../images/ide/7_extenstion_recommend.png)
+<img src="https://github.com/programmer-sjk/TIL/blob/main/images/ide/7_extenstion_recommend.png" width="500">
 
 ## Lint 계열 extension
 
