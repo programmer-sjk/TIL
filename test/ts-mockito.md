@@ -3,7 +3,7 @@
 ## ts-mockito란
 
 - 자바 진영에는 [mockito](https://site.mockito.org/)라고 불리는 mock 테스트를 편하게 도와주는 도구가 있다.
-- **`ts-mockito`**는 자바 진영의 mockito에서 영감을 받아 typescript에서 동작하도록 만들어진 라이브러리다.
+- **`ts-mockito`** 는 자바 진영의 mockito에서 영감을 받아 typescript에서 동작하도록 만들어진 라이브러리다.
 
 ## ts-mockito 장점
 
@@ -53,9 +53,9 @@ jest.spyOn(bannerRepository, 'getCount').mockResolvedValue(bannerCount);
     })
   ```
 
-  - 만약 새로운 **`repository`**에 새로운 메서드가 추가된다면 테스트를 위해 여기서도 가짜 함수를 선언해줘야 했다.
+  - 만약 새로운 **`repository`** 에 새로운 메서드가 추가된다면 테스트를 위해 여기서도 가짜 함수를 선언해줘야 했다.
   - 그리고 왜 이렇게하지? 라는 생각을 하지만 일단은 적응해야 하니 타이핑을 했던 과거의 내가 있었다.
-- **`ts-mockito`**를 사용하면 실제 repo기반으로 위와 같은 불필요한 코드없이도 테스트를 할 수 있다.
+- **`ts-mockito`** 를 사용하면 실제 repo기반으로 위와 같은 불필요한 코드없이도 테스트를 할 수 있다.
 
   ```ts
   beforeEach(async () => {
@@ -91,7 +91,7 @@ jest.spyOn(bannerRepository, 'getCount').mockResolvedValue(bannerCount);
 
 ## ts-mockito 사용법
 
-- 위에서 **`ts-mockito`**의 장점을 이야기 했으니 사용법에 대해 알아보자.
+- 위에서 **`ts-mockito`** 의 장점을 이야기 했으니 사용법에 대해 알아보자.
 - 더 자세한 내용을 알고 싶다면 [github docs](https://github.com/NagRock/ts-mockito#readme)를 보고 확인할 수 있다.
 
 ### when
@@ -175,6 +175,6 @@ describe('BannerService', () => {
 
 ## 마치며
 
-- 자바 진영의 **`mockito`**랑은 달리 [ts-mockito](https://github.com/NagRock/ts-mockito)는 개인이 만든 repo이고 2021년 6월을 마지막으로 더 업데이트 되지 않고 있다.
+- 자바 진영의 **`mockito`** 랑은 달리 [ts-mockito](https://github.com/NagRock/ts-mockito)는 개인이 만든 repo이고 2021년 6월을 마지막으로 더 업데이트 되지 않고 있다.
 - 위 ts-mockito repo를 기반으로 [다른 분이](https://github.com/johanblumenberg/ts-mockito#readme) 지속해서 업데이트 하고 있다.
 - **`mock/stub`** 테스트를 한다면 jest 보다는 ts-mockito를 선택하는게 테스트 작성에 도움이 될 거라 생각한다.
