@@ -89,7 +89,88 @@ jest.spyOn(bannerRepository, 'getCount').mockResolvedValue(bannerCount);
 
 - 위의 코드에서는 jest를 사용할 떄 처럼 테스트를 위해 불필요한 코드 없이 테스트에 필요한 코드만 작성하면 된다.
 
-## ts-mockito example
+## ts-mockito 사용법
 
+- 위에서 ts-mockito의 장점을 이야기 했으니 사용법에 대해 알아보자.
+- 더 자세한 내용을 알고 싶다면 [github docs](https://github.com/NagRock/ts-mockito#readme)를 보고 확인할 수 있다.
+
+### when
+
+- 어떤 메서드가 어떤 인자값으로 호출되면 어떤 값을 반환할지를 정한다.
+
+```ts
+  // 리턴되는 결과가 동기라면 thenReturn
+  when(bannerRepository.getBanner(1)).thenReturn(bannerCount);
+  when(bannerRepository.getBanner('first')).thenReturn(bannerCount);
+
+  // 리턴되는 결과가 비동기라면 thenResolve
+  when(bannerRepository.getBanner({ id: 1})).thenResolve(bannerCount);
+  when(bannerRepository.getBanner(anyFunction())).thenResolve(bannerCount);
+  when(bannerRepository.getBanner(anyString())).thenResolve(bannerCount);
+  when(bannerRepository.getBanner(anything())).thenResolve(bannerCount);
+```
+
+### verify
+
+- 검증하는 로직으로 테스트 대상 함수에 대해 상호작용 테스트를 지원한다.
+
+```ts
+verify(bannerRepository.getBanner(1)).times(1); // 한 번 호출, 아래와 동일
+verify(bannerRepository.getBanner(1)).once(); // 한 번 호출
+verify(bannerRepository.getBanner(1)).twice(); // 두 번 호출
+verify(bannerRepository.getBanner(1)).times(4); // 네 번 호출
+
+verify(bannerRepository.getBanner(1)).atLeast(2); // 최소 두번 호출
+verify(bannerRepository.getBanner(1)).atMost(4);  // 최대 네번 호출
+verify(bannerRepository.getBanner(1)).never();    // 호출되지 않음
+
+// remove 호출전에 getBanner 호출 검증
+verify(bannerRepository.getBanner(1)).calledBefore(bannerRepository.remove(1));
+// getBanner가 호출된 후에 updateTitle 호출 검증
+verify(bannerRepository.getBanner(1)).calledAfter(bannerRepository.updateTitle('짱'));
+```
+
+### 전반적인 코드 sample
+
+```ts
+describe('BannerService', () => {
+  let service: BannerService;
+  let bannerRepository: BannerRepository;
+
+  beforeEach(async () => {
+    sentryService = MockSentryService();
+    await Test.createTestingModule({
+      providers: [
+        BannerService,
+        BannerRepository,
+      ],
+    })
+      .compile();
+
+    bannerRepository = mock(BannerRepository);
+    service = new BannerService(instance(bannerRepository));
+  });
+
+  it('should be defined', () => {
+    expect(service).toBeDefined();
+  });
+
+  describe('getBannerCount()', () => {
+    it('배너 개수를 구할 수 있다.', async () => {
+      // given
+      const bannerCount = 10;
+      const args = { bannerType: BannerType.MAIN_TOP };
+      when(bannerRepository.getCount(args)).thenResolve(bannerCount);
+
+      // when
+      const result = await service.getBannerCount(args);
+
+      // then
+      verify(bannerRepository.getCount(args)).once();
+      expect(result).toEqual(bannerCount);
+    });
+  });
+})
+```
 
 ## 마치며
