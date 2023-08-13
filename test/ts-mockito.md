@@ -174,3 +174,7 @@ describe('BannerService', () => {
 ```
 
 ## 마치며
+
+- 자바 진영의 mockito랑은 달리 [ts-mockito](https://github.com/NagRock/ts-mockito)는 개인이 만든 repo이고 2021년 6월을 마지막으로 더 업데이트 되지 않고 있다.
+- 위 ts-mockito repo를 기반으로 [다른 분이](https://github.com/johanblumenberg/ts-mockito#readme) 지속해서 업데이트 하고 있다.
+- mock/stub 테스트를 한다면 jest 보다는 ts-mockito를 선택하는게 테스트 작성에 도움이 될 거라 생각한다.
