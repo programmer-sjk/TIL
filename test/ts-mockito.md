@@ -3,7 +3,7 @@
 ## ts-mockito란
 
 - 자바 진영에는 [mockito](https://site.mockito.org/)라고 불리는 mock 테스트를 편하게 도와주는 도구가 있다.
-- ts-mockito는 자바 진영의 mockito에서 영감을 받아 typescript에서 동작하도록 만들어진 라이브러리다.
+- **`ts-mockito`**는 자바 진영의 mockito에서 영감을 받아 typescript에서 동작하도록 만들어진 라이브러리다.
 
 ## ts-mockito 장점
 
@@ -13,7 +13,7 @@
 
 - jest
   - 아래는 jest를 사용하여 bannerRepository의 getCount 함수가 호출되면 bannerCount가 리턴되도록 stub한다.
-  - getCount가 문자열로 작성하기 때문에 IDE의 자동완성의 혜택을 받을 수 없다.
+  - getCount가 문자열로 작성하기 때문에 IDE의 **자동완성의 혜택을 받을 수 없다**.
   - getCount가 리팩토링되어 이름이 getTotalCount로 수정되었다고 하자. 네이밍만 수정하고 테스트를 돌리면 문자열 getCount가 수정되지 않아 실패한 테스트를 볼 수 있을 것이다.
 
 ```ts
@@ -22,7 +22,7 @@ jest.spyOn(bannerRepository, 'getCount').mockResolvedValue(bannerCount);
 
 - ts-mockito
   - 아래는 ts-mockito를 사용해 동일한 코드를 보여준다.
-  - 문자열이 아닌 실제 메서드를 사용하기해 자동완성, 리팩토링 지원을 받을 수 있다.
+  - 문자열이 아닌 실제 메서드를 사용하기해 **자동완성, 리팩토링 지원**을 받을 수 있다.
 
 ```ts
   when(bannerRepository.getCount(args)).thenResolve(bannerCount);
@@ -31,7 +31,7 @@ jest.spyOn(bannerRepository, 'getCount').mockResolvedValue(bannerCount);
 ### 장점 2. 직관적인 코드
 
 - 테스트 코드를 많이 작성해 봤음에도 jest 코드를 처음 볼 때 직관적으로 이해되지는 않았다. `jest.fn(), jest.spyOn(), mockImplementation()` 등 코드를 처음 보고 머리속에 물음표가 많았다.
-- 반대로 ts-mockito는 처음 볼 때부터 when/then 구조로 어떤 코드인지 직관적으로 파악이 되었다.
+- 반대로 ts-mockito는 처음 볼 때부터 `when/then` 구조로 어떤 코드인지 직관적으로 파악이 되었다.
 
   ```ts
     // bannerRepository.getCount가 args 인자로 호출되면 bannerCount를 리턴해라
@@ -41,7 +41,7 @@ jest.spyOn(bannerRepository, 'getCount').mockResolvedValue(bannerCount);
 ### 장점 3. 불 필요한 코드
 
 - jest를 사용한 mock 테스트를 쓴다면 회사마다 다를 수 있겠지만 최근 합류한 회사에서는 아래와 같은 테스트를 기존에 작성하고 있었다.
-- jest로 bannerRepository를 mocking 하려면 따로 mock repository를 아래와 같이 생성해야 했다.
+- jest로 **`bannerRepository를 mocking`** 하려면 따로 mock repository를 아래와 같이 생성해야 했다.
 
   ```ts
     // service 테스트에서 이 MockRepository를 사용
@@ -53,9 +53,9 @@ jest.spyOn(bannerRepository, 'getCount').mockResolvedValue(bannerCount);
     })
   ```
 
-  - 만약 새로운 repository에 새로운 메서드가 추가된다면 테스트를 위해 여기서도 가짜 함수를 선언해줘야 했다.
-  - 그리고 왜 이렇게하지? 라는 생각을 하지만 일단은 적응해야 하니 타이핑을 했던 내가 있었다.
-- ts-mockito를 사용하면 실제 repo기반으로 위와 같은 불필요한 코드없이도 테스트를 할 수 있다.
+  - 만약 새로운 **`repository`**에 새로운 메서드가 추가된다면 테스트를 위해 여기서도 가짜 함수를 선언해줘야 했다.
+  - 그리고 왜 이렇게하지? 라는 생각을 하지만 일단은 적응해야 하니 타이핑을 했던 과거의 내가 있었다.
+- **`ts-mockito`**를 사용하면 실제 repo기반으로 위와 같은 불필요한 코드없이도 테스트를 할 수 있다.
 
   ```ts
   beforeEach(async () => {
@@ -91,7 +91,7 @@ jest.spyOn(bannerRepository, 'getCount').mockResolvedValue(bannerCount);
 
 ## ts-mockito 사용법
 
-- 위에서 ts-mockito의 장점을 이야기 했으니 사용법에 대해 알아보자.
+- 위에서 **`ts-mockito`**의 장점을 이야기 했으니 사용법에 대해 알아보자.
 - 더 자세한 내용을 알고 싶다면 [github docs](https://github.com/NagRock/ts-mockito#readme)를 보고 확인할 수 있다.
 
 ### when
@@ -175,6 +175,6 @@ describe('BannerService', () => {
 
 ## 마치며
 
-- 자바 진영의 mockito랑은 달리 [ts-mockito](https://github.com/NagRock/ts-mockito)는 개인이 만든 repo이고 2021년 6월을 마지막으로 더 업데이트 되지 않고 있다.
+- 자바 진영의 **`mockito`**랑은 달리 [ts-mockito](https://github.com/NagRock/ts-mockito)는 개인이 만든 repo이고 2021년 6월을 마지막으로 더 업데이트 되지 않고 있다.
 - 위 ts-mockito repo를 기반으로 [다른 분이](https://github.com/johanblumenberg/ts-mockito#readme) 지속해서 업데이트 하고 있다.
-- mock/stub 테스트를 한다면 jest 보다는 ts-mockito를 선택하는게 테스트 작성에 도움이 될 거라 생각한다.
+- **`mock/stub`** 테스트를 한다면 jest 보다는 ts-mockito를 선택하는게 테스트 작성에 도움이 될 거라 생각한다.
