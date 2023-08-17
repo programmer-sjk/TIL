@@ -62,7 +62,6 @@ jest.spyOn(bannerRepository, 'getCount').mockResolvedValue(bannerCount);
     await Test.createTestingModule({
       providers: [BannerService, BannerRepository],
     })
-      .setLogger(new MockLogger())
       .compile();
 
     bannerRepository = mock(BannerRepository);
