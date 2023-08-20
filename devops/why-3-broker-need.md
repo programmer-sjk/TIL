@@ -30,7 +30,13 @@
 
 ### acks = all(-1)
 
+- acks 값이 all 이라면, leader 파티션이 정상적으로 수신했고 follower 파티션도 복제가 완료됨을 보장할 수 있다. 데이터 손실율은 없지만 기다리는 시간이 길어지기 때문에 가장 느리다. 아래 예제에서 follower 파티션의 복제가 실패한다면 프로듀서가 보낸 메시지는 실패하게 된다.
+
 ![](../images/devops/acks-all.png)
+
+- 만약 브로커가 3대(1 leader + 2 follower)인 경우 follower 1대만 복제에 실패한다면 프로듀서가 보낸 메시지는 실패할까? 정답은 실패할 수도 있고 아닐 수도 있다. 이 결과는 min.insync.replicas 값에 의해 좌우된다.
+
+![](../images/devops/acks-all-one-fail.png)
 
 ## min.insync.replicas 옵션
 
