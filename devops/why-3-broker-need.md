@@ -1,0 +1,38 @@
+# Kafka broker 3개를 추천하는 이유
+
+- 학습하고 있는 책에서 실 서비스에는 카프카 브로커를 최소 3대를 사용하는게 좋다는 내용을 읽었다. 헌데 짧은 설명으로는 확실히 이해가 가질 않아 많은 문서를 접하며 이해하게 된 내용을 적는다.
+- 왜 3개가 안정적인지 이해하려면 Producer의 acks와 min.insync.replicas 옵션을 이해해야 한다.
+
+## Producer acks
+
+- acks는 프로듀서가 보낸 메시지를 카프카가 정상적으로 수신했는지 확인하는 옵션이다. 공식문서에 따르면 acks 값은 0, 1, -1(=all) 값을 가질 수 있다.
+- ack 값에 따른 프로듀서 기능
+  - ack 0인 경우: 프로듀서는 카프카가 정상적으로 메시지를 수신했는지 확인을 기다리지 않는다.
+  - ack 1인 경우: Leader 파티션이 정상적으로 메시지를 수신했는지 확인한다.
+  - ack -1 or all 인 경우: Leader 파티션 데이터 수신 + Follower 파티션 데이터 복제 확인
+- 아래 부터는 acks 값에 따른 동작을 그림으로 확인해보자.
+
+### acks = 0
+
+- acks 값이 0 이라면, 프로듀서는 카프카에게 메시지를 전송하고 leader가 메시지를 잘 받았는지 확인하지 않는다. 프로듀서가 메시지를 보내는 동안 leader가 down되면 메시지 손실이 발생하고, 확인하는 과정이 없기 때문에 속도는 가장 빠르다. 메시지 손실을 감안하고 빠르게 보내야 하는 경우 사용할 수 있다.
+
+![](../images/devops/acks-0.png)
+
+### acks = 1
+
+- acks 값이 1 이라면, 프로듀서는 메시지를 전송하고 leader 파티션이 메시지를 잘 받았는지 기다린다. leader가 메시지를 받았기 때문에 메시지 손실율은 acks 값이 0일 떄보다 상대적으로 적으며 속도는 조금 더 느리다.
+
+![](../images/devops/acks-1.png)
+
+- acks 값이 1 이라도 메시지 손실될 수 있는데, leader가 메시지를 받은 뒤 프로듀서에게 정상 응답을 한다. 그 후 Follower 파티션이 메시지를 복제하려는 시점에 leader가 down 된다면 메시지를 손실하게 된다.
+
+![](../images/devops/acks-1-손실.png)
+
+### acks = all(-1)
+
+![](../images/devops/acks-all.png)
+
+## min.insync.replicas 옵션
+
+## 레퍼런스
+https://www.popit.kr/kafka-%EC%9A%B4%EC%98%81%EC%9E%90%EA%B0%80-%EB%A7%90%ED%95%98%EB%8A%94-producer-acks/
