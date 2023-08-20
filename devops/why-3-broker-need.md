@@ -16,29 +16,30 @@
 
 - acks 값이 0 이라면, 프로듀서는 카프카에게 메시지를 전송하고 leader가 메시지를 잘 받았는지 확인하지 않는다. 프로듀서가 메시지를 보내는 동안 leader가 down되면 메시지 손실이 발생하고, 확인하는 과정이 없기 때문에 속도는 가장 빠르다. 메시지 손실을 감안하고 빠르게 보내야 하는 경우 사용할 수 있다.
 
-![](../images/devops/acks-0.png)
+<img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/acks-0.png" width="600">
 
 ### acks = 1
 
 - acks 값이 1 이라면, 프로듀서는 메시지를 전송하고 leader 파티션이 메시지를 잘 받았는지 기다린다. leader가 메시지를 받았기 때문에 메시지 손실율은 acks 값이 0일 떄보다 상대적으로 적으며 속도는 조금 더 느리다.
 
-![](../images/devops/acks-1.png)
+<img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/acks-1.png" width="600">
 
 - acks 값이 1 이라도 메시지 손실될 수 있는데, leader가 메시지를 받은 뒤 프로듀서에게 정상 응답을 한다. 그 후 Follower 파티션이 메시지를 복제하려는 시점에 leader가 down 된다면 메시지를 손실하게 된다.
 
-![](../images/devops/acks-1-손실.png)
+<img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/acks-1-손실.png" width="600">
 
 ### acks = all(-1)
 
 - acks 값이 all 이라면, leader 파티션이 정상적으로 수신했고 follower 파티션도 복제가 완료됨을 보장할 수 있다. 데이터 손실율은 없지만 기다리는 시간이 길어지기 때문에 가장 느리다. 아래 예제에서 follower 파티션의 복제가 실패한다면 프로듀서가 보낸 메시지는 실패하게 된다.
 
-![](../images/devops/acks-all.png)
+<img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/acks-all.png" width="600">
 
 - 만약 브로커가 3대(1 leader + 2 follower)인 경우 follower 1대만 복제에 실패한다면 프로듀서가 보낸 메시지는 실패할까? 정답은 실패할 수도 있고 아닐 수도 있다. 이 결과는 min.insync.replicas 값에 의해 좌우된다.
 
-![](../images/devops/acks-all-one-fail.png)
+<img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/acks-all-one-fail.png" width="600">
 
 ## min.insync.replicas 옵션
 
 ## 레퍼런스
+
 https://www.popit.kr/kafka-%EC%9A%B4%EC%98%81%EC%9E%90%EA%B0%80-%EB%A7%90%ED%95%98%EB%8A%94-producer-acks/
