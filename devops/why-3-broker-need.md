@@ -36,7 +36,7 @@
 
 - 만약 브로커가 3대(1 leader + 2 follower)인 경우 follower 1대만 복제에 실패한다면 프로듀서가 보낸 메시지는 실패할까? 정답은 실패할 수도 있고 아닐 수도 있다. 이 결과는 min.insync.replicas 값에 의해 좌우된다.
 
-<img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/acks-all-one-fail.png" width="550">
+<img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/acks-all-one-fail.png" width="650">
 
 ## min.insync.replicas 옵션
 
