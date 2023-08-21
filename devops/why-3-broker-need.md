@@ -49,21 +49,21 @@
 - 프로듀서가 acks 값이 all 이기 때문에 leader + follower 쓰기를 기다린다. 이 때 follower의 복제가 실패하더라도
 min.insync.replicas 값이 1 이기 때문에 프로듀서에게 정상적으로 응답을 한다. 따라서 복제에 실패할 수가 있다.
 
-![](../images/devops/replicas-1.png)
+<img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/replicas-1.png" width="500">
 
 ### min.insync.replicas 값이 2 일 때
 
 - min.insync.replicas 값이 2이기 때문에 leader + follower 쓰기가 성공하면 정상적으로 응답한다. 만약 follower 복제에 실패하게 되면 에러가 발생한다.
 
-![](../images/devops/replicas-2.png)
+<img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/replicas-2.png" width="500">
 
 - min.insync.replicas 값과 관련하여 중요한 사실 중 하나는 브로커의 개수가 min.insync.replicas 옵션 값보다 같거나 많아야 한다. 아래 그림처럼 min.insync.replicas 값이 2인 상태에서 브로커 하나에 장애가 발생하면 애초에 브로커의 개수가 min.insync.replicas 개수보다 작으므로 프로듀서는 데이터 전송에 실패한다.
 
-![](../images/devops/replicas-err.png)
+<img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/replicas-err.png" width="500">
 
 - 아래 그림을 보면 브로커 3대에 min.insync.replicas 값이 2이다. 1 대의 leader와 2 대의 follower 파티션이 있는데 최소 복제 수(min.insync.replicas)가 2이기 때문에 follower 복제가 하나 실패하더라도 문제없이 동작한다. 즉 한 대의 브로커에 장애가 발생하더라도 leader와 follower 각 1대를 유지하며 정상적으로 프로듀서와 컨슈머에게 서비스를 제공한다. 이제까지 본 예제중에 가장 안정적이다.
 
-![](../images/devops/replicas-2-stable)
+<img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/replicas-2-stable.png" width="650">
 
 - 따라서 실무에서는 3대의 브로커를 사용하고 min.insync.replicas 값은 2로 설정하는게 가장 안정적이다. 다만 서비스에 맞게 메시지가 조금 손실되더라도 빠른 속도를 제공하고 싶다면 실무에서 프로듀서의 acks 값을 1로 설정하여 사용하는 경우도 많으니 서비스에 맞게 설정하도록 하자
 
