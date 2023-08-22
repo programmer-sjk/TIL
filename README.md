@@ -7,6 +7,10 @@
 - [MySQL Table Cache](db/table_cache.md)
 - [MySQL InnoDB Buffer Pool](db/innodb_buffer_pool.md)
 
+## Devops
+
+- [왜 카프카 브로커는 3개가 안정적일까](devops/why-3-broker-need.md)
+
 ## IDE
 
 - [VScode 설정 & 단축키](/ide/vscode_setting.md)
