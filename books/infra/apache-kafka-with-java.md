@@ -73,3 +73,12 @@
 - 키가 없으면(null) 라운드 로빈 방식으로 파티션에 적재되고 키가 있다면 동일한 파티션으로 전송된다.
 - 만약 파티션 개수가 늘어나면 새로 프로듀싱되는 레코드들은 어느 파티션으로 갈까?
   - 키를 가진 메시지의 경우 파티션이 추가되면 파티션과 메시지 키의 일관성이 보장되질 않는다. 즉 이전에 키를 가진 메시지가 파티션 0번에 들어갔다면 파티션을 늘린 후 0번으로 간다는 보장이 없다. 파티션을 추가하더라도 일관성을 보장하고 싶다면 커스텀 파티셔너를 만들어야 한다.
+
+### 2.2.3 kafka-console-consumer.sh
+
+- 토픽으로 전송한 데이터는 kafka-console-consumer 명령어로 확인할 수 있고 --from-beginning 옵션을 주면 가장 처음 데이터부터 출력한다.
+  - `bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic test --from-beginning`
+- 만약 데이터의 키와 값을 확인하고 싶다면 --property 옵션을 사용한다.
+  - `bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic test --property print.key=true --property key.separator="-" --group test-group --from-beginning`
+  - 위 명령어에서 group 옵션을 통해 컨슈머 그룹을 생성했다. 컨슈머 그룹은 1개 이상의 컨슈머로 이루어져 있다. 컨슈머 그룹을 통해 가져간 토픽의 메시지는 가져간 메시지에 대해 커밋을 한다. 커밋이란 컨슈머가 특정 레코드까지 처리를 완료했다고 레코드의 오프셋 번호를 브로커에 저장하는 것이다.
+- kafka-console-consumer 명령어로 데이터를 가져가게 되면 토픽의 모든 파티션으로부터 동일한 중요도로 데이터를 가져간다. 이로 인해 프로슈서가 넣은 데이터의 순서와 컨슈머가 가져가는 데이터의 순서가 달라질 수 있다. 만약 토픽에 넣은 데이터의 순서를 보장하고 싶다면 가장 좋은 방법은 파티션 1개로 구성된 토픽을 만드는 것이다. 한 개의 파티션에서는 데이터의 순서를 보장하기 때문이다.
