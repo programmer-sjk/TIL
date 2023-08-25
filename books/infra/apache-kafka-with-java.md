@@ -96,3 +96,10 @@
 - string 메시지를 주고 받으며, 카프카 클러스터 설치가 완료되고 간단한 네트워크 통신 테스트를 할 때 유용하다.
   - `bin/kafka-verifiable-producer.sh --bootstrap-server localhost:9092 --max-message 5 --topic verify-test`
   - `bin/kafka-verifiable-consumer.sh --bootstrap-server localhost:9092 --topic verify-test --group-id test-group`
+
+## 2.2.6 kafka-delete-record.sh
+
+- 이미 적재된 토픽의 데이터를 지우는 방법으로 kafka-delete-record.sh을 사용할 수 있다. 이미 적재된 데이터 중 가장 오래된 데이터부터 특정 시점의 오프셋까지 삭제할 수 있다. 예를 들어 0번 부터 10번까지 데이터를 지우고 싶다면 아래와 같이 입력한다.
+  - delete.json 파일을 작성
+    - `{"partitions": [{"topic":"test", "partition":0, "offset":3}], "version":1}]`
+  - `bin/kafka-delete-records.sh --bootstrap-server localhost:9092 --offset-json-file delete.json`
