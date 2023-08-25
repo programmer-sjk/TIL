@@ -31,3 +31,36 @@
 - 람다 아키텍처는 기존 e2e로 데이터를 수집하는 레거시를 개선하기 위해 구성된 아키텍처다. 배치 데이터를 일괄 처리하는 배치 레이어, 가공된 데이터를 제공하는 서빙 레이어, 실시간으로 데이터를 분석하는 스피드 레이어로 구성된다.
 - 람다 아키텍처는 데이터를 배치 처리하는 레이어와 실시간 처리를 분담할 수 있었지만, 레이어가 2개로 나뉘기 때문에 생기는 단점들도 있었다. 제이 크랩스는 람다 아키텍처에서 배치 레이어를 제거한 카파 아키텍처를 제안했다.
 - 카파 아키텍처에서는 스피드 레이어에서 데이터를 모두 처리할 수 있어 효율적으로 개발과 운영을 할 수 있었으나 서비스에서 생성되는 모든 종류의 데이터를 스트림 처리해야 했고, 서비스에서 생성된 모든 데이터가 스피드 레이어에 들어오는 것을 감안하면 내결함성과 장애 허용 특징을 지녀야 했다. 아파치 카프카는 이런 특성에 정확히 부합하는 플랫폼이다.
+
+## 2. 카프카 빠르게 시작해보기
+
+### 2.2 카프카 커맨드 라인 툴
+
+#### 2.2.1 kafka-topic.sh
+
+- 카프카 클러스터에는 토픽이 여러개 존재할 수 있다. 토픽에는 파티션이 존재하는데 파티션의 개수는 최소 1개부터 시작한다. 토픽을 생성하는 방법은 2가지가 있는데 아래와 같다.
+  - 컨슈머, 프로듀서가 생성되지 않은 토픽에 데이터를 요청할 때
+  - 커맨드라인 툴로 명시적으로 토픽을 생성할 때
+- 토픽을 생성할 때는 명시적으로 생성하는 걸 추천한다. 토픽마다 처리되어야 하는 데이터 특성이 다르기 때문이다.
+- 토픽 생성 예시
+  - `bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --topic test`
+  - `bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --partitions 3 --replication-factor 1 --config retention.ms=172800000 --topic test`
+    - `--partitions` 옵션은 파티션 개수를 지정하며 최소 개수는 1개이다. 이 옵션을 지정하지 않으면 브로커 설정파일의 num.partitions 옵션값을 따른다.
+    - `--replication-factor`는 파티션을 복제할 개수이다. 1은 복제하지 않고 사용한단 의미이다.
+    - `--config`를 통해 추가적인 옵션을 설정할 수 있는데 retention.ms는 토픽의 데이터를 유지하는 기간으로 172800000ms는 2일을 의미한다. 즉 2일이 지난 토픽의 데이터는 삭제된다.
+- 토픽 리스트 조회예시
+  - `bin/kafka-topics.sh --bootstrap-server localhost:9092 --list test`
+- 토픽 상세 조회
+  - `bin/kafka-topics.sh --bootstrap-server localhost:9092 --describe --topic test`
+- 다양한 명령어들
+
+  ```txt
+    // 파티션 늘리기
+    bin/kafka-topics.sh --bootstrap-server localhost:9092 --topic test --alter --partitions 2
+
+    // 리텐션 늘리기
+    bin/kafka-configs.sh --bootstrap-server localhost:9092 --entity-type topics --entity-name test --alter --add-config retention.ms=86400000
+
+    // 리텐션 확인
+    bin/kafka-configs.sh --bootstrap-server localhost:9092 --entity-type topics --entity-name test --describe
+  ```
