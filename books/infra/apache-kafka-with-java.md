@@ -82,3 +82,11 @@
   - `bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic test --property print.key=true --property key.separator="-" --group test-group --from-beginning`
   - 위 명령어에서 group 옵션을 통해 컨슈머 그룹을 생성했다. 컨슈머 그룹은 1개 이상의 컨슈머로 이루어져 있다. 컨슈머 그룹을 통해 가져간 토픽의 메시지는 가져간 메시지에 대해 커밋을 한다. 커밋이란 컨슈머가 특정 레코드까지 처리를 완료했다고 레코드의 오프셋 번호를 브로커에 저장하는 것이다.
 - kafka-console-consumer 명령어로 데이터를 가져가게 되면 토픽의 모든 파티션으로부터 동일한 중요도로 데이터를 가져간다. 이로 인해 프로슈서가 넣은 데이터의 순서와 컨슈머가 가져가는 데이터의 순서가 달라질 수 있다. 만약 토픽에 넣은 데이터의 순서를 보장하고 싶다면 가장 좋은 방법은 파티션 1개로 구성된 토픽을 만드는 것이다. 한 개의 파티션에서는 데이터의 순서를 보장하기 때문이다.
+
+### 2.2.4 kafka-consumer-group.sh
+
+- 컨슈머 그룹은 따로 생성 명령어를 날리지 않고 컨슈머가 동작할 때 그룹이름을 지정하면 새로 생성된다. 생성된 컨슈머 그룹의 리스트는 아래 명령어로 확인 가능하다.
+  - `bin/kafka-consumer-groups.sh --bootstrap-server localhost:9092 --list`
+- 컨슈머 그룹의 이름을 토대로 어떤 토픽의 데이터를 가져가는지 확인하려면 아래 명령어가 사용된다.
+  - `bin/kafka-consumer-groups.sh --bootstrap-server localhost:9092 --group test-group --describe`
+  - 컨슈머 그룹의 상세정보를 확인하는 것은 컨슈머 개발이나 카프카 운영할 때 중요하게 활용된다. 컨슈머 그룹이 중복되지 않았는지 컨슈머 랙이 있진 않은지 활용할 수 있다.
