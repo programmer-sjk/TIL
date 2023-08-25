@@ -90,3 +90,9 @@
 - 컨슈머 그룹의 이름을 토대로 어떤 토픽의 데이터를 가져가는지 확인하려면 아래 명령어가 사용된다.
   - `bin/kafka-consumer-groups.sh --bootstrap-server localhost:9092 --group test-group --describe`
   - 컨슈머 그룹의 상세정보를 확인하는 것은 컨슈머 개발이나 카프카 운영할 때 중요하게 활용된다. 컨슈머 그룹이 중복되지 않았는지 컨슈머 랙이 있진 않은지 활용할 수 있다.
+
+### 2.2.5 kafka-verifiable-producer, consumer.sh
+
+- string 메시지를 주고 받으며, 카프카 클러스터 설치가 완료되고 간단한 네트워크 통신 테스트를 할 때 유용하다.
+  - `bin/kafka-verifiable-producer.sh --bootstrap-server localhost:9092 --max-message 5 --topic verify-test`
+  - `bin/kafka-verifiable-consumer.sh --bootstrap-server localhost:9092 --topic verify-test --group-id test-group`
