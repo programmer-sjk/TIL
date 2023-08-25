@@ -34,9 +34,7 @@
 
 ## 2. 카프카 빠르게 시작해보기
 
-### 2.2 카프카 커맨드 라인 툴
-
-#### 2.2.1 kafka-topic.sh
+### 2.2.1 kafka-topic.sh
 
 - 카프카 클러스터에는 토픽이 여러개 존재할 수 있다. 토픽에는 파티션이 존재하는데 파티션의 개수는 최소 1개부터 시작한다. 토픽을 생성하는 방법은 2가지가 있는데 아래와 같다.
   - 컨슈머, 프로듀서가 생성되지 않은 토픽에 데이터를 요청할 때
@@ -64,3 +62,14 @@
     // 리텐션 확인
     bin/kafka-configs.sh --bootstrap-server localhost:9092 --entity-type topics --entity-name test --describe
   ```
+
+### 2.2.2 kafka-console-producer.sh
+
+- 토픽에 넣는 데이터는 레코드라고 부르며, 키-값으로 이루어져있다. 키가 없이 메시지를 보내면 아래와 같다.
+  - `bin/kafka-console-producer.sh  --bootstrap-server localhost:9092 --topic test`
+- 키를 추가한다면 명령어는 아래와 같다.
+  - `bin/kafka-console-producer.sh  --bootstrap-server localhost:9092 --topic test --property "parse.key=true" --property "key.separator=:"`
+  - 키 구분값을 명시적으로 : 으로 지정했고 없다면 기본설정은 탭(\t)이다.
+- 키가 없으면(null) 라운드 로빈 방식으로 파티션에 적재되고 키가 있다면 동일한 파티션으로 전송된다.
+- 만약 파티션 개수가 늘어나면 새로 프로듀싱되는 레코드들은 어느 파티션으로 갈까?
+  - 키를 가진 메시지의 경우 파티션이 추가되면 파티션과 메시지 키의 일관성이 보장되질 않는다. 즉 이전에 키를 가진 메시지가 파티션 0번에 들어갔다면 파티션을 늘린 후 0번으로 간다는 보장이 없다. 파티션을 추가하더라도 일관성을 보장하고 싶다면 커스텀 파티셔너를 만들어야 한다.
