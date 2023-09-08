@@ -35,3 +35,7 @@
 ### 설계
 
 - [데이터 중심 어플리케이션 설계](books/architecture/data-driven-application-architecture.md)
+
+### devops
+
+- [아파치 카프카 애플리케이션 프로그래밍 with 자바](books/infra/apache-kafka-with-java.md)
