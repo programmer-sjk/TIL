@@ -9,6 +9,7 @@
 
 ## Devops
 
+- [카프카 기초](devops/inflearn-kafka-beginner.md)
 - [왜 카프카 브로커는 3개가 안정적일까](devops/why-3-broker-need.md)
 
 ## IDE
