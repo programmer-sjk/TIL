@@ -23,3 +23,8 @@
 <img src="https://github.com/programmer-sjk/TIL/blob/main/images/ide/8_lint_space.png" width="500">
 - space 때문에 빨간 줄이 뜬다면 아래 설정 검색해서 enable
   - `trimTrailingWhitespace`
+
+## 저장 시 prettier 적용
+
+- 설정에서 default formatter를 검색해서 기본 값을 Prettier로 변경한다.
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/ide/save_prettier.png" width="500">
