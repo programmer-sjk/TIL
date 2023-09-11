@@ -27,4 +27,5 @@
 ## 저장 시 prettier 적용
 
 - 설정에서 default formatter를 검색해서 기본 값을 Prettier로 변경한다.
-  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/ide/save_prettier.png" width="500">
+
+ <img src="https://github.com/programmer-sjk/TIL/blob/main/images/ide/save_prettier.png" width="600">
