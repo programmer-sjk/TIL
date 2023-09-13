@@ -15,4 +15,10 @@
 
 ## Zero Copy
 
-- 
+- 일반적으로 네트워크를 통해 데이터를 전달하는 절차는 아래와 같다.
+  - OS는 디스크로부터 데이터를 읽어 커널 영역의 page cache에 저장한다.
+  - 어플리케이션은 page cache의 데이터를 사용자 영역으로 읽어온다.
+  - 어플리케이션은 커널 영역에 있는 socket buffer로 데이터를 쓴다.
+  - OS는 socket buffer에 있는 데이터를 NIC buffer로 복사하고 네트워크를 통해 전송한다.
+- 위 과정에서 불필요한 복사와 system call이 발생하는데 OS가 제공하는 sendFile 함수는 커널 영역의 Page Cache에서 NIC Buffer로 직접 복사가 가능해 효율적으로 데이터를 전송할 수 있다.
+- Kafka는 Zero Copy 기술을 사용해 메시지가 소비/생성될 때 불 필요한 복사와 system call을 줄여 효과적으로 데이터를 전송한다.
