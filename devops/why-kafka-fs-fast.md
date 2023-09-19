@@ -22,3 +22,9 @@
   - OS는 socket buffer에 있는 데이터를 NIC buffer로 복사하고 네트워크를 통해 전송한다.
 - 위 과정에서 불필요한 복사와 system call이 발생하는데 OS가 제공하는 sendFile 함수는 커널 영역의 Page Cache에서 NIC Buffer로 직접 복사가 가능해 효율적으로 데이터를 전송할 수 있다.
 - Kafka는 Zero Copy 기술을 사용해 메시지가 소비/생성될 때 불 필요한 복사와 system call을 줄여 효과적으로 데이터를 전송한다.
+  ![](../images/devops/zero-copy.png)
+
+## 레퍼런스
+
+- [LinkedIn](https://www.linkedin.com/pulse/why-kafka-so-fast-aman-gupta)
+- [Confluent 문서](https://docs.confluent.io/kafka/design/file-system-constant-time.html)
