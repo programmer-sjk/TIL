@@ -4,7 +4,7 @@
 
 ## 적어도 한 번 전송
 
-<img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/at-least-once" width="500">
+<img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/at-least-once.png" width="500">
 
 - 위 그림은 적어도 한 번 전송 과정을 그림으로 나타낸 것으로 순서대로 살펴보자
   - 프로듀서가 브로커의 특정 토픽으로 메시지 A를 전송한다.
@@ -17,7 +17,7 @@
 
 ## 최대 한 번 전송
 
-<img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/at-most-once" width="500">
+<img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/at-most-once.png" width="500">
 
 - 위 그림은 최대 한 번 전송 과정을 그림으로 나타낸 것으로 순서대로 살펴보자
   - 프로듀서가 브로커의 특정 토픽으로 메시지 A를 전송한다.
@@ -32,6 +32,6 @@
 
 - 카프카의 0.11 버전부터 프로듀서가 메시지를 중복 없이 브로커로 전송할 수 있는 기능이 추가되었다.
 
-<img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/no-duplicate" width="500">
+<img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/no-duplicate.png" width="500">
 
 -
