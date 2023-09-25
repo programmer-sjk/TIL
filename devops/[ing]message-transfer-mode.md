@@ -49,3 +49,23 @@
   - acks: all로 설정해야 한다.
   - retries: ACK를 못 받은 경우 재시도 해야 하므로 0보다 큰 값으로 설정
 - 위 설정을 반영하여 중복없는 전송을 제공하는 프로듀서를 멱등성 프로듀서라고 부른다. 만약 멱등성 프로듀서로 동작하는 어플리케이션이 종료되고 재시작되면 PID가 달라진다. PID가 달라지면 브로커 입장에선 다른 프로듀서 어플리케이션에서 데이터를 보냈다고 판단하기 때문에 장애가 발생하지 않을 경우에만 중복없는 전송이 보장되는 것을 고려해야 한다.
+
+## 정확히 한 번 전송 (exactly-once)
+
+- 정확히 한 번 전송은 브로커의 장애나 프로듀서의 재 전송에도 메시지의 유실이나 중복 없이 데이터를 한 번 전송함을 의미한다.
+  프로듀서에서는 멱등성과 트랜잭션을 통해 정확히 한 번 전송을 제공할 수 있다.
+- 멱등성은 위에서 정리한 중복없는 전송과 동일하며 트랜잭션이란 여러 파티션에 걸쳐 데이터를 쓸때 전체 성공하거나 전체 실패하는 것을 보장한다.
+
+- 멱등성을 통해 토픽의 파티션에 중복 없이 저장할 수 있었다. 그렇다면 컨슈머는?
+  - case 1, case 2. 참조: https://huisam.tistory.com/entry/kafka-message-semantics#Message%20Delivery%20Semantics-1
+  - 컨슈머쪽 트랜잭션 그림과 코드 (참조 2번 잘 보삼.)
+    - 참조1. https://blog.digitalis.io/read-process-write-with-kafka-transactions-29bc0a70febd
+    - 참조2. https://www.confluent.io/kafka-summit-london18/dont-repeat-yourself-introducing-exactly-once-semantics-in-apache-kafka/
+  - 결과적으로 멱등성 + 트랜잭션으로 정확히 한 번 전송 보장
+- 컨슈머는 격리 레벨에 따라 read_commited로 설정되어 있다면 트랜잭션이 정상 종료된 레코드만 읽어서 처리할 수 있다.
+- steams를 쓰면 하나의 옵션으로 정확히 한 번 전송이 가눙하다..!!!!!
+
+## 레퍼런스
+
+- https://www.confluent.io/blog/transactions-apache-kafka/
+- https://blog.digitalis.io/read-process-write-with-kafka-transactions-29bc0a70febd
