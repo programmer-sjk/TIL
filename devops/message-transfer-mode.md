@@ -1,5 +1,6 @@
 # 메시지 시스템들의 전송 방식
 
+- 카프카를 공부하다 보면 적어도 한번, 정확히 한 번과 같은 키워드를 접하게 된다.
 - 메시지 전송 방식의 `적어도 한 번 전송(at-least-once)`, `최대 한 번 전송(at-most-once)`, `중복 없는 전송`, `정확히 한 번 전송`을 알아보자.
 
 ## 적어도 한 번 전송 (at-least-once)
@@ -52,8 +53,7 @@
 
 ## 정확히 한 번 전송 (exactly-once)
 
-- 정확히 한 번 전송은 브로커의 장애나 프로듀서의 재 전송에도 메시지의 유실이나 중복 없이 데이터를 한 번 전송함을 의미하며 멱등성과 트랜잭션을 통해 정확히 한 번 전송을 제공할 수 있다.
-- 멱등성은 위에서 정리한 중복없는 전송과 동일하며 트랜잭션이란 여러 파티션에 걸쳐 데이터를 쓸때 전체 성공하거나 전체 실패하는 것을 보장한다.
+- 정확히 한 번 전송은 브로커의 장애나 프로듀서의 재 전송에도 메시지의 유실이나 중복 없이 데이터를 한 번 전송함을 의미하며 멱등성과 트랜잭션을 통해 정확히 한 번 전송을 제공할 수 있다. 멱등성은 위에서 정리한 중복없는 전송과 동일하며 트랜잭션이란 여러 레코드를 원자(atomic) 단위로 처리하여 전체 성공하거나 전체 실패하는 것을 보장한다.
 - 위에서 설명한 중복 없는 전송을 이해했다면 프로듀서가 데이터를 파티션에 중복없이 저장할 수 있다는 것을 이해했을 것이다. 그렇다면 컨슈머가 데이터를 가져갈 때 어떤 문제가 있을까?
 
 ### consumer 데이터 유실/중복
@@ -66,13 +66,9 @@
 
   <img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/consumer-duplicate.png" width="500">
 
-### consumer 데이터 한 번 처리를 보장하는 방법
+### 데이터 파이프라인에서 consume -> process -> send 정확히 한 번 처리를 보장하는 방법
 
-- 위에서 consumer가 데이터를 처리할 때 유실되거나 중복할 수 있는 상황을 확인했다. 이런 문제없이 어플리케이션이 한 번 데이터를 처리하기 위한 방법은 아래 그림과 같다. 즉 Application이 정확히 한 번 처리를 수행할 수 있도록 지원하는 것이다.
-
-  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/application-check.png" width="500">
-
-- 어플리케이션의 추가 작업없이 카프카로만 정확히 한 번 처리를 위해서는 아래 코드의 흐름으로 진행된다.
+- 멱등성 프로듀서와 트랜잭션 프로듀서/컨슈머 기능으로 A토픽->컨슈머->데이터 처리->프로듀서->B토픽 으로 이어지는 파이프라인에서 정확히 한번을 달성할 수 있게 되었는데 이를 위해 코드는 아래 흐름으로 진행된다.
 
 ```java
   // 카프카 프로듀서를 트랜잭션 프로듀서로 실행시키는 명령어 및 옵션.
@@ -94,8 +90,8 @@
     producer.beginTransaction();
 
     for (ConsumerRecord record : records)
-    // 컨슘 후 처리할 비니지스 로직을 처리
-    process(record)
+    // 들어온 레코드를 프로듀서에게 전송
+    producer.send(producerRecord("outputTopic", record))
 
     // 프로듀서가 consumer 코디네이터를 통해 __consumer_offsets에 offset을 증가시킨다.
     producer.sendOffsetsToTransaction(offsetMapFunction(), "my-group-id");
@@ -107,6 +103,13 @@
 
 - 위에서 한 가지 언급할 것은 컨슈머 그룹의 오프셋을 증가시키는 책임이 프로듀서에 있다는 점이다. 이 방법으로 데이터 소비 및 프로세스 처리, 오프셋 커밋이 진행되어 정확히 한 번 처리가 가능하다. 결과적으로 멱등성 + 트랜잭션으로 카프카는 정확히 한 번 전송을 보장하게 된다.
 - kafka streams도 내부적으로 위와 동일한 방법으로 정확히 한 번 처리를 지원하며 이런 복잡한 내용 없이 processing.guarantee="exactly_once" 옵션 하나를 추가하는 방법으로 지원된다.
+
+### consumer에서 정확히 한번 처리
+
+- 토픽으로부터 메시지를 받아 DB에 처리하는 어플리케이션을 생각해보자. 여기에선 정확히 한 번 처리를 어떻게 해야 할까?
+컨슈머는 레코드를 토픽에서 가져가서 처리한 뒤 중복처리를 막기 위해 offset 저장을 수행한다. 예를 들어 토픽의 레코드들을 DB에 저장한다고 가정할 경우 데이터 insert와 commit offset을 하나의 트랜잭션으로 묶는 것은 불가능하다. 서로 연동되는 서비스가 아니기 때문이다. 따라서 토픽->컨슈머 처리에서 정확히 한번을 달성하기 위해서는 멱등성(idempotence) 처리를 하도록 가이드한다.
+
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/application-check.png" width="500">
 
 ## 레퍼런스
 
