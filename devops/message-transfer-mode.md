@@ -111,6 +111,13 @@
 
   <img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/application-check.png" width="500">
 
+## 정리하며
+
+- 카프카를 사용할 때 정확히 한 번을 달성하기 위해 각 구간별 사용해야 하는 기술은 다음과 같다.
+  - 프로듀서 -> 토픽: 멱등성 프로듀서
+  - 토픽 -> 컨슈머 -> 프로듀서 -> 토픽: 트랜잭션 프로듀서 / 컨슈머
+  - 토픽 -> 컨슈머: 멱등성 처리
+
 ## 레퍼런스
 
 - https://www.confluent.io/blog/transactions-apache-kafka/
