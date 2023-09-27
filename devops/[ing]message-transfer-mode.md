@@ -52,20 +52,61 @@
 
 ## 정확히 한 번 전송 (exactly-once)
 
-- 정확히 한 번 전송은 브로커의 장애나 프로듀서의 재 전송에도 메시지의 유실이나 중복 없이 데이터를 한 번 전송함을 의미한다.
-  프로듀서에서는 멱등성과 트랜잭션을 통해 정확히 한 번 전송을 제공할 수 있다.
+- 정확히 한 번 전송은 브로커의 장애나 프로듀서의 재 전송에도 메시지의 유실이나 중복 없이 데이터를 한 번 전송함을 의미하며 멱등성과 트랜잭션을 통해 정확히 한 번 전송을 제공할 수 있다.
 - 멱등성은 위에서 정리한 중복없는 전송과 동일하며 트랜잭션이란 여러 파티션에 걸쳐 데이터를 쓸때 전체 성공하거나 전체 실패하는 것을 보장한다.
+- 위에서 설명한 중복 없는 전송을 이해했다면 프로듀서가 데이터를 파티션에 중복없이 저장할 수 있다는 것을 이해했을 것이다. 그렇다면 컨슈머가 데이터를 가져갈 때 어떤 문제가 있을까?
 
-- 멱등성을 통해 토픽의 파티션에 중복 없이 저장할 수 있었다. 그렇다면 컨슈머는?
-  - case 1, case 2. 참조: https://huisam.tistory.com/entry/kafka-message-semantics#Message%20Delivery%20Semantics-1
-  - 컨슈머쪽 트랜잭션 그림과 코드 (참조 2번 잘 보삼.)
-    - 참조1. https://blog.digitalis.io/read-process-write-with-kafka-transactions-29bc0a70febd
-    - 참조2. https://www.confluent.io/kafka-summit-london18/dont-repeat-yourself-introducing-exactly-once-semantics-in-apache-kafka/
-  - 결과적으로 멱등성 + 트랜잭션으로 정확히 한 번 전송 보장
-- 컨슈머는 격리 레벨에 따라 read_commited로 설정되어 있다면 트랜잭션이 정상 종료된 레코드만 읽어서 처리할 수 있다.
-- steams를 쓰면 하나의 옵션으로 정확히 한 번 전송이 가눙하다..!!!!!
+### consumer 데이터 유실/중복
+
+- 아래는 메시지를 유실할 수 있는 그림을 표현한다. 어플리케이션이 컨슘 후 offset을 commit 하고, 컨슘한 데이터로부터 비지니스 로직을 처리하는 도중 실패했을 떄를 보여준다.
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/consumer-data-loss.png" width="500">
+
+- 아래는 메시지를 중복 처리할 수 있는 그림을 표현한다. 어플리케이션이 컨슘 후 비지니스 로직을 정상적으로 처리하고 offset commit에 실패할 경우 다시 컨슘하여 중복 처리할 수 있다.
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/consumer-duplicate.png" width="500">
+
+### consumer 데이터 한 번 처리를 보장하는 방법
+
+- 위에서 consumer가 데이터를 처리할 때 유실되거나 중복할 수 있는 상황을 확인했다. 이런 문제없이 어플리케이션이 한 번 데이터를 처리하기 위한 방법은 아래 그림과 같다. 즉 Application이 정확히 한 번 처리를 수행할 수 있도록 지원하는 것이다.
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/application-check.png" width="500">
+
+- 어플리케이션의 추가 작업없이 카프카로만 정확히 한 번 처리를 위해서는 아래 코드의 흐름으로 진행된다.
+
+```java
+  // 카프카 프로듀서를 트랜잭션 프로듀서로 실행시키는 명령어 및 옵션.
+  KafkaProducer producer = createKafkaProducer( "bootstrap.servers", "localhost:9092", "transactional.id", "my-transactional-id", "enable.idempotence", "true");
+
+  // 시작과 동시에 트랜잭션 초기화를 진행
+  producer.initTransactions();
+
+  // 컨슈머의 격리수준을 read_committed로 실행하며 트랜잭션 커밋이 완료된 데이터만 읽을 수 있도록 한다.
+  KafkaConsumer consumer = createKafkaConsumer( "bootstrap.servers", "localhost:9092", "group.id", "my-group-id", "isolation.level", "read_committed");
+
+  consumer.subscribe(singleton("inputTopic"));
+
+  while (true) {
+    // 토픽으로부터 레코드를 읽는다.
+    ConsumerRecords records = consumer.poll(Long.MAX_VALUE);
+
+    // 메시지가 들어오면 트랜잭션을 시작한다.
+    producer.beginTransaction();
+
+    for (ConsumerRecord record : records)
+    // 컨슘 후 처리할 비니지스 로직을 처리
+    process(record)
+
+    // 프로듀서가 consumer 코디네이터를 통해 __consumer_offsets에 offset을 증가시킨다.
+    producer.sendOffsetsToTransaction(offsetMapFunction(), "my-group-id");
+
+    // 트랜잭션 코디네이터가 commit 한다.
+    producer.commitTransaction();
+  }
+```
+
+- 위에서 한 가지 언급할 것은 컨슈머 그룹의 오프셋을 증가시키는 책임이 프로듀서에 있다는 점이다. 이 방법으로 데이터 소비 및 프로세스 처리, 오프셋 커밋이 진행되어 정확히 한 번 처리가 가능하다. 결과적으로 멱등성 + 트랜잭션으로 카프카는 정확히 한 번 전송을 보장하게 된다.
+- kafka streams도 내부적으로 위와 동일한 방법으로 정확히 한 번 처리를 지원하며 이런 복잡한 내용 없이 processing.guarantee="exactly_once" 옵션 하나를 추가하는 방법으로 지원된다.
 
 ## 레퍼런스
 
 - https://www.confluent.io/blog/transactions-apache-kafka/
 - https://blog.digitalis.io/read-process-write-with-kafka-transactions-29bc0a70febd
+- https://www.confluent.io/kafka-summit-london18/dont-repeat-yourself-introducing-exactly-once-semantics-in-apache-kafka/
