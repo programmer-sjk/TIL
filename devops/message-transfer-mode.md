@@ -59,14 +59,17 @@
 ### consumer 데이터 유실/중복
 
 - 아래는 메시지를 유실할 수 있는 그림을 표현한다. 어플리케이션이 컨슘 후 offset을 commit 하고, 컨슘한 데이터로부터 비지니스 로직을 처리하는 도중 실패했을 떄를 보여준다.
+
   <img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/consumer-data-loss.png" width="500">
 
 - 아래는 메시지를 중복 처리할 수 있는 그림을 표현한다. 어플리케이션이 컨슘 후 비지니스 로직을 정상적으로 처리하고 offset commit에 실패할 경우 다시 컨슘하여 중복 처리할 수 있다.
+
   <img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/consumer-duplicate.png" width="500">
 
 ### consumer 데이터 한 번 처리를 보장하는 방법
 
 - 위에서 consumer가 데이터를 처리할 때 유실되거나 중복할 수 있는 상황을 확인했다. 이런 문제없이 어플리케이션이 한 번 데이터를 처리하기 위한 방법은 아래 그림과 같다. 즉 Application이 정확히 한 번 처리를 수행할 수 있도록 지원하는 것이다.
+
   <img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/application-check.png" width="500">
 
 - 어플리케이션의 추가 작업없이 카프카로만 정확히 한 번 처리를 위해서는 아래 코드의 흐름으로 진행된다.
