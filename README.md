@@ -11,6 +11,7 @@
 
 - [카프카 기초](devops/inflearn-kafka-beginner.md)
 - [왜 카프카 브로커는 3개가 안정적일까](devops/why-3-broker-need.md)
+- [kafka가 File System을 쓰는데도 빠른 이유](devops/why-kafka-fs-fast.md)
 
 ## IDE
 
