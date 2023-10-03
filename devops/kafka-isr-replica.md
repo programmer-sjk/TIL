@@ -44,11 +44,11 @@
 
 - 수 많은 메시지를 읽고 쓰기 처리하는 리더가 복제 과정에서 많은 관여를 하면 리더의 성능이 떨어지게 된다. 따라서 카프카는 리더와 팔로워 간의 복제 과정에서 서로의 통신을 최소화 할 수 있도록 설계하여 리더의 부하를 줄였는데 이 과정을 알아보자.
 
-<img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/replica-1.png" width="400">
+<img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/replica-1.png" width="300">
 
 - 리더가 메시지를 받아 0번 오프셋에 저장한 그림이다. 아직 팔로워들은 복제를 하기 전 모습이다.
 
-<img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/replica-2.png" width="400">
+<img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/replica-2.png" width="300">
 
 - 팔로워들이 리더에게 0번 오프셋 메시지 가져오기를 요청(fetch)을 보낸 후 메시지를 복제하는 과정이다. 현재 리더는 팔로워가 0번 오프셋 메시지를 복제하기 위해 요청을 보낸것은 알 수 있지만 복제가 성공했는지는 알 수 없다.
 - **래빗 MQ**의 트랜잭션 모드에서는 모든 미러(팔로워 역할)가 리더에게 **ACK를 리턴하므로 리더는 미러들이 메시지를 받았는지 알 수 있지만** 카프카에서는 **ACK를 통신을 제거해 복제 성능을 더욱 높였다.** 그렇다면 카프카에서는 ACK 없이 어떻게 동작하는지 살펴보자.
