@@ -18,15 +18,15 @@
 - 따라서 리더는 팔로워들이 뒤쳐지지 않고 복제를 잘 하고 있는지를 감시한다. **만약 팔로워가 특정 주기의 시간만큼 복제 요청을 하지 않으면 리더는 팔로워에 문제가 발생했다고 판단하고 ISR 그룹에서 추방**한다. 즉 뒤처지지 않고 잘 복제하고 있는 팔로워들만 ISR 그룹에 속하게 되며, 리더에 장애가 발생한 경우 새로운 리더의 자격을 얻을 수 있다.
 - **ISR 내에서 모든 팔로워의 복제가 완료되면 리더는 내부적으로 커밋**되었다는 표시를 하게된다. 여기서 마지막 커밋 오프셋 위치는 **`하이워터마크`** 라고 부른다. 커밋되었다라는 말은 모든 리플리케이션이 전부 메시지를 저장했음을 의미하고 커밋된 메시지만 컨슈머가 읽어갈 수 있다.
 
-<img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/highwatermark.png" width="500">
+<img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/highwatermark.png" width="650">
 
 - 커밋된 메시지만 컨슈머가 읽을 수 있는 이유는 데이터의 일관성을 유지하기 위해서다. 만약 커밋되기 전 메시지를 컨슈머가 읽을 수 있다고 가정하면 어떤 문제가 발생하는지 그림을 통해 알아본다.
 
-  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/hw-problem1.png" width="500">
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/hw-problem1.png" width="550">
 
   - 컨슈머 A가 메시지 A, B를 컨슘한다. 이 때 메시지 B는 아직 복제되기 전이다.
 
-  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/hw-problem2.png" width="500">
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/hw-problem2.png" width="550">
 
   - 이때 리더가 있는 브로커에 문제가 발생해 팔로워가 새로운 리더가 된다.
   - 컨슈머 B가 새로 붙었는데 메시지 B는 소실되어 메시지 A만 받게 된다.
@@ -38,17 +38,17 @@
 - **워터하이마크는 복제가 완료된 offset**을 말하고 LEO는 리더 파티션에 추가된 **메시지의 끝**을 가리킨다.
 - LEO는 항상 워터하이마크와 동일하거나 크다.
 
-<img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/log-end-offset.png" width="500">
+<img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/log-end-offset.png" width="550">
 
 ## 리더와 팔로워의 단계별 리플리케이션 동작
 
 - 수 많은 메시지를 읽고 쓰기 처리하는 리더가 복제 과정에서 많은 관여를 하면 리더의 성능이 떨어지게 된다. 따라서 카프카는 리더와 팔로워 간의 복제 과정에서 서로의 통신을 최소화 할 수 있도록 설계하여 리더의 부하를 줄였는데 이 과정을 알아보자.
 
-<img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/replica-1.png" width="500">
+<img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/replica-1.png" width="400">
 
 - 리더가 메시지를 받아 0번 오프셋에 저장한 그림이다. 아직 팔로워들은 복제를 하기 전 모습이다.
 
-<img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/replica-2.png" width="500">
+<img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/replica-2.png" width="400">
 
 - 팔로워들이 리더에게 0번 오프셋 메시지 가져오기를 요청(fetch)을 보낸 후 메시지를 복제하는 과정이다. 현재 리더는 팔로워가 0번 오프셋 메시지를 복제하기 위해 요청을 보낸것은 알 수 있지만 복제가 성공했는지는 알 수 없다.
 - **래빗 MQ**의 트랜잭션 모드에서는 모든 미러(팔로워 역할)가 리더에게 **ACK를 리턴하므로 리더는 미러들이 메시지를 받았는지 알 수 있지만** 카프카에서는 **ACK를 통신을 제거해 복제 성능을 더욱 높였다.** 그렇다면 카프카에서는 ACK 없이 어떻게 동작하는지 살펴보자.
