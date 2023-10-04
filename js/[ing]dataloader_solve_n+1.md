@@ -151,3 +151,8 @@ export class MovieResolver {
 - 즉 ResolveField를 사용할 때 부모 데이터의 개수가 N개라면 N+1 문제가 발생한다. 이 문제를 해결하기 위한 방법이 아래에서 소개하는 dataloader 이다.
 
 ## dataloader란?
+
+## 레퍼런스
+
+- https://docs.nestjs.com/graphql/resolvers#resolvers
+- https://medium.com/paypal-tech/graphql-resolvers-best-practices-cd36fdbcef55
