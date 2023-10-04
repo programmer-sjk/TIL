@@ -89,9 +89,10 @@
     // 메시지가 들어오면 트랜잭션을 시작한다.
     producer.beginTransaction();
 
-    for (ConsumerRecord record : records)
-    // 들어온 레코드를 프로듀서에게 전송
-    producer.send(producerRecord("outputTopic", record))
+    for (ConsumerRecord record : records) {
+      // 들어온 레코드를 프로듀서에게 전송
+      producer.send(producerRecord("outputTopic", record))
+    }
 
     // 프로듀서가 consumer 코디네이터를 통해 __consumer_offsets에 offset을 증가시킨다.
     producer.sendOffsetsToTransaction(offsetMapFunction(), "my-group-id");
