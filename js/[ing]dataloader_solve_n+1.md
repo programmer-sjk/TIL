@@ -40,7 +40,7 @@
 
   - 아래처럼 쿼리가 수행되며 movie를 전체 조회하는 쿼리와, 각 movie의 review를 구하기 위해 movie 개수 별로 쿼리가 나가므로 N+1 문제를 확인할 수 있다.
 
-  ![](../images/js/n+1_query.png)
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/js/n+1_query.png" width="650">
 
 ## resolve field란?
 
@@ -202,7 +202,7 @@ private async findAllByMovieIds(movieIds: number[]) {
 - dataloader를 사용하여 N+1 문제가 해결된 것을 확인할 수 있었다. dataloader는 내부적으로 어떻게 동작하는걸까?
 - 위 dataloader가 적용된 코드를 보면 DataLoader의 객체인 `batchReviewLoader`의 load 함수를 호출하는 것을 알 수 있다. 이 load 메서드의 내부에서는 들어온 키(movie id)를 keys 라는 배열에, 키에 해당하는 promise 객체를 callbacks 라는 배열에 차곡차곡 담는다.
 
-![](../Images/js/dataloader-1.png)
+<img src="https://github.com/programmer-sjk/TIL/blob/main/images/js/dataloader-1.png" width="650">
 
 ```ts
 // dataloader의 load 함수 중 일부
@@ -220,7 +220,7 @@ load(key: K): Promise<V> {
 
 - 이 후 dispatchBatch 메서드가 실행되는데, 이는 load 메서드 내부에서 process.nextTick 함수로 dispatchBatch 함수를 NextTickQueue에 등록하기 때문이다. dispatchBatch 메서드 내부에서 keys 배열에서 꺼낸 movie id에 해당하는 결과(review 배열)를 callbacks 배열에 resolve 시킨다.
 
-![](../images/js/dataloader-2.png)
+<img src="https://github.com/programmer-sjk/TIL/blob/main/images/js/dataloader-2.png" width="650">
 
 ```ts
 function dispatchBatch<K, V>(
