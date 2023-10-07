@@ -1,6 +1,7 @@
 # typeorm에서 dataloader를 활용한 GraphQL의 N+1 문제 해결
 
-- typeorm에서 N+1 문제에 대해 간단히 살펴보고 resolve field가 무엇이고 여기서 발생하는 N+1을 어떻게 해결하는지 살펴본다.
+- typeorm에서 N+1 문제에 대해 간단히 살펴본다.
+- NestJS + GraphQL에서 resolve field가 무엇이고 N+1을 어떻게 해결하는지 살펴본다.
 - ORM의 eager & lazy 각 장단점과 N+1 개념은 알고 있다고 가정하고 작성한다.
 
 ## typeorm과 N+1
@@ -28,6 +29,7 @@
   - 테스트 상의 DB에는 movie가 3건이 저장되어 있는 상태이다. movie에 대해 reviews를 아래 코드처럼 접근해보자.
 
   ```ts
+  // service layer
   async lazy() {
     const movies = await this.movieRepository.find();
     for (const movie of movies) {
@@ -122,7 +124,7 @@ export class MovieService {
 }
 ```
 
-- 위에서 말한 의문은 사실 왜 ResolveField를 써야 하는지와 연결된다. 여기는 GraphQL 세계이다.
+- 위에서 말한 의문은 사실 왜 field resolver를 써야 하는지와 연결된다. 여기는 GraphQL 세계이다.
   즉 FE에서 필요한 데이터를 요청해 가는 형태이다. 만약 위 코드처럼 movie를 조회할 때 리뷰도 항상 포함된다면 화면 A에서는 movie와 review를 다 요청해갈 수 있지만 화면 B에서는 movie만 요청할 수 있다. 이 경우 review가 조회되는 것은 불필요한 리소스가 낭비되는 것이다.
 - 따라서 reviews를 ResolveField로 선언해 movie와 reviews가 모두 필요한 화면에서는 movie와 함께 reviews 필드의 데이터를 가져가고 movie만 필요하다면 movie 필드만 접근하는게 훨씬 효율적이다. 또한 ResolveField를 쓰면 문제가 발생했을 때 훨씬 직관적이라 디버깅하기 쉽고 movie에 상관없이 reviews만 테스트할 때도 쉬운 테스트 코드를 작성할 수 있는 장점이 있다.
 - 이제 ResolveField를 왜 써야 하는지 알고 있다면 한 가지 문제도 소개하겠다. ResolveField는 보통 부모의 데이터를 조회할 때 연관된 데이터를 필드로 제공하고자 사용된다. 위 예시에서는 movie라는 데이터를 조회할 때 연관된 리뷰를 조회하는데 사용되었다. 만약 movie와 reviews를 같이 조회할 때 실행 순서가 어떻게 되는지 아래 코드를 보자.
@@ -141,7 +143,7 @@ export class MovieResolver {
   // 2. 위에서 N개의 데이터마다 아래 reviews 필드가 수행된다.
   @ResolveField(() => [Review])
   async reviews(@Parent() movie: Movie) {
-    // 3. 내부에서 review에 대한 쿼리가 발생한다.
+    // 3. findAllByMovieId 내부에서 review에 대한 쿼리가 발생한다.
     //    부모 데이터 N개 각각에 대해 쿼리가 발생하므로 이는 N+1 문제가 발생하게 된다.
     return this.reviewService.findAllByMovieId(movie.id);
   }
@@ -151,6 +153,48 @@ export class MovieResolver {
 - 즉 ResolveField를 사용할 때 부모 데이터의 개수가 N개라면 N+1 문제가 발생한다. 이 문제를 해결하기 위한 방법이 아래에서 소개하는 dataloader 이다.
 
 ## dataloader란?
+
+- dataloader는 일괄 처리와 캐싱 기능을 활용해 데이터에 대한 일관된 API를 사용하기 위한 유틸리티다.
+- 위에서 봤던 reviews 라는 필드 리졸버의 코드를 다시 보자. 이 코드 내부에서 데이터 로더를 사용하도록 수정한다.
+
+```ts
+// movie의 resolver 영역
+@ResolveField(() => [Review])
+async reviews(@Parent() movie: Movie) {
+  return this.reviewService.findAllByMovieId(movie.id);
+}
+
+// review의 service 영역
+async findAllByMovieId(movieId: number) {
+  return this.reviewRepository.loadReview(movieId);
+}
+
+// review의 repository 영역
+async loadReview(movieId: number) {
+  return this.batchReviewLoader.load(movieId)
+}
+
+private batchReviewLoader = new DataLoader<number, Review[]>(
+  async (movieIds: number[]) => {
+    const reviews = await this.findAllByContentIds(movieIds);
+    return movieIds.map((movieId) =>
+      reviews.filter((review) => review.movieId === movieId)
+    );
+  },
+);
+
+private async findAllByMovieIds(movieIds: number[]) {
+  return this.find({ movieId: In(movieIds) });
+}
+```
+
+- 위 코드에서 적용한 dataloader를 기반으로 쿼리를 요청하면 아래와 같이 쿼리 1개로 정상적인 응답을 확인할 수 있다.
+
+  - 실제 쿼리는 회사 테이블의 컬럼이 노출되므로 캡쳐하지 않고 가공하였다.
+
+  ```sql
+    SELECT * FROM `review` WHERE ( `review`.`movieId` IN (1, 2, 3, 4, 5) )
+  ```
 
 ## 레퍼런스
 
