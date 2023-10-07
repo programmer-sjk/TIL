@@ -80,19 +80,19 @@ query {
 
 // 응답
 {
-  "data": {
-    "movies": [
+  data: {
+    movies: [
       {
-        "id": "1",
-        "title": "엘리멘탈",
-        "reviews": [
+        id: "1",
+        title: "엘리멘탈",
+        reviews: [
           {
-            "id": 1,
-            "body": "이거 보고 엉엉 움"
+            id: 1,
+            body: "이거 보고 엉엉 움"
           },
           {
-            "id": 2,
-            "body": "대체 뭐가 슬프단 거임?"
+            id: 2,
+            body: "대체 뭐가 슬프단 거임?"
           }
         ]
       },
@@ -170,7 +170,6 @@ async findAllByMovieId(movieId: number) {
 }
 
 // review의 repository 영역
-
 async loadReview(movieId: number) {
   return this.batchReviewLoader.load(movieId)
 }
@@ -200,6 +199,7 @@ private async findAllByMovieIds(movieIds: number[]) {
 ### dataloader 내부 동작
 
 - dataloader를 사용하여 N+1 문제가 해결된 것을 확인할 수 있었다. dataloader는 내부적으로 어떻게 동작하는걸까?
+  간단하게 설명하면 load 메서드에 들어온 id를 모아뒀다가 dataloader를 생성할 때 전달한 함수를 실행시킨 결과를 들어온 id 순서대로 응답한다.
 - 위 dataloader가 적용된 코드를 보면 DataLoader의 객체인 `batchReviewLoader`의 load 함수를 호출하는 것을 알 수 있다. 이 load 메서드의 내부에서는 들어온 키(movie id)를 keys 라는 배열에, 키에 해당하는 promise 객체를 callbacks 라는 배열에 차곡차곡 담는다.
 
 <img src="https://github.com/programmer-sjk/TIL/blob/main/images/js/dataloader-1.png" width="800">
