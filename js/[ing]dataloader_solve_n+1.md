@@ -196,6 +196,65 @@ private async findAllByMovieIds(movieIds: number[]) {
     SELECT * FROM `review` WHERE ( `review`.`movieId` IN (1, 2, 3, 4, 5) )
   ```
 
+### dataloader 내부 동작
+
+- dataloader를 사용하여 N+1 문제가 해결된 것을 확인할 수 있었다. dataloader는 내부적으로 어떻게 동작하는걸까?
+- 위 dataloader가 적용된 코드를 보면 DataLoader의 객체인 `batchReviewLoader`의 load 함수를 호출하는 것을 알 수 있다. 이 load 메서드의 내부에서는 들어온 키(movie id)를 keys 라는 배열에, 키에 해당하는 promise 객체를 callbacks 라는 배열에 차곡차곡 담는다.
+
+```ts
+// dataloader의 load 함수 중 일부
+load(key: K): Promise<V> {
+  .
+  .
+  batch.keys.push(key); // key는 movie id를 의미한다.
+  const promise = new Promise((resolve, reject) => {
+    batch.callbacks.push({ resolve, reject }); // promise의 resolve, reject 객체를 push
+  });
+  .
+  .
+}
+```
+
+- 이후 실행되는 dispatchBatch 메서드 내부에서 keys 배열에서 꺼낸 movie id에 해당하는 결과(review 배열)를 callbacks 배열에 resolve 시킨다.
+
+```ts
+function dispatchBatch<K, V>(
+  loader: DataLoader<K, V, any>,
+  batch: Batch<K, V>,
+) {
+  .
+  .
+  /**
+   * values는 들어온 movie id 개수가 5개라고 가정할 때 크기가 5인 리뷰의 배열을 가리킨다.
+   * [
+   *   [
+   *     movieId 1에 대한 리뷰 A
+   *     movieId 1에 대한 리뷰 B
+   *   ],
+   *   [
+   *     movieId 2에 대한 리뷰 C
+   *     movieId 2에 대한 리뷰 D
+   *   ],
+   *   [],
+   *   [
+   *     movieId 4에 대한 리뷰 E
+   *   ],
+   *   []
+   * ]
+  */
+  for (var i = 0; i < batch.callbacks.length; i++) {
+    var value = values[i]; // 여기서 value는 movie id에 해당하는 review 배열을 의미
+    if (value instanceof Error) {
+      batch.callbacks[i].reject(value);
+    } else {
+      batch.callbacks[i].resolve(value);
+    }
+  }
+  .
+  .
+}
+```
+
 ## 레퍼런스
 
 - https://docs.nestjs.com/graphql/resolvers#resolvers
