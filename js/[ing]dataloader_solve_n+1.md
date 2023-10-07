@@ -170,6 +170,7 @@ async findAllByMovieId(movieId: number) {
 }
 
 // review의 repository 영역
+
 async loadReview(movieId: number) {
   return this.batchReviewLoader.load(movieId)
 }
@@ -201,6 +202,8 @@ private async findAllByMovieIds(movieIds: number[]) {
 - dataloader를 사용하여 N+1 문제가 해결된 것을 확인할 수 있었다. dataloader는 내부적으로 어떻게 동작하는걸까?
 - 위 dataloader가 적용된 코드를 보면 DataLoader의 객체인 `batchReviewLoader`의 load 함수를 호출하는 것을 알 수 있다. 이 load 메서드의 내부에서는 들어온 키(movie id)를 keys 라는 배열에, 키에 해당하는 promise 객체를 callbacks 라는 배열에 차곡차곡 담는다.
 
+![](../Images/js/dataloader-1.png)
+
 ```ts
 // dataloader의 load 함수 중 일부
 load(key: K): Promise<V> {
@@ -208,14 +211,16 @@ load(key: K): Promise<V> {
   .
   batch.keys.push(key); // key는 movie id를 의미한다.
   const promise = new Promise((resolve, reject) => {
-    batch.callbacks.push({ resolve, reject }); // promise의 resolve, reject 객체를 push
+    batch.callbacks.push({ resolve, reject }); // promise의 resolve, reject를 push
   });
   .
   .
 }
 ```
 
-- 이후 실행되는 dispatchBatch 메서드 내부에서 keys 배열에서 꺼낸 movie id에 해당하는 결과(review 배열)를 callbacks 배열에 resolve 시킨다.
+- 이 후 dispatchBatch 메서드가 실행되는데, 이는 load 메서드 내부에서 process.nextTick 함수로 dispatchBatch 함수를 NextTickQueue에 등록하기 때문이다. dispatchBatch 메서드 내부에서 keys 배열에서 꺼낸 movie id에 해당하는 결과(review 배열)를 callbacks 배열에 resolve 시킨다.
+
+![](../images/js/dataloader-2.png)
 
 ```ts
 function dispatchBatch<K, V>(
@@ -224,8 +229,17 @@ function dispatchBatch<K, V>(
 ) {
   .
   .
+  for (var i = 0; i < batch.callbacks.length; i++) {
+    var value = values[i]; // 여기서 value는 movie id에 해당하는 review 배열을 의미
+    if (value instanceof Error) {
+      batch.callbacks[i].reject(value);
+    } else {
+      batch.callbacks[i].resolve(value);
+    }
+  }
+
   /**
-   * 아래 values는 들어온 movie id 개수가 5개라고 가정할 때 크기가 5인 리뷰의 배열을 가리킨다.
+   * 위에서 values는 들어온 movie id 개수가 5개라고 가정할 때 크기가 5인 리뷰의 배열을 가리킨다.
    * [
    *   [
    *     movieId 1에 대한 리뷰 A
@@ -242,14 +256,6 @@ function dispatchBatch<K, V>(
    *   []
    * ]
   */
-  for (var i = 0; i < batch.callbacks.length; i++) {
-    var value = values[i]; // 여기서 value는 movie id에 해당하는 review 배열을 의미
-    if (value instanceof Error) {
-      batch.callbacks[i].reject(value);
-    } else {
-      batch.callbacks[i].resolve(value);
-    }
-  }
   .
   .
 }
