@@ -225,7 +225,7 @@ function dispatchBatch<K, V>(
   .
   .
   /**
-   * values는 들어온 movie id 개수가 5개라고 가정할 때 크기가 5인 리뷰의 배열을 가리킨다.
+   * 아래 values는 들어온 movie id 개수가 5개라고 가정할 때 크기가 5인 리뷰의 배열을 가리킨다.
    * [
    *   [
    *     movieId 1에 대한 리뷰 A
@@ -259,3 +259,4 @@ function dispatchBatch<K, V>(
 
 - https://docs.nestjs.com/graphql/resolvers#resolvers
 - https://medium.com/paypal-tech/graphql-resolvers-best-practices-cd36fdbcef55
+- https://github.com/graphql/dataloader
