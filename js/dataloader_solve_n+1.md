@@ -158,18 +158,18 @@ export class MovieResolver {
 - 위에서 봤던 reviews 라는 필드 리졸버의 코드를 다시 보자. 이 코드 내부에서 데이터 로더를 사용하도록 수정한다.
 
 ```ts
-// movie의 resolver 영역
+// movie의 resolver
 @ResolveField(() => [Review])
 async reviews(@Parent() movie: Movie) {
   return this.reviewService.findAllByMovieId(movie.id);
 }
 
-// review의 service 영역
+// reviewService
 async findAllByMovieId(movieId: number) {
   return this.reviewRepository.loadReview(movieId);
 }
 
-// review의 repository 영역
+// reviewRepository
 async loadReview(movieId: number) {
   return this.batchReviewLoader.load(movieId)
 }
