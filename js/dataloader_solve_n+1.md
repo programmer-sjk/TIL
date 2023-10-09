@@ -44,7 +44,7 @@
 
 ## resolve field란?
 
-- nestjs 공식 홈페이지에 따르면 **resolver**란 **`GraphQL 연산(Query, Mutation, Subscription)`** 을 제공하는 주체이다. 또 **`@resolveField`** 데코레이터를 통해 field resolver를 지정하여 해당 필드가 특정 데이터에 대한 연산을 수행하여 데이터를 제공할 수 있다. 아래에 Query와 ResolveField가 같이 선언된 코드를 보자.
+- nestjs 공식 홈페이지에 따르면 **resolver**란 **`GraphQL 연산(Query, Mutation, Subscription)`** 을 제공하는 주체이다. 또 **`@resolveField`** 데코레이터를 통해 **`field resolver`** 를 지정하여 해당 필드가 특정 데이터에 대한 연산을 수행하여 데이터를 제공할 수 있다. 아래에 Query와 ResolveField가 같이 선언된 코드를 보자.
 
 ```ts
 @Resolver(() => Movie)
@@ -103,7 +103,7 @@ query {
 }
 ```
 
-- 응답을 보면 movie를 조회할 때 reviews 필드가 movie에 해당하는 review를 조회하는 역할을 하는 걸 알 수 있다.
+- 응답을 보면 movie를 조회할 때 **reviews 필드가** movie에 해당하는 review를 조회하는 역할을 하는 걸 알 수 있다.
 - 만약 당신이 controller가 익숙한 세계에서 왔다면 이런 의문을 가질 수 있다. 그냥 movieService에서 review도 같이 조회하면 되는거 아닌가? 아래 코드처럼.
 
 ```ts
@@ -124,9 +124,9 @@ export class MovieService {
 }
 ```
 
-- 위에서 말한 의문은 사실 왜 field resolver를 써야 하는지와 연결된다. 여기는 GraphQL 세계이다.
-  즉 **FE에서 필요한 데이터를 요청해 가는 형태**이다. 만약 위 코드처럼 movie를 조회할 때 리뷰도 항상 포함된다면 화면 A에서는 movie와 review를 다 요청해갈 수 있지만 화면 B에서는 movie만 요청할 수 있다. 이 경우 review가 조회되는 것은 불필요한 리소스가 낭비되는 것이다.
-- 따라서 reviews를 ResolveField로 선언해 movie와 reviews가 모두 필요한 화면에서는 movie와 함께 reviews 필드의 데이터를 가져가고 movie만 필요하다면 movie 필드만 접근하는게 훨씬 효율적이다. 또한 ResolveField를 쓰면 문제가 발생했을 때 훨씬 직관적이라 디버깅하기 쉽고 movie에 상관없이 reviews만 테스트할 때도 쉬운 테스트 코드를 작성할 수 있는 장점이 있다.
+- 위에서 말한 의문은 사실 **왜 field resolver를 써야 하는지**와 연결된다. 여기는 GraphQL 세계이다.
+  즉 **FE에서 필요한 데이터를 요청해 가는 형태**이다. 만약 위 코드처럼 movie를 조회할 때 리뷰도 항상 포함된다면 화면 A에서는 movie와 review를 다 요청해갈 수 있지만 **화면 B에서는 movie만 요청할 수 있다. 이 경우 review가 조회되는 것은 불필요한 리소스가 낭비**되는 것이다.
+- 따라서 **reviews를 ResolveField로 선언**해 movie와 reviews가 모두 필요한 화면에서는 movie와 함께 reviews 필드의 데이터를 가져가고 movie만 필요하다면 movie 필드만 접근하는게 훨씬 효율적이다. 또한 ResolveField를 쓰면 문제가 발생했을 때 훨씬 직관적이라 디버깅하기 쉽고 movie에 상관없이 reviews만 테스트할 때도 쉬운 테스트 코드를 작성할 수 있는 장점이 있다.
 - 이제 ResolveField를 왜 써야 하는지 알고 있다면 한 가지 문제도 소개하겠다. ResolveField는 보통 부모의 데이터를 조회할 때 연관된 데이터를 필드로 제공하고자 사용된다. 위 예시에서는 movie라는 데이터를 조회할 때 연관된 리뷰를 조회하는데 사용되었다. 만약 movie와 reviews를 같이 조회할 때 실행 순서가 어떻게 되는지 아래 코드를 보자.
 
 ```ts
