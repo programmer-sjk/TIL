@@ -176,7 +176,7 @@ async loadReview(movieId: number) {
 
 private batchReviewLoader = new DataLoader<number, Review[]>(
   async (movieIds: number[]) => {
-    const reviews = await this.findAllByContentIds(movieIds);
+    const reviews = await this.findAllByMovieIds(movieIds);
     return movieIds.map((movieId) =>
       reviews.filter((review) => review.movieId === movieId)
     );
