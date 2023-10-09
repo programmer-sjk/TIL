@@ -22,6 +22,7 @@
 
 ## JavaScript
 
+- [dataloader를 활용한 GraphQL의 N+1 문제 해결](/js/dataloader_solve_n%2B1.md)
 - [garbage collection](/js/garbage_collection.md)
 
 ## Test
