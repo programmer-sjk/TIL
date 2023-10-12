@@ -13,6 +13,7 @@
 - [왜 카프카 브로커는 3개가 안정적일까](devops/why-3-broker-need.md)
 - [kafka가 File System을 쓰는데도 빠른 이유](devops/why-kafka-fs-fast.md)
 - [kafka ISR과 복제](devops/kafka-isr-replica.md)
+- [kafka 메시지 전송 방식](devops/message-transfer-mode.md)
 
 ## IDE
 
