@@ -18,3 +18,31 @@ for (row1 in tableA) {
   }
 }
 ```
+
+## Block Nested Loop Join
+
+- 위 Nest Loop Join에서 조인되는 컬럼에 인덱스가 걸려있다면 성능상에 문제가 없다. 하지만 결국 인덱스 없이 실행된다면 비용이 아주 비싸게 되며 이때 사용되는게 Block Nested Loop Join이다.
+
+![](../images/db/block-nested-loop.png)
+
+- 위 방식을 sudo 코드로 나타내면 아래와 같다.
+
+```js
+for (row1 in tableA) {
+  addJoinBuffer(row1);
+  if (isBufferFull()) {
+    for (row2 in tableB) {
+      for (bufferItem in joinBuffer) {
+        if (conditionMatched) return bufferItem, row2;
+      }
+    }
+
+    flushBuffer();
+  }
+}
+```
+
+- 만약 드라이빙 테이블에 1000건의 데이터가 있고 Nested Loop Join 방식이라면 드리븐 테이블은 1000번 스캔해야 한다. 하지만 Join Buffer에 100건의 데이터를 넣는다고 가정하면 드리븐 테이블을 10번 스캔으로 종료할 수 있다.
+- 인덱스가 없는 경우 Nested Loop Join 방식보다 나은 것이지 기본적으로 조인 쿼리가 Block Nested Loop Join으로 실행된다면 조인이 인덱스 없이 동작한다는 의미로 튜닝의 대상이 된다.
+- Block Nested Loop 조인으로 동작하는지 여부는 실행계획에서 Using join buffer로 확인할 수 있다.
+  ![](../images/db/explain-bnl.png)
