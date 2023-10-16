@@ -7,7 +7,7 @@
 
 - MySQL 서버에서 사용되는 대부분의 조인은 네스티드 루프 조인의 형태로, 일반적으론 조인의 연결 조건이 되는 컬럼에 모두 인덱스가 사용된다.
 
-<img src="https://github.com/programmer-sjk/TIL/blob/main/images/db/nested-loop.png" width="800">
+<img src="https://github.com/programmer-sjk/TIL/blob/main/images/db/nested-loop.png" width="600">
 
 - 위 방식을 sudo 코드로 나타내면 아래와 같다.
 
@@ -23,7 +23,7 @@ for (row1 in tableA) {
 
 - 위 Nest Loop Join에서 조인되는 컬럼에 인덱스가 걸려있다면 성능상에 문제가 없다. 하지만 결국 인덱스 없이 실행된다면 비용이 아주 비싸게 되며 이때 사용되는게 Block Nested Loop Join이다.
 
-<img src="https://github.com/programmer-sjk/TIL/blob/main/images/db/block-nested-loop.png" width="800">
+<img src="https://github.com/programmer-sjk/TIL/blob/main/images/db/block-nested-loop.png" width="600">
 
 - 위 방식을 sudo 코드로 나타내면 아래와 같다.
 
