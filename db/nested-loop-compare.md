@@ -1,4 +1,4 @@
-# Nested Loop Join과 Block Nested Loop Join
+# Nested Loop Join & Block Nested Loop Join & Hash Join
 
 - Nested Loop Join과 Block Nested Loop Join 차이를 알아보자.
 - MySQL 8.0.20 버전 부터 Block Nested Loop Join 대신 사용되는 Hash join을 알아본다.
