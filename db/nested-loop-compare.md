@@ -42,19 +42,19 @@ for (row1 in tableA) {
 }
 ```
 
-- 만약 드라이빙 테이블에 1000건의 데이터가 있고 Nested Loop Join 방식이라면 드리븐 테이블은 1000번 스캔해야 한다. 하지만 Join Buffer에 100건의 데이터를 넣는다고 가정하면 드리븐 테이블을 10번 스캔으로 종료할 수 있다.
-- 인덱스가 없는 경우 Nested Loop Join 방식보다 나은 것이지 기본적으로 조인 쿼리가 Block Nested Loop Join으로 실행된다면 조인이 인덱스 없이 동작한다는 의미로 튜닝의 대상이 된다.
-- Block Nested Loop 조인으로 동작하는지 여부는 실행계획에서 Using join buffer로 확인할 수 있다.
+- 만약 드라이빙 테이블에 1000건의 데이터가 있고 Nested Loop Join 방식이라면 **드리븐 테이블은 1000번 스캔**해야 한다. 하지만 Join Buffer에 100건의 데이터를 넣는다고 가정하면 드리븐 테이블을 10번 스캔으로 종료할 수 있다.
+- 인덱스가 없는 경우 Nested Loop Join 방식보다 나은 것이지 **기본적으로 조인 쿼리가 Block Nested Loop Join으로 실행된다면 조인이 인덱스 없이 동작한다는 의미로 튜닝의 대상**이 된다.
+- Block Nested Loop 조인으로 동작하는지 여부는 실행계획에서 **`Using join buffer로`** 확인할 수 있다.
   <img src="https://github.com/programmer-sjk/TIL/blob/main/images/db/explain-bnl.png" width="800">
 
 ## hash 조인
 
-- MySQL 8.0.20 버전부터 block nested loop는 없어지고 기본적으로 hash join을 사용한다.
+- MySQL **`8.0.20`** 버전부터 block nested loop는 없어지고 기본적으로 hash join을 사용한다.
 - hash join은 인덱스가 있을때도 사용될 수 있고 인덱스가 없을 때도 block nested loop 대신 사용된다.
 
   <img src="https://github.com/programmer-sjk/TIL/blob/main/images/db/hash-join.png" width="800">
 
-- Hash 조인의 동작 방식은 우선 Build 단계에서 하나의 테이블의 조인되는 컬럼을 해시 함수로 돌리고 인 메모리에 캐시에 넣는다. 그리고 Probe 단계에서 다른 테이블의 조인되는 컬럼을 해시 함수로 수행 후 캐시에 저장된 값이 일치하는 경우 결과에 포함하는 방식으로 동작한다.
+- Hash 조인의 동작 방식은 우선 **Build 단계**에서 하나의 테이블의 조인되는 컬럼을 해시 함수로 돌리고 인 메모리에 캐시에 넣는다. 그리고 **Probe 단계**에서 다른 테이블의 조인되는 컬럼을 해시 함수로 수행 후 캐시에 저장된 값이 일치하는 경우 결과에 포함하는 방식으로 동작한다.
 - 만약 Build 단계에서 데이터가 버퍼 메모리보다 큰 경우 디스크에 쓰기 시작한다.
   <img src="https://github.com/programmer-sjk/TIL/blob/main/images/db/hash-join2.png" width="800">
 
