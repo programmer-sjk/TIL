@@ -1,7 +1,7 @@
 # Nested Loop Join & Block Nested Loop Join & Hash Join
 
-- Nested Loop Join과 Block Nested Loop Join 차이를 알아보자.
-- MySQL 8.0.20 버전 부터 Block Nested Loop Join 대신 사용되는 Hash join을 알아본다.
+- **Nested Loop Join**과 **Block Nested Loop Join** 차이를 알아보자.
+- MySQL 8.0.20 버전 부터 Block Nested Loop Join 대신 사용되는 **Hash join**을 알아본다.
 
 ## Nested Loop Join
 
@@ -21,7 +21,7 @@ for (row1 in tableA) {
 
 ## Block Nested Loop Join
 
-- 위 Nest Loop Join에서 조인되는 컬럼에 인덱스가 걸려있다면 성능상에 문제가 없다. 하지만 결국 인덱스 없이 실행된다면 비용이 아주 비싸게 되며 이때 사용되는게 Block Nested Loop Join이다.
+- 위 Nest Loop Join에서 **조인되는 컬럼에 인덱스가 걸려있다면** 일반적으로 성능상에 문제가 없다. 하지만 **인덱스 없이 실행된다면 비용이 아주 비싸게 되며** 이때 사용되는게 Block Nested Loop Join이다.
 
 <img src="https://github.com/programmer-sjk/TIL/blob/main/images/db/block-nested-loop.png" width="600">
 
