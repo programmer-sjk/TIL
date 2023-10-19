@@ -8,6 +8,7 @@
 - [MySQL Query Cache는 왜 사용되지 않을까](db/query_cache.md)
 - [MySQL Table Cache](db/table_cache.md)
 - [MySQL InnoDB Buffer Pool](db/innodb_buffer_pool.md)
+- [Nested Loop vs Block Nested Loop vs Hash Join](./db/nested-loop-compare.md)
 
 ## Devops
 
