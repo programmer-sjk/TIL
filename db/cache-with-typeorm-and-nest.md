@@ -8,7 +8,7 @@
 
 ### NestJS
 
-- nestjs/cache-manager 모듈의 CacheModule을 사용한다. 아래와 같이 register 메서드에 접속 정보를 주면
+- **`nestjs/cache-manager`** 모듈의 CacheModule을 사용한다. 아래와 같이 register 메서드에 접속 정보를 주면
 
 ```ts
 // app.module.ts 일부
@@ -54,15 +54,15 @@ export class ReviewService {
 
   ```json
   {
-    type: "mysql",
-    host: "localhost",
-    username: "test",
+    "type": "mysql",
+    "host": "localhost",
+    "username": "test",
     ...
-    cache: {
-      type: "redis",
-      options: {
-        host: "localhost",
-        port: 6379
+    "cache": {
+      "type": "redis",
+      "options": {
+        "host": "localhost",
+        "port": 6379
       }
     }
   }
@@ -81,7 +81,7 @@ async getAdminUsers() {
 
 ## 로컬 캐시
 
-- 서버마다 가지고 있는 로컬 캐시를 의미한다. 서버마다 캐시 상태가 다를 수 있으므로 주의해야 한다.
+- 서버마다 가지고 있는 로컬 캐시를 의미한다. **서버마다 캐시 상태가 다를 수 있으므로 주의**해야 한다.
   - 서버 A에 캐시를 적용해도 서버 B에는 아직 캐시가 적용되지 않았을 수 있고
   - 서버 A에서 무효화(invalidate)를 해도 서버 B에서는 무효화되지 않을 수 있다.
 - NestJS 예제 코드
