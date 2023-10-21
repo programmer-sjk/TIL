@@ -1,4 +1,4 @@
-# NestJS와 TypeORM에서 사용되는 다양한 캐시
+# NestJS와 TypeORM에서 캐시를 사용하는 방법
 
 - NestJS와 TypeORM에서 캐시들을 어떻게 사용하는지 정리한다.
 
