@@ -1,12 +1,50 @@
 # NestJS와 TypeORM에서 사용되는 다양한 캐시
 
-- NestJS와 TypeORM에서 어떤 캐시들을 어떤 용도로 사용하는지 정리한다.
+- NestJS와 TypeORM에서 캐시들을 어떻게 사용하는지 정리한다.
 
 ## 글로벌 캐시
 
 - 여러 서버에서 공용으로 사용할 수 있는 캐시를 의미한다. 여러 서버간 공유가 쉽고 네트워크 통신이 발생하므로 로컬 캐시보다는 상대적으로 느리다.
 
 ### NestJS
+
+- nestjs/cache-manager 모듈의 CacheModule을 사용한다. 아래와 같이 register 메서드에 접속 정보를 주면
+
+```ts
+// app.module.ts 일부
+import { CacheModule } from '@nestjs/cache-manager';
+import * as redisStore from 'cache-manager-ioredis';
+
+@Module({
+  imports: [
+    CacheModule.register({
+      store: redisStore,
+      ttl: 60 * 10,
+      host: config.get('redis.host'),
+      port: config.get('redis.port'),
+      keyPrefix: 'cache:',
+      isGlobal: true,
+    }),
+    .
+    .
+  ]
+})
+```
+
+- 캐시를 사용하고 싶은 다른 서비스에서는 생성자에서 주입받아 사용할 수 있다.
+
+```ts
+import { CACHE_MANAGER } from "@nestjs/cache-manager";
+import { Cache } from "cache-manager";
+
+@Injectable()
+export class ReviewService {
+  constructor(
+    private readonly reviewRepository: ReviewRepository,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache
+  ) {}
+}
+```
 
 ### TypeORM
 
@@ -34,7 +72,7 @@
 
 ```ts
 async getAdminUsers() {
-  const result = await this.createQueryBuilder('user')
+  return this.createQueryBuilder('user')
     .where("user.isAdmin = :isAdmin", { isAdmin: true })
     .cache('cache:admin-users', Milliseconds.ONE_HOUR) // ormconfig 설정에 따라 cache에 저장
     .getMany();
