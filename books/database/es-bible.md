@@ -150,6 +150,59 @@
 
 ```elixir
   GET my_index/_settings
+
+  // 응답
+  {
+  "my_index": {
+    "settings": {
+      "index": {
+        "routing": {
+          "allocation": {
+            "include": {
+              "_tier_preference": "data_content"
+            }
+          }
+        },
+        "number_of_shards": "1",
+        "provided_name": "my_index",
+        "creation_date": "1697937794587",
+        "number_of_replicas": "1",
+        "uuid": "AtAfbz1tROSfK4310S17AQ",
+        "version": {
+          "created": "8040299"
+        }
+      }
+    }
+  }
+}
 ```
 
 - 존재하지 않는 인덱스에 문서 색인 요청을 하면 ES는 인덱스를 자동으로 생성한다. 자동 생성된 인덱스가 어떤 기본값을 가지는지 알아보자.
+
+  - number_of_shards
+    - 인덱스가 데이터를 몇 개의 샤드로 쪼갤 것인지 지정하는 값이다. 한 번 지정하면 reindex 동작을 통해 인덱스를 통째로 색인하는 작업을 수행하지 않는 한 바꿀수 없다.
+    - 샤드 개수를 어떻게 지정하느냐는 ES 전체의 성능에도 큰 영향을 미친다. 클러스터에 샤드 숫자가 너무 많으면 색인 성능이 감소한다. 반대로 인덱스당 샤드 숫자를 적게 지정하면 샤드 하나의 크기가 너무 커진다. 샤드 하나의 크기가 크면 샤드 복구에 너무 많은 시간이 소요된다.
+  - number_of_replicas
+
+    - 주 샤드 하나당 복제본 샤드를 몇 개 둘 것인지 설장한다. 인덱스 생성 후에도 동적으로 변경이 가능하다.
+    - 아래와 같이 0으로 지정하면 복제본 샤드 없이 주 샤드만 둔다.
+
+    ```elixir
+      PUT my_index/_setting
+      {
+        "index.number_of_replicas": 0
+      }
+    ```
+
+  - refresh_interval
+
+    - ES가 인덱스를 대상으로 refresh를 얼마나 자주 수행할지 지정한다. 인덱스에 색인된 문서는 refresh 되어야 검색 대상이 되기 때문에 중요한 설정이다. 아래와 같이 값을 지정할 수 있다.
+
+    ```elixir
+      PUT my_index/_setting
+      {
+        "index.refresh_interval": "1s"
+      }
+    ```
+
+    - 값을 -1로 지정하면 refresh를 수행하지 않는다. 기본 값은 1초 마다 refresh를 수행하며 30초 이상 검색 쿼리가 들어오지 않으면 검색 쿼리가 들어올 때까지 refresh를 수행하지 않는다. 이 대기시간은 `index.search.idel.after` 설정으로 변경이 가능하며 `index.refresh_interval` 값을 null로 업데이트 하면 인덱스를 refresh_interval 값을 설정하지 않은 상태로 업데이트 할 수 있다.
