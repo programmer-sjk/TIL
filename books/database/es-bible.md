@@ -146,36 +146,38 @@
 
 ## 3. 인덱스 설계
 
+### 3.1 인덱스 설정
+
 - 인덱스 설정 조회
 
-```elixir
-  GET my_index/_settings
+  ```elixir
+    GET my_index/_settings
 
-  // 응답
-  {
-  "my_index": {
-    "settings": {
-      "index": {
-        "routing": {
-          "allocation": {
-            "include": {
-              "_tier_preference": "data_content"
+    // 응답
+    {
+    "my_index": {
+      "settings": {
+        "index": {
+          "routing": {
+            "allocation": {
+              "include": {
+                "_tier_preference": "data_content"
+              }
             }
+          },
+          "number_of_shards": "1",
+          "provided_name": "my_index",
+          "creation_date": "1697937794587",
+          "number_of_replicas": "1",
+          "uuid": "AtAfbz1tROSfK4310S17AQ",
+          "version": {
+            "created": "8040299"
           }
-        },
-        "number_of_shards": "1",
-        "provided_name": "my_index",
-        "creation_date": "1697937794587",
-        "number_of_replicas": "1",
-        "uuid": "AtAfbz1tROSfK4310S17AQ",
-        "version": {
-          "created": "8040299"
         }
       }
     }
   }
-}
-```
+  ```
 
 - 존재하지 않는 인덱스에 문서 색인 요청을 하면 ES는 인덱스를 자동으로 생성한다. 자동 생성된 인덱스가 어떤 기본값을 가지는지 알아보자.
 
@@ -206,3 +208,112 @@
     ```
 
     - 값을 -1로 지정하면 refresh를 수행하지 않는다. 기본 값은 1초 마다 refresh를 수행하며 30초 이상 검색 쿼리가 들어오지 않으면 검색 쿼리가 들어올 때까지 refresh를 수행하지 않는다. 이 대기시간은 `index.search.idel.after` 설정으로 변경이 가능하며 `index.refresh_interval` 값을 null로 업데이트 하면 인덱스를 refresh_interval 값을 설정하지 않은 상태로 업데이트 할 수 있다.
+
+- 위에서 사용한 my_index는 문서 색인 요청을 통해 자동으로 생성한 인덱스다. 이렇게 생성되면 인덱스 설정이 모두 기본값으로 지정되기 때문에 실제 운영 환경에선 적절하지 않다. 인덱스를 수동으로 생성/삭제 하는 방법을 알아보자.
+
+  ```elixir
+    // 인덱스 수동 생성
+    PUT my_index
+    {
+      "settings": {
+        "number_of_shards": 2,
+        "number_of_replicas": 2
+      }
+    }
+
+    // 인덱스 삭제
+    DELETE my_index
+  ```
+
+### 3.2 매핑과 필드 타입
+
+- 매핑은 문서가 인덱스에 어떻게 색인되고 저장되는지 정의하는 부분이다.
+- 아래와 같이 문서가 색인될 때 기존에 매핑 정보를 가지고 있지 않던 새로운 필드가 들어오면 ES는 자동으로 문서의 필드 타입을 지정해서 매핑 정보를 생성한다.
+
+  ```elixir
+    // 문서 색인
+    PUT my_index2/_doc/1
+    {
+      "title": "hello world",
+      "views": 1234,
+      "public": true,
+      "point": 4.5,
+      "created": "2019-01-17T14:05:01.234Z"
+    }
+
+    // 응답
+    {
+    "my_index2": {
+      "aliases": {},
+      "mappings": {
+        "properties": {
+          "created": {
+            "type": "date"
+          },
+          "point": {
+            "type": "float"
+          },
+          "public": {
+            "type": "boolean"
+          },
+          "title": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "views": {
+            "type": "long"
+          }
+        }
+      },
+      "settings": {...}
+    }
+  }
+  ```
+
+#### 동적 매핑 vs 명시적 매핑
+
+- ES가 자동 생성하는 매핑을 동적 매핑이라고 하고 사용자가 직접 매핑을 지정해 주는 방법을 명시적 매핑이라고 부른다.
+- 아래와 같이 인덱스를 생성할 때 직접 매핑 정보를 지정할 수 있다.
+
+  ```elixir
+  mapping_test
+  {
+    "mappings": {
+      "properties": {
+        "createdDate": {
+          "type": "date",
+          "format": "strict_date_time || epoch_millis"
+        },
+        "keywordString": {
+          "type": "keyword"
+        },
+        "textString": {
+          "type": "text"
+        }
+      }
+    },
+    "settings": {
+      "number_of_replicas": 1,
+      "number_of_shards": 1
+    }
+  }
+  ```
+
+- 중요한 점은 필드 타입을 포함한 매핑설정은 한 번 지정되면 변경이 불가능하다는 점이다. 따라서 서비스 설계와 데이터 설계를 할 때는 매우 신중해야 한다. 서비스 운영 환경에서 대용량의 데이터를 처리해야 할 때는 명시적 매핑을 지정해서 인덱스를 운영해야 한다. 매핑을 어떻게 지정하냐에 따라 성능의 차이도 크다. 동적 매핑은 유연한 운영을 가능하게 해 주지만 그럼에도 명시적으로 매핑을 지정하는 것이 좋다.
+- 이미 인덱스가 생성된 경우에도 매핑 정보를 아래와 같이 추가할 수 있다.
+
+  ```elixir
+    PUT mapping_test/_mapping
+    {
+      "properties": {
+        "longValue": {
+          "type": "long"
+        }
+      }
+    }
+  ```
