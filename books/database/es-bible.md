@@ -431,3 +431,95 @@
 #### index
 
 - index 속성은 해당 필드의 역색인을 만들 것인지 지정하며 기본값은 true다. false로 설정하면 검색 대상이 되진 않지만 다른 필드로 검색된 필드에 문서가 검색되면 검색 결과에 포함된다.
+
+### 3.3 애널라이저와 토크나이저
+
+- 애널라이저는 캐릭터 필터와 토크나이저, 토큰 필터로 구성된다. 애널라이저는 입력된 텍스트에 캐릭터 필터를 적용하여 문자열로 변형시킨 뒤 토크나이저를 적용해 여러 토큰으로 조깬다. 쪼개진 토큰에 토큰 필터를 적용해 변형을 가한 결과가 최종적으로 분석 완료된 텀이 된다.
+
+#### 토크나이저
+
+- standard 토크나이저
+  - 기본 토크나이저로 대부분의 문장 부호가 사라진다.
+- keyword 토크나이저
+  - 들어온 텍스트를 쪼개지 않고 그대로 내보낸다.
+- ngram 토크나이저
+
+  - 텍스트를 min_gram 이상, max_gram 이하의 단위로 쪼갠다. 주로 RBMS의 like 검색을 구현하거나 자동 완성 서비스를 구현하고 싶을 때 주로 활용된다.
+
+  ```elixir
+    POST _analyze
+    {
+      "tokenizer": {
+        "type": "ngram",
+        "min_gram": 3,
+        "max_gram": 4
+      },
+      "text": "Hello, World!"
+    }
+  ```
+
+- edge_ngram 토크나이저
+  - ngram과 다르게 토큰의 시작 글자를 단어의 시작 글자로 고정시켜 생성한다.
+
+#### 토큰 필터
+
+- 토큰 필터는 쪼개진 토큰을 추가, 변경, 삭제 한다. 아래는 내장 토큰 필터의 일부이다.
+  - lowercase / uppercase: 토큰의 내용을 소문자/대문자로 변환
+  - stop 토큰 필터: 불용어를 지정하여 제거 (ex: the, a, an, in)
+  - pattern_replace: 정규식을 사용해 토큰 내용 치환
+  - trim: 토큰의 전후에 위치한 공백 문자를 제거
+  - truncate: 지정한 길이로 토큰을 자른다.
+
+```elixir
+  POST _analyze
+  {
+    "filter": [ "lowercase" ],
+    "text": "Hello, World!"
+  }
+```
+
+#### 플러그인 설치를 통한 애널라이저 추가화 한국의 형태소 분석
+
+- 한국의 형태소 분석을 지원하는 기본 내장 애널라이저는 없다. 하지만 ES가 공식 제공하는 nori 플러그인을 설치하면 한국어를 분석할 수 있다. 아래와 같이 플러그인을 설치할 수 있다.
+
+  ```text
+    bin/elasticsearch-plugin install analysis-nori
+  ```
+
+- 플러그인을 설치할 때는 클러스터를 구성하는 모든 노드에 설치해야 한다. 즉 모든 노드에 위 명령어를 수행해야 한다.
+- 플러그인을 설치하면 ES를 재기동해야 하고 아래와 같이 nori 플러그인을 테스트 할 수 있다.
+
+  ```elixir
+    POST _analyze
+    {
+      "analyzer": "nori",
+      "text": "우리는 컴퓨터를 다룬다"
+    }
+
+    // 응답
+    {
+      "tokens": [
+        {
+          "token": "우리",
+          "start_offset": 0,
+          "end_offset": 2,
+          "type": "word",
+          "position": 0
+        },
+        {
+          "token": "컴퓨터",
+          "start_offset": 4,
+          "end_offset": 7,
+          "type": "word",
+          "position": 2
+        },
+        {
+          "token": "다루",
+          "start_offset": 9,
+          "end_offset": 12,
+          "type": "word",
+          "position": 4
+        }
+      ]
+    }
+  ```
