@@ -317,3 +317,117 @@
       }
     }
   ```
+
+#### 필드 타입
+
+- ES 필드 타입은 크게 아래와 같이 분류할 수 있다.
+
+  - 심플 타입: text, keyword, date, long, boolean 등
+  - 계층 구조를 지원하는 타입: object, nested 등
+  - 특수 타입: get_point, get_shape 등
+
+- 배열
+
+  - ES는 배열을 표현하는 별도의 타입이 없다. long 타입 필드는 단일 숫자를 넣을수도 [1,2,3] 같은 배열 데이터도 넣을 수 있다. 아래와 같이 인덱스를 생성해 테스트한다.
+
+  ```elixir
+    // 인덱스 생성
+    PUT array_test
+    {
+      "mappings": {
+        "properties": {
+          "longField": {
+            "type": "long"
+          },
+          "keywordField": {
+            "type": "keyword"
+          }
+        }
+      }
+    }
+
+    // 1번 문서 추가
+    PUT array_test/_doc/1
+    {
+      "longField": 309,
+      "keywordField": ["hello", "world"]
+    }
+
+    // 2번 문서 추가
+    PUT array_test/_doc/2
+    {
+      "longField": [221, 309, 999],
+      "keywordField": "hello"
+    }
+
+    // 309로 조회하면 1,2번 문서 모두 조회됨
+    GET array_test/_search
+    {
+      "query": {
+        "term": {
+          "longField": 309
+        }
+      }
+    }
+  ```
+
+  - ES는 색인 과정에서 데이터가 단일인지 배열인지 상관없이 독립적인 역색인을 구성하기 때문에 위 결과처럼 둘다 검색된다.
+
+- 계층 구조를 지원하는 타입
+  - 계층 구조를 담는 데이터로 object와 nested가 있는데 이 둘은 배열을 처리할 때의 동작이 다르다.
+  - object는 일반적인 계층 구조에 사용하고 가볍고 일반 쿼리를 사용한다.
+  - nested는 배열 각 객체를 독립적으로 취급해야 하는 특수 상황에서 사용하며 무겁고 전용 nested 쿼리를 사용해야 한다.
+
+#### text 타입과 keyword 타입
+
+- text로 지정된 필드 값은 문자열 그대로 역색인을 구성하지 않고 애널라이저가 값을 분석해서 여러 토큰으로 쪼갠 후 역색인을 구성한다. 쪼개진 토큰이 최종적으로 역색인데 들어가는 형태를 term(텀) 이라고 한다. keyword로 지정된 필드는 값 그대로 역색인을 한다.
+- 아래 쿼리에서 차이점을 비교해보자.
+
+  ```elixir
+  PUT mapping_test/_doc/3
+  {
+    "keywordString": "Hello, World!",
+    "textString": "Hello, World!"
+  }
+
+  // 검색 결과 있음
+  GET mapping_test/_search
+  {
+    "query": {
+      "match": {
+        "textString": "hello"
+      }
+    }
+  }
+
+  // 검색 결과 없음
+  GET mapping_test/_search
+  {
+    "query": {
+      "match": {
+        "keywordString": "hello"
+      }
+    }
+  }
+  ```
+
+- 위 쿼리에서 text 필드는 `Hello, World!` 문자열이 hello 문자열 텀과 world 문자열 텀으로 쪼개져 찾을 수 있지만 keyword 필드는 `Hello, World!` 전체를 넣어야 검색할 수 있다.
+- 색인 방식의 차이로 text 타입은 주로 전문 검색에 적합하고 keyword 타입은 일치 검색에 적합하다. 또한 정렬과 집계의 대상이 될 필드는 keyword 타입을 쓰는게 좋다. keyword 타입은 ㄴ기본적으로 doc_values 캐시를 사용하기 때문이다.
+
+#### doc_values
+
+- ES의 검색은 역색인을 기반으로 한 색인을 이용한다. 그러나 정렬, 집계 작업에서 doc_values를 사용해 효율적으로 작업을
+  할 수 있다. ES는 text 타입을 제외한 거의 모든 필드 타입이 doc_values를 지원하며 정렬, 집계 작업을 할 필요가 없는 필드는 매핑을 지정시 false로 전달하면 끌 수 있다.
+
+#### fielddata
+
+- text 타입은 doc_values 캐시를 사용할 수 없어 fielddata 캐시를 이용하는데 OOM 문제를 야기할 수 있어 기본적으로 비활성화 상태이다.
+
+#### source
+
+- `_source` 필드는 문서 색인 시점에 ES에 전달된 원본 JSON 문서를 저장하는 메타데이터 필드다.
+- `_source` 필드는 JSON 문서를 통째로 담기 때문에 디스크를 많이 사용하지만 비활성화 할 경우 reindex를 사용할 수 없기 때문에 활성화 상태로 유지해야 한다.
+
+#### index
+
+- index 속성은 해당 필드의 역색인을 만들 것인지 지정하며 기본값은 true다. false로 설정하면 검색 대상이 되진 않지만 다른 필드로 검색된 필드에 문서가 검색되면 검색 결과에 포함된다.
