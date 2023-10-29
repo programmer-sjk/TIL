@@ -734,3 +734,69 @@
 - 삭제 API
   - DELETE [인덱스 이름]/\_doc/[_id 값]
   - 삭제한 문서는 되돌릴 수 없기 때문에 신중해야 한다. 또한 뒷 부분을 빼먹고 DELETE [인덱스 이름]으로 호출할 경우 인덱스 전체가 삭제되기 때문에 조심해야 한다.
+
+### 4.2 복수 문서 API
+
+#### bulk API
+
+- bulk API는 요청 본문이 NDJSON(JSON을 줄바꿈 문자로 구분) 형태이다.
+- Content-Type 헤더도 application/x-ndjson을 사용해야 한다.
+
+  ```elixir
+    POST _bulk
+    {"index": { "_index": "bulk_test", "_id": 1}}
+    {"field1": "value1"}
+    {"index": { "_index": "bulk_test", "_id": 2}}
+    {"field1": "value2"}
+    {"delete": { "_index": "bulk_test", "_id": 3}}
+    {"update": { "_index": "bulk_test", "_id": 1}}
+    {"doc": { "field2": "value2"}}
+  ```
+
+- bulk API에 기술된 작업은 순서대로 수행된다는 보장이 없다. 조정 역할을 하는 노드가 요청의 내용을 보고 적절한 주 샤드로 요청을 넘겨준다. 여러개의 주 샤드로 넘어간 각 요청은 독자적으로 수행된다. 그러나 완전한 동일한 인덱스, `_id` 조합을 가진 요청은 동일한 주 샤드로 넘어간다.
+- 네트워크 요청을 여러번 반복해서 호출해야 한다면 이를 묶어 한꺼번에 전송하는 것이 성능상 이득이다. ES도 단건 문서 API를 여러번 호출하는 것보다 bulk API를 호출하는게 월등히 빠르다.
+
+#### multi get API
+
+- id를 여럿 지정해 한 번에 조회하는 API다.
+
+  - GET [인덱스 이름]/\_mget
+
+  ```elixir
+    GET bulk_test/_mget
+    {
+      "ids": ["1", "2"]
+    }
+  ```
+
+#### update by query
+
+- POST [인덱스 이름]/_update_by_query
+  - 단건 업데이트 API와 달리 doc을 이용한 업데이트를 지원하지 않고 script를 통한 업데이트만을 지원한다.
+  - 위와 같이 호출하면 ES는 검색 조건에 맞는 문서를 찾아 일종의 스냅샷을 찍고 이후 각 문서마다 업데이트를 실시한다.
+  - 여러 문서의 업데이트를 순차적으로 하는 도중 다른 작업으로 문서의 변경이 발생하면 update_by_query API는 전체 작업을 그만둘 수도 있고 다음 작업으로 넘어갈 수도 있다. 이를 conflicts 매개변수로 abort를 지정하면 작업중단, proceed를 지정하면 다름 작업으로 넘어간다. 기본 값은 abort이다.
+  - update by query를 이용한 작업은 충돌이 나더라도 그때까지 업데이트 된 내용은 롤백되진 않으니 염두해 두어야 한다.
+- 스로틀링
+  - 적절한 스로틀링 적용을 통해 클러스터의 부하와 서비스 영향을 줄일 수 있다.
+
+  ```elixir
+    POST bulk_test/_update_by_query?scroll_size=1000&scroll=1m&requests_per_second=500
+    {
+      .
+      .
+    }
+  ```
+
+  - scroll_size
+    - update_by_query는 업데이트 전 검색을 수행한다. 기본적으로 한 번의 검색 수행에 1000개의 문서를 가져와 업데이트를 수행하고 완료되면 다음 검색을 1001 ~ 2000번까지 문서를 1000개 가져온다. scroll_size는 이 값을 조정하는 설정이다.
+  - scroll
+    - update_by_query가 스냅샷을 찍을 때 이 내용을 얼마나 보존할지 지정하는 설정이다.
+    - 즉 이 설정 값 동안 scroll_size 만큼의 작업처리가 가능해야 하므로 너무 작은 값을 설정하면 안된다.
+  - requests_per_second
+    - 초당 몇 개까지의 작업을 수행할지 지정한다. scroll_size가 1000이고 requests_per_second 값이 500이라면 ES는 2초마다 1000개를 업데이트 한다. 스로틀링 조정 값의 핵심은 scroll_size, requests_per_second 값이며 requests_per_second의 기본값은 -1로 스로틀링을 적용하지 않는 설정이다.
+
+#### delete by query
+
+- 검색 쿼리로 삭제할 대상을 지정한 뒤 삭제를 수행하는 작업이다.
+  - POST [인덱스 이름]/_delete_by_query
+- delete_by_query 역시 검색 조건에 맞는 문서를 찾아 스냅샷을 찍으며 삭제 중 문서 내용이 변경되면 conflicts 매개 변수를 사용하는 것, 스로틀링 역시 동일하다.
