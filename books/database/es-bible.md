@@ -523,3 +523,99 @@
       ]
     }
   ```
+
+### 3.4 템플릿
+
+- ES를 실무에서 운영하다 보면 유사한 인덱스를 계속 생성할 때가 많은데 템플릿을 사전에 정의하여 인덱스를 생성하는 방법을 알아보자.
+
+#### 인덱스 템플릿
+
+- index_patterns은 인덱스 패턴을 지정한다. 아래와 같이 인덱스 템플릿을 생성한 후, 새로 생성되는 인덱스의 이름이 pattern_test_index 형태라면 이 템플릿에 맞춰 인덱스가 생성된다.
+
+  ```elixir
+    PUT _index_template/my_template
+    {
+      "index_patterns": ["pattern_test_index-*"],
+      "priority": 1,
+      "template": {
+        "settings": {
+          "number_of_shards": 2,
+          "number_of_replicas": 2
+        }
+      }
+    }
+  ```
+
+#### 컴포넌트 템플릿
+
+- 템플릿 간 중복되는 부분을 재사용할 수 있도록 쪼갠것이 컴포넌트 템플릿이다.
+
+  ```elixir
+    PUT _component_template/timestamps_mappings
+    {
+      "template": {
+        "mappings": {
+          "properties": {
+            "timestamp": {
+              "type": "date"
+            }
+          }
+        }
+      }
+    }
+
+    PUT _component_template/my_shard_settings
+    {
+      "template": {
+        "settings": {
+          "number_of_shards": 2,
+          "number_of_replicas": 2
+        }
+      }
+    }
+
+    PUT _index_template/my_template2
+    {
+      "index_patterns": ["timestamp_index-*"],
+      "composed_of": ["timestamps_mappings", "my_shard_settings"]
+    }
+  ```
+
+#### 동적 템플릿
+
+- 동적 템플릿은 인덱스에 새로 들어온 필드의 매핑을 사전에 정의한대로 동적 생성하는 기능이다.
+- 동적 템플릿은 인덱스 템플릿과는 다르게 매핑 안에 정의한다. 아래 예시를 살펴보자.
+
+```elixir
+  PUT _index_template/dynamic_mapping_template
+  {
+    "index_patterns": ["dynamic_mapping*"],
+    "priority": 1,
+    "template": {
+      "settings": {
+        "number_of_shards": 2,
+        "number_of_replicas": 2
+      },
+      "mappings": {
+        "dynamic_templates": [
+          {
+            "my_text": {
+              "match_mapping_type": "string",
+              "match": "*_text",
+              "mapping": {
+                "type": "text"
+              }
+            },
+            "my_keyword": {
+              "match_mapping_type": "string",
+              "match": "*_keyword",
+              "mapping": {
+                "type": "keyword"
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+```
