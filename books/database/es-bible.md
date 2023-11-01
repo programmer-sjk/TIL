@@ -801,3 +801,50 @@
 - 검색 쿼리로 삭제할 대상을 지정한 뒤 삭제를 수행하는 작업이다.
   - POST [인덱스 이름]/\_delete_by_query
 - delete_by_query 역시 검색 조건에 맞는 문서를 찾아 스냅샷을 찍으며 삭제 중 문서 내용이 변경되면 conflicts 매개 변수를 사용하는 것, 스로틀링 역시 동일하다.
+
+### 4.3 검색 API
+
+#### 검색 대상 지정
+
+- ES는 다양한 검색 쿼리를 제공한다. GET과 POST 무엇을 사용해도 동작은 동일하고 인덱스 이름을 지정하지 않으면 전체 인덱스에 대해 검색한다. 와일드 카드 문자(\*)와 콤마로 구분해 여러 인덱스를 지정하는 것도 가능하다.
+
+```elixir
+GET [인덱스 이름]/_search
+POST [인덱스 이름]/_search
+GET _search
+POST _search
+
+GET my_index-*,test*,mapping_test/_search
+```
+
+#### 쿼리 DSL 검색과 쿼리 문자열 검색
+
+- 쿼리 DSL 검색
+
+  ```elixir
+    GET my_index/_search
+    {
+      "query": {
+        "match": {
+          "title": "hello"
+        }
+      }
+    }
+  ```
+
+- 쿼리 문자열 검색
+  - 루씬 쿼리 문자열을 지정하는 방법으로 간단한 요청을 하는 경우 사용된다.
+  - `GET my_index/_search?q=title:hello`
+
+#### match_all
+
+- match_all 쿼리는 모든 문서를 매치하는 쿼리다. query를 비워두면 기본값으로 지정된다.
+
+  ```elixir
+    GET [인덱스 이름]/_search
+    {
+      "query": {
+        "match_all": {}
+      }
+    }
+  ```
