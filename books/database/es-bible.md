@@ -952,3 +952,75 @@ GET my_index-*,test*,mapping_test/_search
       }
     }
   ```
+
+#### 검색결과 정렬
+
+- 요청 본문에 sort를 지정하면 검색 결과를 정렬할 수 있다. 정렬에 사용할 필드 이름과 종류를 지정하면 된다.
+
+  ```
+    GET my_index/_search
+    {
+      "query": {..},
+      "sort": [
+        {
+          "title": { "order": "desc"},
+          "views": { "order": "desc"}
+        }
+      ]
+    }
+  ```
+
+- ES 필드타입에는 정렬이 가능한 타입과 불가능한 타입이 있다. 숫자, date, boolean, keyword 타입은 정렬 대상이 될 수 있지만 text 타입은 정렬 대상이 될 수 없다.
+
+#### 페이지네이션
+
+- from과 사이즈
+
+  - size는 limit 개념이고 from은 오프셋을 뜻한다.
+
+    ```
+      GET my_index/_search
+      {
+        "query": {..},
+        "from": 0,
+        "size": 20
+      }
+    ```
+
+  - from 값이 올라갈수록 CPU와 메모리 사용량을 크게 증가시키기 때문에 본격적인 페이지네이션을 해야 한다면 아래에서 소개할 scroll이나 search_after를 사용해야 한다.
+
+- scroll
+
+  - 검색 조건에 매칭되는 전체 문서를 순회할 때 적합하다.
+
+    ```
+      GET my_index/_search?scroll=1m
+      {
+        "query": {..},
+        "size": 20
+      }
+    ```
+
+  - scroll은 서비스에서 지속적으로 호출하는 것을 의도한 기능이 아니다. 주료 대량의 데이터를 덤프하는 용도로 사용한다. 서비스에서 사용자가 지속적으로 호출하기 위한 페이지네이션 용도로는 search_after를 사용해야 한다.
+
+- search_after
+
+  - 페이지네이션에 가장 적합하며 sort를 지정해야 한다.
+
+    ```
+      GET kibana_sample_data_ecommerce/_search
+      {
+        "size": 20,
+        "query": {
+          "term": {
+            "currency": {
+              "value": "ER"
+            }
+          }
+        },
+        "sort": [
+          { "order_date": "desc" },
+          { "order_id": "asc" }
+        ]
+      }
+    ```
