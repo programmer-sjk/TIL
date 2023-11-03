@@ -848,3 +848,107 @@ GET my_index-*,test*,mapping_test/_search
       }
     }
   ```
+
+#### match
+
+- 필드의 내용이 질의어와 매치되는 문서를 찾는 쿼리다. match 쿼리의 기본 동작은 OR로 동작하기에 다음과 같이 operator를 and로 지정하면 모든 텀이 매치된 문서만 검색되도록 할 수 있다.
+
+  ```
+  GET my_index/_search
+  {
+    "query": {
+      "match": {
+        "title": { // field name
+          "query": "world",
+          "operator": "and"
+        }
+      }
+    }
+  }
+  ```
+
+#### term 쿼리
+
+- term 쿼리는 필드 값이 질의어와 정확히 일치하는 문서를 찾는 쿼리다.
+
+  ```
+    GET my_index/_search
+    {
+      "query": {
+        "term": {
+          "title": { // field name
+            "value": "world"
+          }
+        }
+      }
+    }
+  ```
+
+#### terms 쿼리
+
+- 질의어를 여러개 지정할 수 있으며 하나 이상의 질의어와 일치하면 검색결과에 포함된다.
+
+  ```
+    GET my_index/_search
+    {
+      "query": {
+        "terms": {
+          "title": ["hello", "world"]
+        }
+      }
+    }
+  ```
+
+#### range 쿼리
+
+- 필드의 값이 특정 범위 내에 있는 문서를 찾는 쿼리다.
+
+  ```
+    GET my_index/_search
+    {
+      "query": {
+        "range": {
+          "views": {
+            "gte": 10,
+            "lt": 2000
+          }
+        }
+      }
+    }
+  ```
+
+- range 쿼리 대상 필드가 date 타입이면 간단한 날짜 시간 계산식도 사용할 수 있다.
+
+  ```
+    GET my_index/_search
+    {
+      "query": {
+        "range": {
+          "dateField": {
+            "gte": "2019-01-15T00:00:00.000Z||+36h/d",
+            "lt": "now-3h/d"
+          }
+        }
+      }
+    }
+  ```
+
+  - now: 현재시간을 나타낸다.
+  - ||: 날짜 시간 문자열의 마지막에 붙인다. 시간 계산식으로 파싱된다.
+  - +와 -: 지정한 시간만큼 더하거나 빼는 연산을 수행
+  - /: 버림을 수행. /d는 날짜 단위 이하의 시간을 버림한다.
+
+#### exists 쿼리
+
+- 지정한 필드를 포함한 문서를 검색한다.
+
+  ```
+    GET my_index/_search
+    {
+      "query": {
+        "exists": {
+          "field": "title"
+        }
+      }
+    }
+  ```
