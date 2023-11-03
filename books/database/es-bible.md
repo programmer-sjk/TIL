@@ -1024,3 +1024,118 @@ GET my_index-*,test*,mapping_test/_search
         ]
       }
     ```
+
+### 4.4 집계
+
+#### 집계 기본
+
+- 요청 본문에 aggs를 추가해서 작업한다. 과도한 집계는 성능에 영향을 줄 수 있는데 특히 키바나 대시보드를 구성하기 위한 시각화 그래프를 만들고 다수의 유저가 대시보드를 조회하면 순식간에 클러스터를 장애 상황에 빠드릴 수 있다. 따라서 통제되지 않은 사용자에게는 키바나를 열지 말고 키바나 대시보드의 위험성을 인지하고 있어야 한다.
+
+#### 매트릭 집계
+
+- avg,max,min,max 집계
+
+  - 검색에 매칭된 문서의 필드 값을 가져온 뒤 각각 평균,최대,최소,합을 계산하여 반환한다.
+
+  ```
+    GET kibana_sample_data_ecommerce/_search
+    {
+      "size": 0,
+      "query": {
+        "term": { "currency": { "value": "EUR" } } },
+      "aggs": {
+        "my-agg-name": {
+          "avg": {
+            "field": "taxless_total_price"
+          }
+        }
+      }
+    }
+  ```
+
+- stats 집계
+
+  - 지정한 필드의 평균, 최대, 최소, 합, 개수를 모두 계산하여 반환한다.
+
+    ```
+      GET kibana_sample_data_ecommerce/_search
+      {
+        "size": 0,
+        "query": {
+          "term": { "currency": { "value": "EUR" } } },
+        "aggs": {
+          "my-agg-name": {
+            "stats": {
+              "field": "taxless_total_price"
+            }
+          }
+        }
+      }
+    ```
+
+#### 버킷 집계
+
+- range 집계
+
+  ```
+    GET kibana_sample_data_ecommerce/_search
+    {
+      "size": 0,
+      "query": { "match_all": {} },
+      "aggs": {
+        "my-agg-name": {
+          "range": {
+            "field": "DistanceKilometers",
+            "ranges": [
+              { "to": 5000 },
+              { "from": 5000, "to": 10000 }
+            ]
+          }
+        }
+      }
+    }
+  ```
+
+- date_range 집계
+
+  - range 집계와 유사하나 data 타입필드를 사용하는 점, from과 to에 날짜 시간 계산식을 사용할 수 있다는 차이가 있다.
+
+    ```
+      GET kibana_sample_data_ecommerce/_search
+      {
+        "size": 0,
+        "query": { "match_all": {} },
+        "aggs": {
+          "my-agg-name": {
+            "date_range": {
+              "field": "order_date",
+              "ranges": [
+                { "to": "now-10d/d" },
+                { "from": "now-10d/d", "to": "now" }
+              ]
+            }
+          }
+        }
+      }
+    ```
+
+- terms 집계
+
+  - 필드에 대해 가장 빈도수가 높은 term 순서대로 버킷을 생성한다.
+  - 모든 term에 대해 페이지네이션으로 전부 순회하며 집계 하려고 한다면 composite 집계를 사용하는게 좋다.
+
+    ```
+      GET kibana_sample_data_logs/_search
+      {
+        "size": 0,
+        "query": { "match_all": {} },
+        "aggs": {
+          "my-agg-name": {
+            "terms": {
+              "field": "host.keyword",
+              "size": 10
+            }
+          }
+        }
+      }
+    ```
