@@ -1139,3 +1139,7 @@ GET my_index-*,test*,mapping_test/_search
         }
       }
     ```
+
+### 4.5 서비스 코드에서 ES 클라이언트 사용
+
+- JVM에서 ES를 사용하는 코드 예시가 나오니 필요할 때 정리하자.
