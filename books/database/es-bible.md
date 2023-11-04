@@ -853,7 +853,7 @@ GET my_index-*,test*,mapping_test/_search
 
 - 필드의 내용이 질의어와 매치되는 문서를 찾는 쿼리다. match 쿼리의 기본 동작은 OR로 동작하기에 다음과 같이 operator를 and로 지정하면 모든 텀이 매치된 문서만 검색되도록 할 수 있다.
 
-  ```
+  ```elixir
   GET my_index/_search
   {
     "query": {
@@ -871,7 +871,7 @@ GET my_index-*,test*,mapping_test/_search
 
 - term 쿼리는 필드 값이 질의어와 정확히 일치하는 문서를 찾는 쿼리다.
 
-  ```
+  ```elixir
     GET my_index/_search
     {
       "query": {
@@ -888,7 +888,7 @@ GET my_index-*,test*,mapping_test/_search
 
 - 질의어를 여러개 지정할 수 있으며 하나 이상의 질의어와 일치하면 검색결과에 포함된다.
 
-  ```
+  ```elixir
     GET my_index/_search
     {
       "query": {
@@ -903,7 +903,7 @@ GET my_index-*,test*,mapping_test/_search
 
 - 필드의 값이 특정 범위 내에 있는 문서를 찾는 쿼리다.
 
-  ```
+  ```elixir
     GET my_index/_search
     {
       "query": {
@@ -919,7 +919,7 @@ GET my_index-*,test*,mapping_test/_search
 
 - range 쿼리 대상 필드가 date 타입이면 간단한 날짜 시간 계산식도 사용할 수 있다.
 
-  ```
+  ```elixir
     GET my_index/_search
     {
       "query": {
@@ -942,7 +942,7 @@ GET my_index-*,test*,mapping_test/_search
 
 - 지정한 필드를 포함한 문서를 검색한다.
 
-  ```
+  ```elixir
     GET my_index/_search
     {
       "query": {
@@ -957,7 +957,7 @@ GET my_index-*,test*,mapping_test/_search
 
 - 요청 본문에 sort를 지정하면 검색 결과를 정렬할 수 있다. 정렬에 사용할 필드 이름과 종류를 지정하면 된다.
 
-  ```
+  ```elixir
     GET my_index/_search
     {
       "query": {..},
@@ -978,7 +978,7 @@ GET my_index-*,test*,mapping_test/_search
 
   - size는 limit 개념이고 from은 오프셋을 뜻한다.
 
-    ```
+    ```elixir
       GET my_index/_search
       {
         "query": {..},
@@ -993,7 +993,7 @@ GET my_index-*,test*,mapping_test/_search
 
   - 검색 조건에 매칭되는 전체 문서를 순회할 때 적합하다.
 
-    ```
+    ```elixir
       GET my_index/_search?scroll=1m
       {
         "query": {..},
@@ -1007,7 +1007,7 @@ GET my_index-*,test*,mapping_test/_search
 
   - 페이지네이션에 가장 적합하며 sort를 지정해야 한다.
 
-    ```
+    ```elixir
       GET kibana_sample_data_ecommerce/_search
       {
         "size": 20,
@@ -1037,7 +1037,7 @@ GET my_index-*,test*,mapping_test/_search
 
   - 검색에 매칭된 문서의 필드 값을 가져온 뒤 각각 평균,최대,최소,합을 계산하여 반환한다.
 
-  ```
+  ```elixir
     GET kibana_sample_data_ecommerce/_search
     {
       "size": 0,
@@ -1057,7 +1057,7 @@ GET my_index-*,test*,mapping_test/_search
 
   - 지정한 필드의 평균, 최대, 최소, 합, 개수를 모두 계산하여 반환한다.
 
-    ```
+    ```elixir
       GET kibana_sample_data_ecommerce/_search
       {
         "size": 0,
@@ -1077,7 +1077,7 @@ GET my_index-*,test*,mapping_test/_search
 
 - range 집계
 
-  ```
+  ```elixir
     GET kibana_sample_data_ecommerce/_search
     {
       "size": 0,
@@ -1100,7 +1100,7 @@ GET my_index-*,test*,mapping_test/_search
 
   - range 집계와 유사하나 data 타입필드를 사용하는 점, from과 to에 날짜 시간 계산식을 사용할 수 있다는 차이가 있다.
 
-    ```
+    ```elixir
       GET kibana_sample_data_ecommerce/_search
       {
         "size": 0,
@@ -1124,7 +1124,7 @@ GET my_index-*,test*,mapping_test/_search
   - 필드에 대해 가장 빈도수가 높은 term 순서대로 버킷을 생성한다.
   - 모든 term에 대해 페이지네이션으로 전부 순회하며 집계 하려고 한다면 composite 집계를 사용하는게 좋다.
 
-    ```
+    ```elixir
       GET kibana_sample_data_logs/_search
       {
         "size": 0,
@@ -1194,7 +1194,7 @@ GET my_index-*,test*,mapping_test/_search
 
 - ES 운영 중 설정을 동적으로 변경해야 할 때가 있다. 클러스터 설정 API는 그런 상황에서 클러스터와 관련된 설정을 확인 및 변경할 수 있는 API다. 먼저 클러스터 설정은 다음 방법으로 확인한다.
 
-  ```
+  ```elixir
     GET _cluster/settings
   ```
 
@@ -1202,7 +1202,7 @@ GET my_index-*,test*,mapping_test/_search
 
 - cat API는 ES의 현재 상태를 조회할 수 있는 API다. 관리 목적이나 모니터링 용도로 cat API를 자주 사용하게 되는데 몇 가지를 소개하면 아래와 같다.
 
-  ```
+  ```elixir
     GET _cat/health # 클러스터의 전반적인 상태 조회
     GET _cat/indices # 인덱스의 종류와 상태 확인
     GET _cat/nodes # 각 노드의 상태 조회
