@@ -1190,4 +1190,25 @@ GET my_index-*,test*,mapping_test/_search
 
 ## 6. 클러스터 운영
 
--
+### 6.1 클러스터 설정 API
+
+- ES 운영 중 설정을 동적으로 변경해야 할 때가 있다. 클러스터 설정 API는 그런 상황에서 클러스터와 관련된 설정을 확인 및 변경할 수 있는 API다. 먼저 클러스터 설정은 다음 방법으로 확인한다.
+
+  ```
+    GET _cluster/settings
+  ```
+
+### 6.2 cat API를 통한 클러스터 관리와 모니터링
+
+- cat API는 ES의 현재 상태를 조회할 수 있는 API다. 관리 목적이나 모니터링 용도로 cat API를 자주 사용하게 되는데 몇 가지를 소개하면 아래와 같다.
+
+  ```
+    GET _cat/health # 클러스터의 전반적인 상태 조회
+    GET _cat/indices # 인덱스의 종류와 상태 확인
+    GET _cat/nodes # 각 노드의 상태 조회
+    GET _cat/shards # 샤드의 상태 조회
+    GET _cat/segments # 루씬 세그먼트 상태 조회
+    GET _cat/recovery # 진행중 or 완료된 샤드 복구 작업에 대한 정보 조회
+    GET _cat/allocation # 샤드 할당과 관련된 정보를 조회
+    GET _cat/master # 현재 마스터 노드 확인
+  ```
