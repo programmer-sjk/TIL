@@ -1396,7 +1396,7 @@ GET my_index-*,test*,mapping_test/_search
     - external: 클라이언트가 명시적으로 지정하며 기존 문서의 버전보다 새 문서의 버전이 큰 경우 색인 수행
     - external_gte: external과 동일하지만 새 문서의 버전이 크고 같은 경우에 색인 수행
 
-    ```
+    ```elixir
       PUT concurrency_test/_doc/1 # 문서 생성
       {
         "views": 0
