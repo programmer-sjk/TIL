@@ -8,7 +8,7 @@
 
 - spring 진영의 ORM인 **JPA 경우** OneToMany 관계의 기본 fetch type이 **`Lazy Loading`** 이라 ORM을 쓸 때 N+1 문제를 쉽게 접할 뿐 더러 eager와 lazy에 따라 쿼리가 어떻게 수행되고 어떻게 N+1 문제를 해결하는지 아는 것이 중요하다.
 - typeorm은 기본 fetch type이 eager, lazy 둘 다 아니고 보통 find 메소드의 relations 옵션이나 쿼리 빌더의 조인을 사용하기 때문에 실무에서 N+1 문제를 접할 일이 상대적으로 드물긴 하다.
-- 먼저 typeorm에서 N+1은 언제 발생하는지 알아보자.
+- 먼저 typeorm에서 N+1은 언제 발생하는지 알아보자. (GraphQL 미 사용)
 
   - 아래와 같이 movie 엔티티의 연관관계가 있는 reviews에 **lazy 옵션**을 추가한다.
 
@@ -104,7 +104,7 @@ query {
 ```
 
 - 응답을 보면 movie를 조회할 때 **reviews 필드가** movie에 해당하는 review를 조회하는 역할을 하는 걸 알 수 있다.
-- 만약 당신이 controller가 익숙한 세계에서 왔다면 이런 의문을 가질 수 있다. 그냥 movieService에서 review도 같이 조회하면 되는거 아닌가? 아래 코드처럼.
+- 만약 당신이 GraphQL에 익숙하지 않다면 이런 의문을 가질 수 있다. 그냥 movieService에서 review도 같이 조회하면 되는거 아닌가? 아래 코드처럼.
 
 ```ts
 @Injectable()
@@ -218,7 +218,7 @@ load(key: K): Promise<V> {
 }
 ```
 
-- 이 후 **`dispatchBatch`** 메서드가 실행되는데, 이는 load 메서드 내부에서 **`process.nextTick`** 함수로 dispatchBatch 함수를 NextTickQueue에 등록하기 때문이다. dispatchBatch 메서드 내부에서 keys 배열에서 꺼낸 movie id에 해당하는 결과(review 배열)를 callbacks 배열에 resolve 시킨다.
+- 이 후 **`dispatchBatch`** 메서드가 실행되는데, 이는 load 메서드 내부에서 **`process.nextTick`** 함수로 dispatchBatch 함수를 **NextTickQueue에 등록하기 때문**이다. dispatchBatch 메서드 내부에서 keys 배열에서 꺼낸 movie id에 해당하는 결과(review 배열)를 **들어온 순서대로** callbacks 배열에 resolve 시킨다.
 
 <img src="https://github.com/programmer-sjk/TIL/blob/main/images/js/dataloader-2.png" width="800">
 
