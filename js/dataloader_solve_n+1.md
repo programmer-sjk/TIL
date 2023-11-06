@@ -218,7 +218,7 @@ load(key: K): Promise<V> {
 }
 ```
 
-- 이 후 **`dispatchBatch`** 메서드가 실행되는데, 이는 load 메서드 내부에서 **`process.nextTick`** 함수로 dispatchBatch 함수를 **NextTickQueue에 등록하기 때문**이다. dispatchBatch 메서드 내부에서 keys 배열에서 꺼낸 movie id에 해당하는 결과(review 배열)를 **들어온 순서대로** callbacks 배열에 resolve 시킨다.
+- 이 후 DataLoader 내부의 **`dispatchBatch`** 메서드가 실행되는데, 이 내부에서 우리가 DataLoader를 생성한 시점에 전달한 함수가 실행된다. dispatchBatch 메서드가 실행되는 원리는 load 메서드 내부에서 **`process.nextTick`** 함수로 dispatchBatch 함수를 **NextTickQueue에 등록하기 때문**이다. - **dispatchBatch 메서드 내부에서** 우리가 전달한 함수를 실행하고, 실행된 결과들을 **순서대로** callbacks 배열에 resolve 시킨다. 따라서 DataLoader에 전달하는 메서드 내부에서는 key에 맞는 순서대로 응답할 수 있도록 find나 filter와 같은 메서드로 key가 일치하는 데이터를 응답해야 한다.
 
 <img src="https://github.com/programmer-sjk/TIL/blob/main/images/js/dataloader-2.png" width="800">
 
@@ -229,8 +229,15 @@ function dispatchBatch<K, V>(
 ) {
   .
   .
+  /**
+   * _batchLoadFn은 DataLoader를 생성한 시점에 우리가 전달한 함수
+   * batch.keys는 위 과정에서 순서대로 모은 id 배열을 의미
+   */
+  batchPromise = loader._batchLoadFn(batch.keys);
+  .
+  .
   for (var i = 0; i < batch.callbacks.length; i++) {
-    var value = values[i]; // 여기서 value는 movie id에 해당하는 review 배열을 의미
+    var value = values[i]; // 여기서 value는 key 순서에 해당하는 결과를 의미
     if (value instanceof Error) {
       batch.callbacks[i].reject(value);
     } else {
