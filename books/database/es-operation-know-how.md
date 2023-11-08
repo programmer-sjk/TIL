@@ -2,7 +2,7 @@
 
 - [책 링크](https://www.yes24.com/Product/Goods/96520155)
 
-## ES 흝어보기
+## 1. ES 흝어보기
 
 - ES는 루씬 기반의 오픈 소스 검색 엔진이다. JSON 기반의 문서를 저장하고 검색할 수 있다.
 - ES의 몇 가지 특징은 아래와 같다.
@@ -10,3 +10,25 @@
   - 클러스터로 구성하여 안정성을 높이고 부하를 분산시킬 수 있다.
   - 스키마리스로 필드를 사전에 정의하지 않아도 된다.
   - REST API 기반의 인터페이스를 지원하여 진입 장벽이 낮은 편이다.
+
+## 2. ES 기본동작
+
+- 인덱스의 생성, 문서 색인/수정 등의 과정을 확인하자.
+
+  ```Elixir
+    # 인덱스 생성
+    PUT /contents
+
+    # 생성된 인덱스 조회
+    GET _cat/indices?v
+
+    # 문서 추가
+    PUT /contents/_doc/1
+    {
+      "title": "제목~",
+      "author": "seo.jeong.kuk"
+    }
+
+    # 문서 조회
+    GET /contents/_mappings?pretty
+  ```
