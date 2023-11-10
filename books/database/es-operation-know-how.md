@@ -202,3 +202,11 @@
 ### 7.5 stats API로 지표 확인
 
 - `_cluster/stats`
+
+## 8. 분석 엔진으로 활용하기
+
+### 8.1 Elastic Stack 이란
+
+- Elastic Stack은 로그를 수집, 가공하고 이를 바탕으로 분석하는데 사용되는 플랫폼을 의미한다.
+- ELK Stack 으로도 불리는데 로그를 전송하는 Filebeat, 전송된 로그를 JSON 문서로 파싱하는 Logstash, 파싱된 문서를 저장하는 ElasticSearch, 데이터를 시각화하는 Kibana 이렇게 4개의 시스템으로 구성된다.
+- 각 시스템을 설치하는 방법이나 kibana에서 로그를 조회하고 시각화하는 방법을 다룬다. 필요할떄 학습한다.
