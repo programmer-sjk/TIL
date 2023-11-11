@@ -210,3 +210,63 @@
 - Elastic Stack은 로그를 수집, 가공하고 이를 바탕으로 분석하는데 사용되는 플랫폼을 의미한다.
 - ELK Stack 으로도 불리는데 로그를 전송하는 Filebeat, 전송된 로그를 JSON 문서로 파싱하는 Logstash, 파싱된 문서를 저장하는 ElasticSearch, 데이터를 시각화하는 Kibana 이렇게 4개의 시스템으로 구성된다.
 - 각 시스템을 설치하는 방법이나 kibana에서 로그를 조회하고 시각화하는 방법을 다룬다. 필요할떄 학습한다.
+
+## 9. 검색 엔진으로 활용하기
+
+- ES는 Elastic Stack에 포함되어 로그 분석과 시각화 도구로도 많이 사용되지만 검색 엔진으로도 많이 활용된다.
+
+### 9.1 inverted index란
+
+- "I am a boy" 라는 문자열을 가진 문서가 있다고 가정해보자. 이 문자열을 공백을 기준으로 `i`, `am`, `a`, `boy` 라는 4개의 토큰으로 만들어진다. 그리고 아래와 같은 형태로 저장되는데 이것을 inverted index라고 부른다.
+
+  ```text
+    Tokens   Documents
+       i       1
+       am      1,2
+       a       3,4
+       boy     2
+  ```
+
+- 아래와 같이 API를 수행하여 어떻게 토큰이 생성되는지 확인할 수 있다.
+
+  ```Elixir
+    POST _analyze
+    {
+      "analyzer": "standard",
+      "text": "I am a boyyyy"
+    }
+  ```
+
+### 9.2 analyer 살펴보기
+
+- 데이터가 token으로 구분될 때 아래와 같은 과정을 거치게 된다.
+  - 문자열 -> character filter -> tokenizer -> token filter -> tokens
+- 먼저 character filter는 문자열들을 1차로 변경한다. 특수 문자나 HTML 태그를 제거하는 과정을 통해 변경된 문자열은 tokenizer를 통해 n개의 토큰으로 나뉜다. 그 후 token filter가 토큰에 대해 다시 한 번 변형을 가한다. 예시로 토큰을 전부 소문자로 바꾸는 lowercase token filter가 대표적인 token filter이다.
+
+### 9.3 analyer와 검색의 관계
+
+- analyer를 통해 생성된 토큰들이 역인덱스에 저장되고, 검색할때는 역인덱스에 저장된 값을 바탕으로 문서를 찾는다. 따라서 검색 니즈를 잘 파악해서 적합한 analyze를 설정해야 한다.
+- 필드에 text 타입과 keyword 타입으로 정의하면 검색 결과가 달라질 수 있는데 text 타입은 기본적으로 standard analyze를 사용하고 keyword 타입은 keyword analyze를 사용한다.
+
+  ```Elixir
+    POST _analyze
+    {
+      "analyzer": "keyword",
+      "text": "I am a boy"
+    }
+
+    # 결과
+    {
+      "tokens": [
+        {
+          "token": "I am a boy",
+          "start_offset": 0,
+          "end_offset": 10,
+          "type": "word",
+          "position": 0
+        }
+      ]
+    }
+  ```
+
+- standard analyze와 다르게 문자열을 나누지 않기 때문에 특정 단어로 검색하면 검색결과가 나오지 않게 된다.
