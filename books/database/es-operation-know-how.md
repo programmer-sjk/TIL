@@ -435,3 +435,74 @@
       }
     }
   ```
+
+### 9.8 bool query를 이용해 쿼리 조합하기
+
+- 실제 검색할 때는 Query Context와 Filter Context를 조합하는 방법도 필요하다. 그 중 대표적으로 사용되는 방법인 bool query에 대해 알아보자.
+  - must: 항목 내 쿼리에 일치하는 문서를 검색 (스코어링 O, 캐싱 X)
+  - filter: 항목 내 쿼리에 일치하는 문서를 검색 (스코어링 X, 캐싱 O)
+  - should: 항목 내 쿼리에 일치하는 문서를 검색 (스코어링 O, 캐싱 X)
+  - must_not: 항목 내 쿼리에 일치하는 않는 문서를 검색 (스코어링 X, 캐싱 O)
+- 위 특징을 기준으로 must, should는 Query Context에서 실행되고 filter, must_not은 Filter Context에서 실행된다.
+
+  ```Elixir
+    GET test_data/_search
+    {
+      "query": {
+        "bool": {
+          "must":[
+            {
+              "match": {
+                "title": "nginx"
+              }
+            }
+          ],
+          "filter": [
+            {
+              "range": {
+                "createdAt": {
+                  "gte": "2015/01/01",
+                  "lte": "2015/12/31"
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  ```
+
+- 위 쿼리는 must 절에서 title이 nginx가 들어간 문서를 찾고 filter 절에서 날짜에 해당하는 문서를 찾는다.
+- 또한 아래 쿼리처럼 원치않는 문서를 제외할 수도 있다.
+
+  ```Elixir
+    GET test_data/_search
+    {
+      "query": {
+        "bool": {
+          "must":[
+            {
+              "match": {
+                "title": "nginx"
+              }
+            },
+            {
+              "range": {
+                "createdAt": {
+                  "gte": "2015/01/01",
+                  "lte": "2015/12/31"
+                }
+              }
+            }
+          ],
+          "must_not": [
+            {
+              "match": {
+                "description": "performance"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ```
