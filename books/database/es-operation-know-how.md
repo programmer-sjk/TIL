@@ -303,3 +303,135 @@
 ### 9.5 Query DSL 이란
 
 - search API에서 중요한 부분을 담당하는 검색 쿼리를 살펴보자. 검색 쿼리는 Query DSL이라 불리며 크게 Query Context와 Filter Context로 분류한다. Query Context는 Full Text Search라고도 불리며 전문검색에 활용된다. Filter Context는 검색어가 문서에 존재하는지 여부를 검사한다. 예를 들어 남자인지 여자인지 검색하는 경우가 Filter Context에 속한다.
+
+### 9.6 Query Context
+
+- 쿼리 컨텍스트의 종류는 아래와 같다.
+  - match: 검색어에 맞는 토큰들이 존재하는지 확인한다.
+  - match_phrase: match와 비슷하지만 검색어에 입력된 순서를 지켜야 한다.
+  - multi_match: match와 비슷하지만 다수의 필드에 검색하기 위해 사용된다.
+  - query_string: and, or이 같이 필요할 때 사용한다.
+
+#### match 쿼리
+
+- 검색어로 들어온 문자열을 analyzer로 분석한 뒤 해당 문자열의 토큰을 가지고 있는 문서를 검색한다.
+- 아래 쿼리에서 ES는 검색어를 nginx, guide 두 개의 토큰으로 만들고 두 개의 토큰이 가장 많이 포함된 문서를 기준으로 score를 생성해서 검색 결과를 돌려준다.
+
+  ```Elixir
+    GET test_data/_search
+    {
+      "query": {
+        "match": {
+          "description": "nginx guide"
+        }
+      }
+    }
+  ```
+
+#### match_phrase 쿼리
+
+- match와 달리 검색어의 순서를 고려한다. 예를 들어 nginx guide로 검색하면 match는 nginx, guide 두 개의 토큰으로 만들고 두 단어 중 하나라도 포함되어 있다면 검색 결과를 보여주지만 match_phrase는 정확한 순서를 가진 결과를 보여주기 때문에 둘다 순서에 맞게 포함되어 있어야 검색결과에 포함된다.
+
+#### multi_match 쿼리
+
+- match와 동일하지만 두 개 이상의 필드에 match 쿼리를 날릴 수 있다.
+
+  ```Elixir
+    GET test_data/_search
+    {
+      "query": {
+        "multi_match": {
+          "query": "nginx guide",
+          "fields": ["title", "description"]
+        }
+      }
+    }
+  ```
+
+#### query_string 쿼리
+
+- and와 or 같은 검색어 간 연산이 필요한 경우에 사용한다. 아래와 같이 query_string을 만들면 match 쿼리와 같은 의미이다.
+
+  ```Elixir
+    GET test_data/_search
+    {
+      "query": {
+        "query_string": {
+          "query": "linux",
+          "fields": ["title"]
+        }
+      }
+    }
+  ```
+
+- 와일드 카드 검색도 가능하다.
+
+```Elixir
+    GET test_data/_search
+    {
+      "query": {
+        "query_string": {
+          "query": "*nux",
+          "fields": ["title"]
+        }
+      }
+    }
+```
+
+### 9.7 Filter Context
+
+- 검색어가 문서에 포함되어 있는지 필터링에 사용되는 쿼리이다.
+  - term: 검색어로 입력한 단어와 정확하게 일치하는 단어가 있는지 찾는다.
+  - terms: term과 유사하지만 여러 개의 단어를 기준으로 하나 이상 일치하는 단어가 있는지 찾는다.
+  - range: 특정 범위 안에 있는 값이 있는지 찾는다.
+  - wildcard: 와일드 카드 패턴에 해당하는 값이 있는지 찾는다.
+
+#### term 쿼리
+
+- 정확하기 일치하는 단어를 찾을 때 사용하며 대소문자를 구분한다.
+
+  ```Elixir
+    GET test_data/_search
+    {
+      "query": {
+        "term": { "title": "Linux" } # 문서의 title이 linux면 검색되지 않음
+      }
+    }
+  ```
+
+#### terms 쿼리
+
+- 둘 이상의 term을 검색할 때 사용한다.
+
+#### range 쿼리
+
+- 특정 값의 범위 이내에 있는 경우 사용된다.
+
+  ```Elixir
+    GET test_data/_search
+    {
+      "query": {
+        "range": {
+          "createdAt": {
+            "gte": "2015/01/01",
+            "lte": "2015/12/31"
+          }
+        }
+      }
+    }
+  ```
+
+#### wildcard 쿼리
+
+- 와일드 카드 특수문자를 이용해 일종의 Full-Scan이 가능한 쿼리다. 검색속도가 느리기 때문에 주의해야 한다.
+
+  ```Elixir
+    GET test_data/_search
+    {
+      "query": {
+        "wildcard": {
+          "publisher.keyword": "*Media*"
+        }
+      }
+    }
+  ```
