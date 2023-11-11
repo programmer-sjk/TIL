@@ -270,3 +270,36 @@
   ```
 
 - standard analyze와 다르게 문자열을 나누지 않기 때문에 특정 단어로 검색하면 검색결과가 나오지 않게 된다.
+
+### 9.4 Search API
+
+- search API는 간단한 URI Search 형태로 제공하고 Request Body 작성도 제공한다.
+
+  ```Elixir
+    # 간단 검색
+    GET test_data/_search
+    {
+      "query": { "term": { "title": "book" } }
+    }
+
+    # from/size를 활용
+    GET test_data/_search
+    {
+      "from": 0,
+      "size": 3,
+      "query": { "term": { "title": "book" } }
+    }
+
+    # source 옵션으로 특정 필드만 조회
+    GET test_data/_search
+    {
+      "_source": ["title", "description"],
+      "query": { "term": { "title": "book" } }
+    }
+  ```
+
+- from/size는 페이지네이션 하는 동안 새로운 문서가 유입되면 기존 검색 결과에 영향을 줄 수 있지만 scroll 옵션은 검색 시점의 스냅샷을 활용하기 때문에 페이지네이션이나 대량의 배치 작업에 활용된다.
+
+### 9.5 Query DSL 이란
+
+- search API에서 중요한 부분을 담당하는 검색 쿼리를 살펴보자. 검색 쿼리는 Query DSL이라 불리며 크게 Query Context와 Filter Context로 분류한다. Query Context는 Full Text Search라고도 불리며 전문검색에 활용된다. Filter Context는 검색어가 문서에 존재하는지 여부를 검사한다. 예를 들어 남자인지 여자인지 검색하는 경우가 Filter Context에 속한다.
