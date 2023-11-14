@@ -14,6 +14,8 @@
 
 - [NestJS와 TypeORM Cache 사용방법](./db/cache-with-typeorm-and-nest.md)
 
+### Elastic Search
+
 ## Devops
 
 - [카프카 기초](devops/inflearn-kafka-beginner.md)
