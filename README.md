@@ -16,6 +16,8 @@
 
 ### Elastic Search
 
+- [엘라스틱 서치 바이블](./books/database/es-bible.md)
+
 ## Devops
 
 - [카프카 기초](devops/inflearn-kafka-beginner.md)
