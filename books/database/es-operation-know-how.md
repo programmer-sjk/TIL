@@ -181,9 +181,9 @@
 - ES는 cat API를 통해 클러스터/노드/샤드의 상태 등 다양한 정보를 확인할 수 있다.
   - `GET _cat/health?format=json&pretty`
   - 응답 중 status는 상태를 의미하는데 아래와 같이 분류된다.
-    - green: 모든 샤드가 정상동작
-    - yellow: 모든 프라이머리 샤드는 정상 동작하고 있으나 일부/모든 레플리카 샤드가 정상적으로 동작하지 않음
-    - red: 일부/모든 프라이머리 샤드/레플리카 샤드가 정상 동작하지 않음
+    - **green**: 모든 샤드가 정상동작
+    - **yellow**: 모든 프라이머리 샤드는 정상 동작하고 있으나 일부/모든 레플리카 샤드가 정상적으로 동작하지 않음
+    - **red**: 일부/모든 프라이머리 샤드/레플리카 샤드가 정상 동작하지 않음
 
 ### 7.2 노드의 상태 확인
 
@@ -207,8 +207,8 @@
 
 ### 8.1 Elastic Stack 이란
 
-- Elastic Stack은 로그를 수집, 가공하고 이를 바탕으로 분석하는데 사용되는 플랫폼을 의미한다.
-- ELK Stack 으로도 불리는데 로그를 전송하는 Filebeat, 전송된 로그를 JSON 문서로 파싱하는 Logstash, 파싱된 문서를 저장하는 ElasticSearch, 데이터를 시각화하는 Kibana 이렇게 4개의 시스템으로 구성된다.
+- **Elastic Stack은** 로그를 수집, 가공하고 이를 바탕으로 분석하는데 사용되는 플랫폼을 의미한다.
+- ELK Stack 으로도 불리는데 로그를 전송하는 **Filebeat**, 전송된 로그를 JSON 문서로 파싱하는 **Logstash**, 파싱된 문서를 저장하는 **ElasticSearch**, 데이터를 시각화하는 **Kibana** 이렇게 4개의 시스템으로 구성된다.
 - 각 시스템을 설치하는 방법이나 kibana에서 로그를 조회하고 시각화하는 방법을 다룬다. 필요할떄 학습한다.
 
 ## 9. 검색 엔진으로 활용하기
@@ -217,7 +217,7 @@
 
 ### 9.1 inverted index란
 
-- "I am a boy" 라는 문자열을 가진 문서가 있다고 가정해보자. 이 문자열을 공백을 기준으로 `i`, `am`, `a`, `boy` 라는 4개의 토큰으로 만들어진다. 그리고 아래와 같은 형태로 저장되는데 이것을 inverted index라고 부른다.
+- `I am a boy` 라는 문자열을 가진 문서가 있다고 가정해보자. 이 문자열을 공백을 기준으로 `i`, `am`, `a`, `boy` 라는 4개의 토큰으로 만들어진다. 그리고 아래와 같은 형태로 저장되는데 이것을 **inverted index**라고 부른다.
 
   ```text
     Tokens   Documents
@@ -240,12 +240,12 @@
 ### 9.2 analyer 살펴보기
 
 - 데이터가 token으로 구분될 때 아래와 같은 과정을 거치게 된다.
-  - 문자열 -> character filter -> tokenizer -> token filter -> tokens
+  - **`문자열 -> character filter -> tokenizer -> token filter -> tokens`**
 - 먼저 character filter는 문자열들을 1차로 변경한다. 특수 문자나 HTML 태그를 제거하는 과정을 통해 변경된 문자열은 tokenizer를 통해 n개의 토큰으로 나뉜다. 그 후 token filter가 토큰에 대해 다시 한 번 변형을 가한다. 예시로 토큰을 전부 소문자로 바꾸는 lowercase token filter가 대표적인 token filter이다.
 
 ### 9.3 analyer와 검색의 관계
 
-- analyer를 통해 생성된 토큰들이 역인덱스에 저장되고, 검색할때는 역인덱스에 저장된 값을 바탕으로 문서를 찾는다. 따라서 검색 니즈를 잘 파악해서 적합한 analyze를 설정해야 한다.
+- analyer를 통해 생성된 **토큰들이 역인덱스에 저장**되고, 검색할때는 역인덱스에 저장된 값을 바탕으로 문서를 찾는다. 따라서 검색 니즈를 잘 파악해서 적합한 analyze를 설정해야 한다.
 - 필드에 text 타입과 keyword 타입으로 정의하면 검색 결과가 달라질 수 있는데 text 타입은 기본적으로 standard analyze를 사용하고 keyword 타입은 keyword analyze를 사용한다.
 
   ```Elixir
@@ -269,11 +269,11 @@
     }
   ```
 
-- standard analyze와 다르게 문자열을 나누지 않기 때문에 특정 단어로 검색하면 검색결과가 나오지 않게 된다.
+- keyword analyze는 standard analyze와 다르게 문자열을 나누지 않기 때문에 특정 단어로 검색하면 검색결과가 나오지 않게 된다.
 
 ### 9.4 Search API
 
-- search API는 간단한 URI Search 형태로 제공하고 Request Body 작성도 제공한다.
+- **search API는** 간단한 URI Search 형태로 제공하고 Request Body 작성도 제공한다.
 
   ```Elixir
     # 간단 검색
@@ -298,19 +298,19 @@
     }
   ```
 
-- from/size는 페이지네이션 하는 동안 새로운 문서가 유입되면 기존 검색 결과에 영향을 줄 수 있지만 scroll 옵션은 검색 시점의 스냅샷을 활용하기 때문에 페이지네이션이나 대량의 배치 작업에 활용된다.
+- **from/size는** 페이지네이션 하는 동안 새로운 문서가 유입되면 기존 검색 결과에 영향을 줄 수 있지만 scroll 옵션은 검색 시점의 스냅샷을 활용하기 때문에 페이지네이션이나 대량의 배치 작업에 활용된다.
 
 ### 9.5 Query DSL 이란
 
-- search API에서 중요한 부분을 담당하는 검색 쿼리를 살펴보자. 검색 쿼리는 Query DSL이라 불리며 크게 Query Context와 Filter Context로 분류한다. Query Context는 Full Text Search라고도 불리며 전문검색에 활용된다. Filter Context는 검색어가 문서에 존재하는지 여부를 검사한다. 예를 들어 남자인지 여자인지 검색하는 경우가 Filter Context에 속한다.
+- search API에서 중요한 부분을 담당하는 검색 쿼리를 살펴보자. 검색 쿼리는 **Query DSL**이라 불리며 크게 **`Query Context와 Filter Context로`** 분류한다. Query Context는 Full Text Search라고도 불리며 전문검색에 활용된다. Filter Context는 검색어가 문서에 존재하는지 여부를 검사한다. 예를 들어 남자인지 여자인지 검색하는 경우가 Filter Context에 속한다.
 
 ### 9.6 Query Context
 
 - 쿼리 컨텍스트의 종류는 아래와 같다.
-  - match: 검색어에 맞는 토큰들이 존재하는지 확인한다.
-  - match_phrase: match와 비슷하지만 검색어에 입력된 순서를 지켜야 한다.
-  - multi_match: match와 비슷하지만 다수의 필드에 검색하기 위해 사용된다.
-  - query_string: and, or이 같이 필요할 때 사용한다.
+  - **match**: 검색어에 맞는 토큰들이 존재하는지 확인한다.
+  - **match_phrase**: match와 비슷하지만 검색어에 입력된 순서를 지켜야 한다.
+  - **multi_match**: match와 비슷하지만 다수의 필드에 검색하기 위해 사용된다.
+  - **query_string**: and, or이 같이 필요할 때 사용한다.
 
 #### match 쿼리
 
