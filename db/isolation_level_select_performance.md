@@ -101,11 +101,11 @@ SELECT * FROM child WHERE id > 100
   **성능상 이점을 얻을 수 있다는 점은 확인**할 수 있었다.
 - 조회만 하는 Service의 함수가 자주 호출되는게 예상된다면 격리수준을 `READ_COMMITTED` 으로 바꾸는게 좋을 것 같다.
 
-## 그 후.
+## 그 후
 
 - 댓글이 하나 달렸는데 내용은 아래와 같았다.
 
-![](../images/db/isolation-comment.png)
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/db/isolation-comment.png" width="600">
 
 - mysql 공식문서를 보고 아래와 같은 설명을 찾을 수 있었다.
 
