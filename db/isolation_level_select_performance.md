@@ -6,6 +6,7 @@
 - 최근 특정 기능에 대해 `READ_COMMITTED` 격리 수준으로 **변경하라는 리뷰**를 받았는데 이유는 아래와 같았다.
   - SELECT 쿼리에서 특정 값에 해당하는 엔티티를 조회만 하기 때문에 굳이 `phantom read`를 막을 필요가 없기 때문이라는 말이었다.
 - 이런 리뷰를 받은 것도 좋은데, 이 내용에 대해 알아 볼 생각에 심장이 두근거린다. 여기서 이 내용에 대해 정리해보자.
+- 이 내용을 블로그에 올리고 **댓글을 통해 내가 잘못된 정보를 올리고 있는 걸 알 수 있었다.** 마지막 섹션인 그 후에 정리한다.
 
 ## REPEATABLE 격리수준
 
@@ -19,7 +20,7 @@
   - 트랜잭션 1에서 남자를 조회해서 2개의 row를 얻었다.
   - 트랜잭션 1에서 잠시 다른일을 하는동안 트랜잭션 2에서 새로운 남자를 추가한다.
   - 트랜잭션 1에서 다시 남자를 조회하면 3개의 row를 조회하게 된다.
-  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/db/phantom_read.png" width="600">
+    <img src="https://github.com/programmer-sjk/TIL/blob/main/images/db/phantom_read.png" width="600">
 
 ## MySQL은 Phantom Read를 어떻게 막을까
 
@@ -99,3 +100,34 @@ SELECT * FROM child WHERE id > 100
 - 하지만 애초에 확인하고 싶었던 `READ_COMMITTED로` 격리수준을 변경했을 때 `Phantom Read` 처리를 하지 않아
   **성능상 이점을 얻을 수 있다는 점은 확인**할 수 있었다.
 - 조회만 하는 Service의 함수가 자주 호출되는게 예상된다면 격리수준을 `READ_COMMITTED` 으로 바꾸는게 좋을 것 같다.
+
+## 그 후.
+
+- 댓글이 하나 달렸는데 내용은 아래와 같았다.
+
+![](../images/db/isolation-comment.png)
+
+- mysql 공식문서를 보고 아래와 같은 설명을 찾을 수 있었다.
+
+  ```text
+  Gap locking is not needed for statements that lock rows using a unique index to search for a unique row.
+  if the id column has a unique index, the following statement uses only an index-record lock for the row.
+  If id is not indexed or has a nonunique index, the statement does lock the preceding gap.
+  ```
+
+- 위 내용을 정리하면, 유니크 index가 걸려있으면 gap lock을 사용하지 않고 record lock만 사용한다. 또 인덱스가 없거나 인덱스가 있어도 유니크 인덱스가 아니면 갭락을 사용한다. 테스트에서 사용한 코드에서 나는 PK를 가지고 조회를 했으므로 Repeatable 격리수준에서도 실제 gap lock은 발생하지 않고 성능에 영향을 주는 부분은 없었다.
+- 댓글에 보면 snapshot 읽기라고 언급하신 부분이 있는데 이를 잘 몰라 찾아보니 아래와 같은 내용을 확인할 수 있었다.
+
+  ```mysql
+  If the transaction isolation level is REPEATABLE READ (the default level), all consistent reads within the same transaction read the snapshot established by the first such read in that transaction. You can get a fresher snapshot for your queries by committing the current transaction and after that issuing new queries.
+
+  With READ COMMITTED isolation level, each consistent read within a transaction sets and reads its own fresh snapshot.
+  ```
+
+- 위 내용을 정리하면 REPEATABLE READ 격리수준에선, 한 트랜잭션 내에서 처음 읽은 스냅샷을 트랜잭션이 끝나기 전까지 계속 사용한다. 즉 트랜잭션 내에서 처음 읽은 snapshot 이후 최신의 snapshot이 생겨서 처음 읽은 snapshot을 바라본다. READ COMMITTED 격리수준에선 트랜잭션 내의 모든 읽기와 쓰기가 최신의 snapshot을 사용한다는 것이다. 테스트했던 코드를 보면 한 트랜잭션 내에서 한 번만 select를 하기 때문에 snapshot 읽는 여부도 성능과는 관계가 없다.
+
+## 그 후 결론
+
+- 결론적으로 격리수준은 달랐지만 unique 인덱스를 조회 조건으로 사용했기 때문에 잘못된 내용을 작성했었다.
+- 잘못된 내용을 올린건 창피하지만 그래도 올렸기 때문에 댓글을 통해 공부하고 지식을 배운 것 같아 기분은 좋다.
+- 해당 글은 블로그에서 삭제했다 ^^.
