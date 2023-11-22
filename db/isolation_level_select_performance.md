@@ -115,8 +115,8 @@ SELECT * FROM child WHERE id > 100
   If id is not indexed or has a nonunique index, the statement does lock the preceding gap.
   ```
 
-- 위 내용을 정리하면, 유니크 index가 걸려있으면 gap lock을 사용하지 않고 record lock만 사용한다. 또 인덱스가 없거나 인덱스가 있어도 유니크 인덱스가 아니면 갭락을 사용한다. 테스트에서 사용한 코드에서 나는 PK를 가지고 조회를 했으므로 Repeatable 격리수준에서도 실제 gap lock은 발생하지 않고 성능에 영향을 주는 부분은 없었다.
-- 댓글에 보면 snapshot 읽기라고 언급하신 부분이 있는데 이를 잘 몰라 찾아보니 아래와 같은 내용을 확인할 수 있었다.
+- 위 내용을 정리하면, **유니크 index가 걸려있으면** gap lock을 사용하지 않고 record lock만 사용한다. 또 인덱스가 없거나 인덱스가 있어도 **유니크 인덱스가 아니면 갭락을 사용한다**. 테스트에서 사용한 코드에서 나는 PK를 가지고 조회를 했으므로 `Repeatable` 격리수준에서도 실제 gap lock은 발생하지 않고 성능에 영향을 주는 부분은 없었다.
+- 댓글에 보면 **`snapshot`** 읽기라고 언급하신 부분이 있는데 이를 잘 몰라 찾아보니 아래와 같은 내용을 확인할 수 있었다.
 
   ```mysql
   If the transaction isolation level is REPEATABLE READ (the default level), all consistent reads
@@ -128,7 +128,7 @@ SELECT * FROM child WHERE id > 100
   its own fresh snapshot.
   ```
 
-- 위 내용을 정리하면 REPEATABLE READ 격리수준에선, 한 트랜잭션 내에서 처음 읽은 스냅샷을 트랜잭션이 끝나기 전까지 계속 사용한다. 즉 트랜잭션 내에서 처음 읽은 snapshot 이후 최신의 snapshot이 생겨서 처음 읽은 snapshot을 바라본다. READ COMMITTED 격리수준에선 트랜잭션 내의 모든 읽기와 쓰기가 최신의 snapshot을 사용한다는 것이다. 테스트했던 코드를 보면 한 트랜잭션 내에서 한 번만 select를 하기 때문에 snapshot 읽는 여부도 성능과는 관계가 없다.
+- 위 내용을 정리하면 **`REPEATABLE READ`** 격리수준에선, 한 트랜잭션 내에서 **처음 읽은 스냅샷을 트랜잭션이 끝나기 전까지 계속 사용**한다. 즉 트랜잭션 내에서 처음 읽은 snapshot 이후 최신의 snapshot이 생겨서 처음 읽은 snapshot을 바라본다. **`READ COMMITTED`** 격리수준에선 트랜잭션 내의 **모든 읽기와 쓰기가 최신의 snapshot을 사용**한다는 것이다. 테스트했던 코드를 보면 한 트랜잭션 내에서 한 번만 select를 하기 때문에 snapshot 읽는 여부도 성능과는 관계가 없다.
 
 ## 그 후 결론
 
