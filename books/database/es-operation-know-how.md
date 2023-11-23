@@ -330,7 +330,7 @@
 
 #### match_phrase 쿼리
 
-- match와 달리 검색어의 순서를 고려한다. 예를 들어 nginx guide로 검색하면 match는 nginx, guide 두 개의 토큰으로 만들고 두 단어 중 하나라도 포함되어 있다면 검색 결과를 보여주지만 match_phrase는 정확한 순서를 가진 결과를 보여주기 때문에 둘다 순서에 맞게 포함되어 있어야 검색결과에 포함된다.
+- match와 달리 검색어의 순서를 고려한다. 예를 들어 nginx guide로 검색하면 **match는** `nginx, guide` 두 개의 토큰으로 만들고 두 단어 중 하나라도 포함되어 있다면 검색 결과를 보여주지만 **match_phrase는 정확한 순서를 가진 결과**를 보여주기 때문에 둘다 순서에 맞게 포함되어 있어야 검색결과에 포함된다.
 
 #### multi_match 쿼리
 
@@ -350,7 +350,7 @@
 
 #### query_string 쿼리
 
-- and와 or 같은 검색어 간 연산이 필요한 경우에 사용한다. 아래와 같이 query_string을 만들면 match 쿼리와 같은 의미이다.
+- `and와 or` 같은 검색어 간 연산이 필요한 경우에 사용한다. 아래와 같이 query_string을 만들면 match 쿼리와 같은 의미이다.
 
   ```Elixir
     GET test_data/_search
@@ -381,10 +381,10 @@
 ### 9.7 Filter Context
 
 - 검색어가 문서에 포함되어 있는지 필터링에 사용되는 쿼리이다.
-  - term: 검색어로 입력한 단어와 정확하게 일치하는 단어가 있는지 찾는다.
-  - terms: term과 유사하지만 여러 개의 단어를 기준으로 하나 이상 일치하는 단어가 있는지 찾는다.
-  - range: 특정 범위 안에 있는 값이 있는지 찾는다.
-  - wildcard: 와일드 카드 패턴에 해당하는 값이 있는지 찾는다.
+  - **term**: 검색어로 입력한 단어와 **정확하게 일치하는 단어**가 있는지 찾는다.
+  - **terms**: term과 유사하지만 여러 개의 단어를 기준으로 **하나 이상 일치하는 단어**가 있는지 찾는다.
+  - **range**: **특정 범위** 안에 있는 값이 있는지 찾는다.
+  - **wildcard**: 와일드 카드 패턴에 해당하는 값이 있는지 찾는다.
 
 #### term 쿼리
 
@@ -438,12 +438,12 @@
 
 ### 9.8 bool query를 이용해 쿼리 조합하기
 
-- 실제 검색할 때는 Query Context와 Filter Context를 조합하는 방법도 필요하다. 그 중 대표적으로 사용되는 방법인 bool query에 대해 알아보자.
-  - must: 항목 내 쿼리에 일치하는 문서를 검색 (스코어링 O, 캐싱 X)
-  - filter: 항목 내 쿼리에 일치하는 문서를 검색 (스코어링 X, 캐싱 O)
-  - should: 항목 내 쿼리에 일치하는 문서를 검색 (스코어링 O, 캐싱 X)
-  - must_not: 항목 내 쿼리에 일치하는 않는 문서를 검색 (스코어링 X, 캐싱 O)
-- 위 특징을 기준으로 must, should는 Query Context에서 실행되고 filter, must_not은 Filter Context에서 실행된다.
+- 실제 검색할 때는 **Query Context와 Filter Context**를 조합하는 방법도 필요하다. 그 중 대표적으로 사용되는 방법인 **`bool query에`** 대해 알아보자.
+  - **must**: 항목 내 쿼리에 일치하는 문서를 검색 (스코어링 O, 캐싱 X)
+  - **filter**: 항목 내 쿼리에 일치하는 문서를 검색 (스코어링 X, 캐싱 O)
+  - **should**: 항목 내 쿼리에 일치하는 문서를 검색 (스코어링 O, 캐싱 X)
+  - **must_not**: 항목 내 쿼리에 일치하는 않는 문서를 검색 (스코어링 X, 캐싱 O)
+- 위 특징을 기준으로 **`must, should는`** Query Context에서 실행되고 **`filter, must_not은`** Filter Context에서 실행된다.
 
   ```Elixir
     GET test_data/_search
