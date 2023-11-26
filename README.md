@@ -10,10 +10,6 @@
 - [MySQL InnoDB Buffer Pool](db/innodb_buffer_pool.md)
 - [Nested Loop vs Block Nested Loop vs Hash Join](./db/nested-loop-compare.md)
 
-### Cache
-
-- [NestJS와 TypeORM Cache 사용방법](./db/cache-with-typeorm-and-nest.md)
-
 ## Devops
 
 - [카프카 기초](devops/inflearn-kafka-beginner.md)
@@ -32,6 +28,7 @@
 
 - [dataloader를 활용한 GraphQL의 N+1 문제 해결](/js/dataloader_solve_n%2B1.md)
 - [garbage collection](/js/garbage_collection.md)
+- [NestJS와 TypeORM Cache 사용방법](/js/cache-with-typeorm-and-nest.md)
 
 ## Test
 
