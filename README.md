@@ -52,3 +52,4 @@
 ### Elastic Search
 
 - [엘라스틱 서치 바이블](./books/database/es-bible.md)
+- [기초부터 다지는 ES 운영 노하우](books/database/es-operation-know-how.md)
