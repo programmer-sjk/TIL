@@ -48,6 +48,7 @@
 ### devops
 
 - [아파치 카프카 애플리케이션 프로그래밍 with 자바](books/devops/apache-kafka-with-java.md)
+- [실전 카프카 개발부터 운영까지](books/devops/practice-kafka-develop-production.md)
 
 ### Elastic Search
 
