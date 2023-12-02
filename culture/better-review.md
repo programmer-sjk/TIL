@@ -156,3 +156,10 @@ function getDay(date) {
 
 - 선택적 제안과 치명적인 오류 또는 객관적으로 좋지 않은 디자인인 경우는 다르다. 자신이 좋다고 생각하는 구현방향으로 인해 리뷰이의 구현을 강제하지 말자.
 - 만약 객관적으로 좋지 않은 설계인 경우에는 그 이유를 친절히 설명함으로써 리뷰이와의 커뮤니케이션 비용을 줄이는 것이 좋겠다.
+
+## 레퍼런스
+
+- <https://devocean.sk.com/blog/techBoardDetail.do?ID=165255>
+- <https://tech.kakao.com/2022/03/17/2022-newkrew-onboarding-codereview/>
+- <https://veluxer62.github.io/explanation/consideration-of-good-code-review/>
+- <https://velog.io/@jiseung/code-review>
