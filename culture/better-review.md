@@ -159,9 +159,17 @@ function getDay(date) {
   - 예외 처리가 꼼꼼해서 좋네요.
   - 함수, 변수명이 직관적이어서 좋네요.
 
+## 여러 실제 리뷰 스크린 샷 중에 좋았다고 생각한 리뷰 예시
+
+- 아래 링크에서 화살표 버튼을 눌러 실제 리뷰한 내용의 스크린 샷을 확인할 수 있다.
+- [토스 페이먼츠 팀 - 주로 어떤 내용을 리뷰할까?](https://tosspayments-dev.oopy.io/chapters/frontend/about#7c1be862-14e1-470e-94cc-702a05bfd5cb)
+- 한 가지 예시
+  ![](../images/culture/good-review-example.png)
+
 ## 레퍼런스
 
 - <https://devocean.sk.com/blog/techBoardDetail.do?ID=165255>
 - <https://tech.kakao.com/2022/03/17/2022-newkrew-onboarding-codereview/>
 - <https://veluxer62.github.io/explanation/consideration-of-good-code-review/>
 - <https://velog.io/@jiseung/code-review>
+- <https://tosspayments-dev.oopy.io/chapters/frontend/about#7c1be862-14e1-470e-94cc-702a05bfd5cb>
