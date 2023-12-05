@@ -2,6 +2,8 @@
 
 ## Culture
 
+- [더 나은 코드 리뷰](culture/better-review.md)
+
 ## Database
 
 ### MySQL
