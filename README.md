@@ -1,5 +1,7 @@
 # Today I Learned (TIL)
 
+## Culture
+
 ## Database
 
 ### MySQL
