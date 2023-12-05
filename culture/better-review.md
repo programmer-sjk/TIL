@@ -165,7 +165,7 @@ function getDay(date) {
 - [토스 페이먼츠 팀 - 주로 어떤 내용을 리뷰할까?](https://tosspayments-dev.oopy.io/chapters/frontend/about#7c1be862-14e1-470e-94cc-702a05bfd5cb)
 - 한 가지 예시
 
-  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/good-review-example.png" width="800">
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/good-review-example.png" width="600">
 
 ## 레퍼런스
 
