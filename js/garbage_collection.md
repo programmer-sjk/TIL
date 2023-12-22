@@ -87,6 +87,7 @@
       <img src="https://github.com/programmer-sjk/TIL/blob/main/images/js/concurrent.png" width="600">
 
 - V8은 Major GC에 대해 아래와 같은 기술을 사용
+
   <img src="https://github.com/programmer-sjk/TIL/blob/main/images/js/%EA%B0%80%EB%B9%84%EC%A7%80%EC%BB%AC%EB%A0%89%ED%84%B0.png" width="600">
 
 - 메인 스레드가 JS를 실행하는 동안 백그라운드에서 헬퍼 스레드가 **동시 마킹**을 진행
