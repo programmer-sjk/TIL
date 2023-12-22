@@ -18,25 +18,25 @@
 
 - [카프카 기초](devops/inflearn-kafka-beginner.md)
 - [왜 카프카 브로커는 3개가 안정적일까](devops/why-3-broker-need.md)
-- [kafka가 File System을 쓰는데도 빠른 이유](devops/why-kafka-fs-fast.md)
-- [kafka ISR과 복제](devops/kafka-isr-replica.md)
-- [kafka 메시지 전송 방식](devops/message-transfer-mode.md)
+- [Kafka가 File System을 쓰는데도 빠른 이유](devops/why-kafka-fs-fast.md)
+- [Kafka ISR과 복제](devops/kafka-isr-replica.md)
+- [Kafka 메시지 전송 방식](devops/message-transfer-mode.md)
 
 ## IDE
 
 - [VScode 설정 & 단축키](/ide/vscode_setting.md)
-- [VScode 단점](/ide/vscode_disadvantage.md)
+- [Jetbrains IDE 쓰다가 VScode를 쓰고 느끼는 점](/ide/vscode_disadvantage.md)
 - [VScode extenstion](/ide/vscode_extension_recommend.md)
 
 ## JavaScript
 
-- [dataloader를 활용한 GraphQL의 N+1 문제 해결](/js/dataloader_solve_n%2B1.md)
-- [garbage collection](/js/garbage_collection.md)
+- [DataLoader를 활용한 GraphQL의 N+1 문제 해결](/js/dataloader_solve_n%2B1.md)
+- [JS의 Garbage Collection](/js/garbage_collection.md)
 - [NestJS와 TypeORM Cache 사용방법](/js/cache-with-typeorm-and-nest.md)
 
 ## Test
 
-- [ts-mockito](/test/ts-mockito.md)
+- [TS-Mockito](/test/ts-mockito.md)
 
 ## 책
 
