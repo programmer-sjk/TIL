@@ -4,7 +4,7 @@
 
 - 가비지 컬렉션이 어떻게 동작하는지 살펴보기 전에, JS의 메모리 구조를 살펴보자.
 
-<img src="https://github.com/programmer-sjk/TIL/blob/main/images/js/JS_%EB%A9%94%EB%AA%A8%EB%A6%AC%EA%B5%AC%EC%A1%B0.png" width="800" height="400">
+<img src="https://github.com/programmer-sjk/TIL/blob/main/images/js/JS_%EB%A9%94%EB%AA%A8%EB%A6%AC%EA%B5%AC%EC%A1%B0.png" width="700" height="350">
 
 - **힙 메모리**
   - V8 엔진이 객체, 동적 데이터를 저장하는 공간. GC가 발생하는 곳이며 `New space, Old space` 공간만 GC로 관리된다.
@@ -31,8 +31,8 @@
 ## 가비지 컬렉션
 
 - 사용하지 않는 메모리를 관리하는 기술
-  - C 언어 같은 저수준 언어들은 `malloc, free` 같은 함수로 메모리를 직접 할당하고 해제한다.
-  - 반면 JS 같은 고수준 언어에서는 `가비지 컬렉션`이라는 자동 메모리 관리 방법을 사용한다.
+  - C 언어 같은 저수준 언어들은 **`malloc, free`** 같은 함수로 메모리를 직접 할당하고 해제한다.
+  - 반면 JS 같은 고수준 언어에서는 **`가비지 컬렉션`**이라는 자동 메모리 관리 방법을 사용한다.
 - 다음과 같은 언어들이 `가비지 컬렉션`을 이용해 메모리를 관리한다.
   - JVM, JavaScript, C#, Golang, Ruby, PHP, Python
 
@@ -45,7 +45,7 @@
   - 모든 개체는 참조에 따라 **참조 카운트가 증가하거나 감소하고 0이 되면 가비지 수집 대상**이 된다.
   - 순환 참조를 처리할 수 없어 요즘에는 선호되지 않으며, PHP, Python은 순환 참조를 극복하기 위한 해결 방법과 함께 이러한 유형의 GC를 사용한다.
   - mdn 문서에도 언급되었는데 **현대의 브라우저들은 더 이상 참조 카운팅 기반의 GC**를 사용하지 않는다.
-    <img src="https://github.com/programmer-sjk/TIL/blob/main/images/js/참조카운팅_더이상사용안됨.png" width="400">
+    <img src="https://github.com/programmer-sjk/TIL/blob/main/images/js/참조카운팅_더이상사용안됨.png" width="500">
 
 ## 마이너 GC (스캐빈저)
 
@@ -71,8 +71,9 @@
     - 힙 메모리를 스캔하여 비트의 활성상태가 false라면 메모리를 해제한다.
   - **compact**: 활성상태의 객체를 메모리의 동일한 페이지로 이동시킨다.
 - **`코드네임 Orinoco`**
+
   - GC의 중요한 지표중 하나는, **`Main Thread가 GC를 수행하기 위해 중지되는 시간이 얼마나 짧은가.`**
-  - Orinoco는 Main Thread를 최대한 해방시켜 주기 위해 병렬, 증분, 동시성을 반영한 GC를 만들기 위한 프로젝트 코드네임
+  - Orinoco는 Main Thread를 최대한 해방시켜 주기 위해 **`병렬, 증분, 동시성을 반영한 GC를`** 만들기 위한 프로젝트 코드네임
   - **병렬**
     - Main Thread, Hepler Thread가 동일한 시간동안 동일한 작업을 하는 것
     - `stop-the-world` 접근 방식이지만 중단되는 시간이 Thread 개수만큼 나뉘고 가장 쉬운 방법
@@ -84,6 +85,7 @@
   - **동시성**
     - Main Thread는 자바스크립트를 실행하고, Hepler Thread가 뒤에서 GC 작업을 수행
       <img src="https://github.com/programmer-sjk/TIL/blob/main/images/js/concurrent.png" width="600">
+
 - V8은 Major GC에 대해 아래와 같은 기술을 사용
   <img src="https://github.com/programmer-sjk/TIL/blob/main/images/js/%EA%B0%80%EB%B9%84%EC%A7%80%EC%BB%AC%EB%A0%89%ED%84%B0.png" width="600">
 
