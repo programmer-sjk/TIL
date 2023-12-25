@@ -1,0 +1,32 @@
+# 정규 표현식
+
+- 일반 문자열 찾기
+  - `/Hello/.exec("Hello, World")`
+  - `/Hello/.exec("hello, World")` (대소문자 구별하므로 찾는 값이 없다)
+- 앞/뒤에서 시작하는 문자열 찾기
+  - 앞에서 시작하는 패턴(`^`) `/^Hello/.exec("Hello, World")`
+  - 뒤에서 시작하는 패턴(`$`) `/Hello$/.exec("World, Hello")`
+- 정규표현식에 사용되는 문자열을 검색할 때
+  - 백슬래쉬로 패턴이 아닌 문자로 인식 `/\$/.exec("$$abc123$$")`
+  - `$`로 시작하는 문자열 `/^\$/.exec("$$abc123$$")`
+  - `$`로 끝나는 문자열 `/\$$/.exec("$$abc123$$")`
+- 어떤 문자든 찾는 패턴(`.`)
+  - 하나의 어떤 문자를 찾는 패턴 `/./.exec("a")`
+  - 6글자의 어떤 문자를 찾는 패턴 `/....../.exec("abcdef")`
+  - 문자열에서 .을 찾는 패턴 `/\./.exec("O.K.")`
+  - 문자열에서 `.X.`(X는 어떤 문자열이든 가능) 찾는 패턴 `/\..\./.exec("O.K.")`
+- [] 패턴
+  - 문자열에서 o나 y나 u가 들어간 문자열을 찾는 패턴 `/[oyu]/.exec("i love you")`
+  - d나 H로 시작하는 2개의 문자를 찾는 패턴 `/[dH]./.exec("How do you do")`
+  - o,w,y에 해당하는 문자 하나와 y,o,w에 해당하는 문자가 결합된 문자열 `/[owy][yow]/.exec("How do you do")`
+- 범위 패턴 [-]
+  - C와 K 사이에 있는 문자를 포함하는 문자열 `/[C-K]/.exec("ABCDEFGHIJKLMNOPQR")`
+  - 숫자 2, 6사이에 있는 문자를 포함하는 문자열 `/[2-6]/.exec("29")`
+  - C와 K, a와 d, 2에서 6까지 문자를 포함하는 문자열 `/[C-Ka-d2-6]/.exec("29")`
+  - ^이 범위패턴에 있을 경우 not을 의미
+    - A,B,4,5가 아닌 문자가 있는 문자열 `/[^AB45]/.exec("CDEF123")`
+    - A에서 K까지 포함되지 않은 문자열 `/[^A-K]/.exec("WYZ")`
+- 서브패턴
+  - Monday나 TuesDay나 Friday를 가진 문자열: `/(Monday|Tuesday|Friday)/.exec("Monday Tuesday Friday")`
+  - 위랑 동일한 결과를 나타내는 다른 패턴 `/(Mon|Tues|Fri)day/.exec("Monday Tuesday Friday")`
+  - 위랑 동일한 결과를 나타내는 다른 패턴 `/..(n|es|i)day/.exec("Monday Tuesday Friday")`
