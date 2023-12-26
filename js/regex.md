@@ -75,6 +75,36 @@
   - `(?<=)` 패턴은 후방 탐색으로 특정 문자 이후에 나오는 문자열을 찾는다.
   - `"test@gmail.com".match(/(?<=@).+/)` -> `@` 뒤에 나오는 1개 이상의 문자열 찾음 (결과: gmail.com)
 
+## string vs regex
+
+- JavaScript에서 정규 표현식을 사용할 때 각 메서드에 알아보자.
+- String 메서드
+
+  - match
+    - ex) `"This is a cat. The cat is cute".match(/cat/)`
+    - 정규 표현식에 g 옵션이 없다면 처음 매칭된 결과를 리턴하고 g 옵션이 있다면 전체 매칭된 결과를 리턴
+  - matchAll
+    - ex) `"This is a cat. The cat is cute".matchAll(/cat/g)`
+    - match에 g 옵션을 준 것과 동일하며 matchAll에 사용되는 정규 표현식에 g 옵션이 없으면 타입 에러가 발생
+    - match의 경우 g 옵션이 있으면 index나 원문 정보는 반환되지 않는데, matchAll은 index나 원문 정보를 반환
+
+- Regex 메서드
+  - exec
+    - ex) `/cat/.exec("This is a cat. The cat is cute")`
+    - 정규 표현식에 g 옵션을 줘도 처음 매치한 결과만 반환한다.
+  - test
+    - 정규 표현식에 매칭되는 결과를 boolean으로 반환한다.
+  - Literal vs 생성자
+    - Regex는 아래와 같이 2 가지 방식으로 생성할 수 있다.
+      - `/cat/.exec("This cat") vs new RegExp("cat").exec("This cat")`
+      - 차이점은 Literal은 한 번 생성되고 재 사용이 가능하지만 new RegExp는 매번 정규표현식 객체를 재 생성한다.
+- 사용법 정리
+  - 단순히 일치 여부가 필요하다면 test 메서드를 사용하자.
+  - 한 번 매칭된 결과가 필요하다면 match or exec 메서드를 사용할 수 있는데 exec가 조금 더 빠르다. (거의 차이는 없음)
+    - [벤치 마크](https://www.measurethat.net/Benchmarks/Show/11160/0/regexexec-vs-stringmatch)
+  - 매칭되는 전체 결과가 필요하다면 match나 matchAll 메서드를 사용하자.
+  - 정규 표현식이 달라지지 않는다면 Literal이 매 번 객체를 생성하지 않기 때문에 조금 더 빠르다.
+
 ## 자주 사용되는 정규 표현식
 
 - 핸드폰: `/^\d{3}-\d{3,4}-\d{4}$`
