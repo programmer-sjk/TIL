@@ -47,6 +47,8 @@
 
 ### 설계
 
+- [대규모 서비스를 지탱하는 기술](books/architecture/large-service-technology.md)
+
 ### devops
 
 - [아파치 카프카 애플리케이션 프로그래밍 with 자바](books/devops/apache-kafka-with-java.md)
