@@ -2,7 +2,8 @@
 
 - 일반 문자열 찾기
   - `/Hello/.exec("Hello, World")`
-  - `/Hello/.exec("hello, World")` (대소문자 구별하므로 찾는 값이 없다)
+  - `/Hello/.exec("hello, World")`
+    - (대소문자 구별하므로 찾는 값이 없다)
 - 앞/뒤에서 시작하는 문자열 찾기
   - 앞에서 시작하는 패턴(`^`)
     - `/^Hello/.exec("Hello, World")`
