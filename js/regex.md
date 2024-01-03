@@ -62,14 +62,27 @@
   - A에서 K까지 포함되지 않은 문자열
     - `/[^A-K]/.exec("WYZ")`
 
-## 서브패턴
+## 그룹핑 & 캡처링
 
+### 그룹핑
+
+- `()`로 문자를 감싸면 그게 하나의 문자로 그룹핑 하는 개념
+- `/(Hello){2}/.test('HelloHello')`
 - Monday나 TuesDay나 Friday를 가진 문자열
   - `/(Monday|Tuesday|Friday)/.exec("Monday Tuesday Friday")`
 - 위랑 동일한 결과를 나타내는 다른 패턴
   - `/(Mon|Tues|Fri)day/.exec("Monday Tuesday Friday")`
-- 위랑 동일한 결과를 나타내는 다른 패턴
   - `/..(n|es|i)day/.exec("Monday Tuesday Friday")`
+- google에 접속 가능한 모든 도메인을 찾는 패턴
+  - `/(https?:\/\/)?google\.com/`
+
+### 캡처링
+
+- 그룹핑한 문자를 저장했다가 꺼내는 개념
+- `(Hi)\1`
+  - `\1`은 첫 번째 매칭결과로 저장해둔 Hi를 꺼낸다.
+- 반복되는 문자를 찾는 패턴
+  - `/([a-z])\1/.test('abcabcdde')`
 
 ## 수량자 (어떤 패턴이 얼마나 등장하는가)
 
