@@ -33,6 +33,7 @@
 - [DataLoader를 활용한 GraphQL의 N+1 문제 해결](/js/dataloader_solve_n%2B1.md)
 - [JS의 Garbage Collection](/js/garbage_collection.md)
 - [NestJS와 TypeORM Cache 사용방법](/js/cache-with-typeorm-and-nest.md)
+- [정규 표현식](/js/regex.md)
 
 ## Test
 
