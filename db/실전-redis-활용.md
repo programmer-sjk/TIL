@@ -124,3 +124,49 @@ GEOADD seoul:station 127.027583 37.497927  gang-nam
 
 GEODIST seoul:station hong-dae gang-nam KM // 거리 계산
 ```
+
+## Redis 특수 명령어
+
+### 데이터 만료(Expire)
+
+- 기한이 만료된 데이터는 조회되지 않음
+- 데이터가 만료되면 만료되었다는 표시만하고 백그라운드에서 주기적으로 삭제
+
+```js
+SET greeting hello
+EXPIRE greeting 10 // 만료기한을 10s로 설정
+TTL greeting // 만료까지 얼마나 남았는지
+GET greeting
+SETEX greeting 10 hello // 만료기한과 함께 저장
+```
+
+### SET NX/XX 옵션
+
+- NX 옵션은 해당 Key가 존재하지 않을 경우에만 SET
+- XX 옵션은 해당 Key가 존재하는 경우에만 SET
+- SET이 동작하지 않은 경우 (nil) 반환
+
+```java
+SET greeting hello NX // key가 없었으니 성공
+SET greeting bye NX // key가 있어서 (nil) 반환
+
+SET greeting bye XX // key가 있어서 성공
+SET greet hello XX // key가 없으니 (nil) 반환
+```
+
+### Transaction
+
+- 다수의 명령을 하나의 트랜잭션으로 처리해서 원자성을 보장
+- 중간에 에러가 발생하면 트랜잭션 내의 모든 작업이 Rollback
+
+```js
+MULTI // 트랜잭션 시작 명령어
+INCR age
+INCR age
+INCR age
+.
+.
+INCR age
+DISCARD // 트랜잭션 롤백 명령어
+EXEC // 트랜잭션 커밋 명령어
+```
