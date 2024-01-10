@@ -17,7 +17,7 @@
 ### Redis 장점
 
 - 모든 데이터를 메모리에 저장하기 때문에 **`매우 빠른 읽기/쓰기 속도 보장`**
-- Redis가 지원하는 다양한 Data Type을 활용해 다양한 기능 구현이 가능
+- Redis가 지원하는 **`다양한 Data Type을`** 활용해 다양한 기능 구현이 가능
 
 ### Redis 사용사례
 
@@ -61,7 +61,7 @@ SET inflearn-redis:ko:price 20000 // Redis에서는 콜론으로 의미를 구�
 
 ### Lists
 
-- string을 Linked List로 저장
+- string을 **Linked List**로 저장
 - Queue나 Stack을 쉽게 구현할 수 있음
 
 ```js
@@ -102,7 +102,7 @@ HINCRBY lecture price 100
 
 ### Sorted Set
 
-- 유니크한 문자열을 score 기반으로 저장하는 정렬된 집합
+- 유니크한 문자열을 **`score`** 기반으로 저장하는 정렬된 집합
 - score가 동일하면 사전순으로 정렬됨
 
 ```js
