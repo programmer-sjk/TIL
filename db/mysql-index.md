@@ -44,3 +44,10 @@
   - `EXPLAIN SELECT id, email, name FROM multi_index_test WHERE email = 'a@test.com' and name = 'seo1';`
 - 또한 아래 쿼리는 다중 컬럼 인덱스에서 순서에 맞게 쿼리하지 않았기 때문(email이 인덱스 순서 상 앞에 배치되기 때문)에 커버링 인덱스가 표시되지 않는 것을 확인할 수 있다.
   - `EXPLAIN SELECT id, name FROM multi_index_test WHERE name = 'seo1';`
+
+## 복합 인덱스 카디널리티 기준
+
+- 복합 인덱스를 생성할 때 카디널리티가 낮은 것 -> 높은 것 vs 높은 것 -> 낮은 것 중 어떤 경우가 더 빠를까?
+- 일반적으로 where 절에서 조건이 equal(=)일 경우에는 카디널리티가 다른 컬럼 순서에 대해 성능의 차이가 없다.
+  - `ex) SELECT * FROM users where name = 'seo' AND age = 33`;
+- 만약 범위라면 달라지는데 상황마다 달라질 순 있지만 경험적으로 카디널리티가 높은 것 -> 낮은 순으로 만드는게 효율이 좋다.
