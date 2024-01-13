@@ -35,11 +35,11 @@
 - **`Redis DataBase`**
   - 특정 시간에 스냅샷을 생성하는 기술
   - 장애나 복제시 주로 사용됨
-  - 새로운 스냅샷이 생성되기 전 데이터 유실될 수 있음
+  - 새로운 스냅샷이 **생성되기 전 Redis가 다운되면 데이터 유실**될 수 있음
   - 스냅샷을 생성하는 동안 Redis 성능 저하가 발생
 - **`Append Only File`**
   - Redis에 쓰기 작업을 모두 log에 저장
-  - 데이터 유실 위험이 적지만 RDB 보다 느림
+  - 데이터 유실 위험이 적지만 **RDB 보다 느리기 때문에** 효율성이 떨어짐
 
 ## Redis Data Type 알아보기
 
@@ -76,7 +76,7 @@ LPOP stack
 
 ### Sets
 
-- 유니크한 문자열을 저장하는 정렬되지 않은 집합
+- 유니크한 문자열을 저장하는 **정렬되지 않은 집합**
 
 ```js
 SADD user:1:fruits apple banana orange orange
@@ -91,7 +91,7 @@ SUNION user:1:fruits user:2:fruits // user1,2 합집합
 
 ### Hashes
 
-- key-value 구조를 갖는 데이터 타입
+- **key-value** 구조를 갖는 데이터 타입
 
 ```js
 HSET lecture name inflearn price 100 language ko // 여러 key에 대한 value 추가
@@ -156,7 +156,7 @@ SET greet hello XX // key가 없으니 (nil) 반환
 
 ### Transaction
 
-- 다수의 명령을 하나의 트랜잭션으로 처리해서 원자성을 보장
+- 다수의 명령을 하나의 트랜잭션으로 처리해서 **원자성을 보장**
 - 중간에 에러가 발생하면 트랜잭션 내의 모든 작업이 Rollback
 
 ```js
