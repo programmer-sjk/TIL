@@ -69,3 +69,54 @@
 
 - 일반적으로 GC는 매우 빠르게 수행되지만 Stop-the-World GC는 드물게 잠금이 만료될 정도로 지속될 수 있다.
 - GC 외에도 여러 이유들로 동일한 문제가 발생할 수 있다.
+
+## 코드로 보는 NestJS에서 RedLock 사용
+
+- 이 섹션에서는 전체 절차를 정리하지 않고 사용 예시로만 간단하게 정리하겠다.
+- 사용하는 라이브러리는 찾아보니 [node-redlock](https://github.com/mike-marcacci/node-redlock)이 많이 사용된다.
+- 특정 서비스 Layer에서 Redis의 redlock을 사용한다고 하면 코드는 아래와 같다.
+
+```ts
+// RedisService
+@Injectable()
+export class RedisService {
+  private readonly redlock: Redlock;
+  private readonly lockDuration = 10_000; // 10 seconds (unit: ms)
+
+  constructor(@InjectRedis() private readonly redis: Redis) {
+    this.redlock = new Redlock([this.redis]);
+  }
+
+  async acquireLock(key: string) {
+    return this.redlock.acquire([`lock:${key}`], this.lockDuration);
+  }
+}
+
+// lock을 획득하여 사용하는 서비스 코드
+@Injectable()
+export class ReviewService {
+  constructor(private readonly redisService: RedisService) {}
+
+  async doSomething(id: number) {
+    let lock: Lock;
+    try {
+      lock = await this.redisService.acquireLock(`do-something:${id}`);
+    } catch (err) {
+      throw new Error("잠금 획득 실패");
+    }
+
+    // 분산 환경에서 한 프로세스만 실행해야 하는 코드 실행
+    doSomething(id);
+
+    await lock.release().catch(() => undefined);
+
+    // 후 처리 코드
+    return true;
+  }
+}
+```
+
+## 정리
+
+- 분산 환경에서 동시성을 제어하기 위한 방안으로 Redis의 RedLock을 사용할 수 있다.
+- 다만 RedLock은 완벽하지 않으며 문제가 발생할 수 있음을 인지하고 있어야 한다.
