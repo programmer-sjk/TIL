@@ -120,3 +120,8 @@ export class ReviewService {
 
 - 분산 환경에서 동시성을 제어하기 위한 방안으로 Redis의 RedLock을 사용할 수 있다.
 - 다만 RedLock은 완벽하지 않으며 문제가 발생할 수 있음을 인지하고 있어야 한다.
+
+## 레퍼런스
+
+- <https://redis.io/docs/manual/patterns/distributed-locks/>
+- <https://martin.kleppmann.com/2016/02/08/how-to-do-distributed-locking.html>
