@@ -78,7 +78,7 @@ LPOP stack
 
 - 유니크한 문자열을 저장하는 **정렬되지 않은 집합**
 
-```js
+```java
 SADD user:1:fruits apple banana orange orange
 SMEMBERS user:1:fruits
 SCARD user:1:fruits // 카디널리티 확인
@@ -117,7 +117,7 @@ ZRANK points teamA // teamA의 랭킹
 - 좌표를 저장하고 검색하는 데이터 타입
 - 거리 계산, 범위 탐색 지원
 
-```js
+```java
 // 좌표 추가
 GEOADD seoul:station 123.923123 37.556944 hong-dae
 GEOADD seoul:station 127.027583 37.497927  gang-nam
