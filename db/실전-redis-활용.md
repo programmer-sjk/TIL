@@ -146,7 +146,7 @@ SETEX greeting 10 hello // 만료기한과 함께 저장
 - **XX** 옵션은 해당 Key가 존재하는 경우에만 SET
 - SET이 동작하지 않은 경우 (nil) 반환
 
-```java
+```js
 SET greeting hello NX // key가 없었으니 성공
 SET greeting bye NX // key가 있어서 (nil) 반환
 
