@@ -1,17 +1,17 @@
 # Redis Red Lock
 
-- 여러 프로세스가 공유된 자원에 접근하면 **동시성 문제**가 발생하기 마련이다.
+- 여러 프로세스가 공유된 자원에 접근하면 **`동시성 문제가`** 발생하기 마련이다.
 - 동시성 이슈를 해결하기 위한 몇 가지 방안들이 있지만 이 문서에는 Redis가 제공하는 **RedLock**에 대해 정리한다.
 - **RedLock**은 Redis가 제공하는 **`분산 락(Distributed Lock)이다.`**
 
 ## 왜 하필 RedLock 인가?
 
-- Redis는 **싱글 스레드**로 동작하기 떄문에 아래의 명령어로도 잠금을 획득할 수 있다.
+- Redis는 **`싱글 스레드로`** 동작하기 떄문에 아래의 명령어로도 잠금을 획득할 수 있다.
   - 아래 명렁어는 `key`가 없을 경우 value를 저장하고 30초 동안 유지한다.
   - `SET key value NX PX 30000`
-- 따라서 동시성 문제가 발생하지 않는데 왜 분산락이 필요할까?
-  - 만약 Redis가 하나의 서버로 동작할 경우 단일 장애 지점(SPOF)이 될 수 있다.
-- 이를 위해 복제 모드(Master - Slave)로 구성할 수 있다. 하지만 Redis의 **`복제는 비동기라 문제가 발생할 수 있다`**.
+- 따라서 동시성 문제가 발생하지 않는데 **`왜 분산락이 필요할까`**?
+  - 만약 Redis가 하나의 서버로 동작할 경우 **`단일 장애 지점(SPOF)이`** 될 수 있다.
+- 이를 위해 **복제 모드**(Master - Slave)로 구성할 수 있다. 하지만 Redis의 **`복제는 비동기라 문제가 발생할 수 있다`**.
   - 클라이언트 A가 마스터에서 잠금을 획득한다.
   - 키에 대한 쓰기가 복제본으로 전송되기 전 Master가 다운된다.
   - 키가 쓰여지지 않은 Slave가 Master로 승격한다.
@@ -65,14 +65,14 @@
   - 클라이언트 B가 분산락을 획득하고 파일에 데이터를 쓴다.
   - 클라이언트 A가 GC가 끝난 후 파일에 데이터를 쓰면서 동시성 문제가 발생한다
 
-  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/db/broken-red-lock.png" width="600">
+    <img src="https://github.com/programmer-sjk/TIL/blob/main/images/db/broken-red-lock.png" width="600">
 
 - 일반적으로 GC는 매우 빠르게 수행되지만 **Stop-the-World** GC는 **`드물게 잠금이 만료될 정도로 지속될 수 있다`**.
 - GC 외에도 여러 이유들로 동일한 문제가 발생할 수 있다.
 
 ## 코드로 보는 NestJS에서 RedLock 사용
 
-- 이 섹션에서는 전체 절차를 정리하지 않고 사용 예시로만 간단하게 정리하겠다.
+- 이 섹션에서는 전체 절차를 정리하지 않고 **사용 예시로 간단하게 정리**하겠다.
 - 사용하는 라이브러리는 찾아보니 [node-redlock](https://github.com/mike-marcacci/node-redlock)이 많이 사용된다.
 - 특정 서비스 Layer에서 Redis의 redlock을 사용한다고 하면 코드는 아래와 같다.
 
