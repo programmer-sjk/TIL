@@ -21,3 +21,17 @@
 - 특정 Slack 채널에서 자신만 볼 수 있어야 한다.
   - 각자 일정에 따라 바쁜 날에는 리뷰를 적게 하고, 어떤 날에는 리뷰를 많이 할 수 있다.
   - 각자 PR 쌓인게 모두에게 공개되면 누구에게는 압박이 될 수도 있다는 생각이 들어 Slack 채널에서 자신만 볼 수 있어야 한다.
+
+## 사용할 기술 선정
+
+- 찾아보니 [PyGithub](https://github.com/PyGithub/PyGithub)가 제일 유명하고 사용하기 편해보였다.
+  - Python으로 뚝딱뚝딱 만들 수 있겠다고 생각했지만, 사내 기술 스택은 JS이고 Python을 사용해 본 적 없는 분들도 있음
+  - 내가 아니어도 편하게 유지보수가 가능하도록 JS 스택으로 개발하기로 결정
+- `js github api`로 검색하며 아래 두 개의 라이브러리로 추렸다.
+  - [Octokit](https://docs.github.com/en/rest/guides/scripting-with-the-rest-api-and-javascript?apiVersion=2022-11-28)
+    - [github 주소](https://github.com/octokit/octokit.js)
+  - [Github api](https://github.com/github-tools/github)
+- Octokit은 Github REST API를 사용할 수 있는 SDK로 Github에 의해 관리된다.
+- Github API는 Github REST API와 연동을 쉽게 해주는 라이브러리로 Node와 브라우저에서 사용이 가능하다.
+  - Github API도 결국 내부적으로 REST API를 사용
+- 둘 중 문서화가 좀 더 깔끔한 Octokit을 사용하기로 결정했다.
