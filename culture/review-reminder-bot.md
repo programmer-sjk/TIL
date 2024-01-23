@@ -42,25 +42,33 @@
 - 테스트를 위해 Slack workspace를 새로 만들고 app을 생성한다.
 
   - From Scratch 버튼 클릭
+
     <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/slack-bot-step1.png" width="400">
 
   - 생성하는 app 이름과 workspace를 지정한다.
+
     <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/slack-bot-step2.png" width="400">
 
   - 왼쪽 Feature -> OAuth & Permissions 클릭
+
     <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/slack-bot-step3.png" width="400">
 
   - 단순히 메시지 전송이라면 `char:write` 으로 충분하지만 Slack에서 사진과 이름까지 커스터마이징 할 수 있는 `chat:write:customize`를 클릭한다
+
     <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/slack-bot-step4.png" width="400">
 
   - Basic Information 페이지에서 Install to Workspace 버튼을 클릭한다.
+
     <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/slack-bot-step5.png" width="400">
 
 - 만약 아래와 같이 `앱에 설치할 봇 사용자가 없습니다` 메시지가 뜬다면
+
   <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/slack-bot-problem.png" width="400">
 
   - App Home 페이지에서 App Display Name 옆에 Edit 버튼을 클릭한다.
+
     <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/slack-bot-solve.png" width="400">
 
-  - 아래처럼 원하는 Name과 username을 저장하고
+  - 아래처럼 원하는 Name과 username을 저장하고 Install to Workspace 버튼을 다시 클릭한다
+
     <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/slack-bot-solve2.png" width="400">
