@@ -36,10 +36,31 @@
   - Github API도 결국 내부적으로 REST API를 사용
 - 둘 중 문서화가 좀 더 깔끔한 Octokit을 사용하기로 결정했다.
 
-절차
+## Slack 메시지 전송
 
-- repo 만들고
-- octokit 설치
-- token 기반으로 정보들을정상적으로 얻어오는지 확인
-- list pull requests 쪽 통신해서 데이터 오는지 확인
-  - <https://docs.github.com/en/rest/pulls/pulls?apiVersion=2022-11-28#list-pull-requests>
+- 라이브러리는 사용 목적에 충분한 기능을 제공하는 `@slack/web-api` 모듈을 사용했다.
+- 테스트를 위해 Slack workspace를 새로 만들고 app을 생성한다.
+
+  - From Scratch 버튼 클릭
+    <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/slack-bot-step1.png" width="400">
+
+  - 생성하는 app 이름과 workspace를 지정한다.
+    <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/slack-bot-step2.png" width="400">
+
+  - 왼쪽 Feature -> OAuth & Permissions 클릭
+    <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/slack-bot-step3.png" width="400">
+
+  - 단순히 메시지 전송이라면 `char:write` 으로 충분하지만 Slack에서 사진과 이름까지 커스터마이징 할 수 있는 `chat:write:customize`를 클릭한다
+    <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/slack-bot-step4.png" width="400">
+
+  - Basic Information 페이지에서 Install to Workspace 버튼을 클릭한다.
+    <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/slack-bot-step5.png" width="400">
+
+- 만약 아래와 같이 `앱에 설치할 봇 사용자가 없습니다` 메시지가 뜬다면
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/slack-bot-problem.png" width="400">
+
+  - App Home 페이지에서 App Display Name 옆에 Edit 버튼을 클릭한다.
+    <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/slack-bot-solve.png" width="400">
+
+  - 아래처럼 원하는 Name과 username을 저장하고
+    <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/slack-bot-solve2.png" width="400">
