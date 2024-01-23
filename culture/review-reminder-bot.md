@@ -41,34 +41,46 @@
 - 라이브러리는 사용 목적에 충분한 기능을 제공하는 `@slack/web-api` 모듈을 사용했다.
 - 테스트를 위해 Slack workspace를 새로 만들고 app을 생성한다.
 
-  - From Scratch 버튼 클릭
+### 메시지를 보내기 위한 Slack 토큰 생성 과정
 
-    <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/slack-bot-step1.png" width="400">
+- From Scratch 버튼 클릭
 
-  - 생성하는 app 이름과 workspace를 지정한다.
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/slack-bot-step1.png" width="400">
 
-    <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/slack-bot-step2.png" width="400">
+- 생성하는 app 이름과 workspace를 지정한다.
 
-  - 왼쪽 Feature -> OAuth & Permissions 클릭
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/slack-bot-step2.png" width="400">
+
+- 왼쪽 Feature -> OAuth & Permissions 클릭하고 Bot token을 생성한다.
+
+  - Bot Token으로 생성시 전달된 메시지는 workspace에 설치된 app에 의해 전송된다.
+  - User Token은 워크스페이스 멤버를 의미하며 전달된 메시지는 나에 의해 전송된다.
 
     <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/slack-bot-step3.png" width="400">
 
-  - 단순히 메시지 전송이라면 `char:write` 으로 충분하지만 Slack에서 사진과 이름까지 커스터마이징 할 수 있는 `chat:write:customize`를 클릭한다
+  - Bot Token(위) vs User Token(아래)로 메시지 전송시 비교. 다른 사람들은 내가 보낸 메시지로 보여진다.
+    <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/bot-vs-user.png" width="400">
 
-    <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/slack-bot-step4.png" width="400">
+- 단순히 메시지 전송이라면 `char:write` 으로 충분하지만 Slack에서 사진과 이름까지 커스터마이징 할 수 있는 `chat:write:customize`를 클릭한다
 
-  - Basic Information 페이지에서 Install to Workspace 버튼을 클릭한다.
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/slack-bot-step4.png" width="400">
 
-    <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/slack-bot-step5.png" width="400">
+- Basic Information 페이지에서 Install to Workspace 버튼을 클릭한다.
+
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/slack-bot-step5.png" width="400">
 
 - 만약 아래와 같이 `앱에 설치할 봇 사용자가 없습니다` 메시지가 뜬다면
 
-  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/slack-bot-problem.png" width="400">
+<img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/slack-bot-problem.png" width="400">
 
-  - App Home 페이지에서 App Display Name 옆에 Edit 버튼을 클릭한다.
+- App Home 페이지에서 App Display Name 옆에 Edit 버튼을 클릭한다.
 
-    <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/slack-bot-solve.png" width="400">
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/slack-bot-solve.png" width="400">
 
-  - 아래처럼 원하는 Name과 username을 저장하고 Install to Workspace 버튼을 다시 클릭한다
+- 아래처럼 원하는 Name과 username을 저장하고 Install to Workspace 버튼을 다시 클릭한다
 
-    <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/slack-bot-solve2.png" width="400">
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/slack-bot-solve2.png" width="400">
+
+- 정상적으로 토큰을 발급하면 아래와 같이 Token을 확인할 수 있다.
+
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/slack-bot-step6.png" width="400">
