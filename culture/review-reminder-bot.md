@@ -61,7 +61,7 @@
   - Bot Token(위) vs User Token(아래)로 메시지 전송시 비교. 다른 사람들은 내가 보낸 메시지로 보여진다.
     <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/bot-vs-user.png" width="400">
 
-- 단순히 메시지 전송이라면 `char:write` 으로 충분하지만 Slack에서 사진과 이름까지 커스터마이징 할 수 있는 `chat:write:customize`를 클릭한다
+- 단순히 메시지 전송이라면 `char:write` 으로 충분하지만 나는 Slack에서 사진과 이름까지 커스터마이징 하고 싶기 때문에 `chat:write:customize`를 클릭한다
 
   <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/slack-bot-step4.png" width="400">
 
@@ -159,7 +159,7 @@
 
 - 여기서 특정 유저의 Slack ID는 프로필을 클릭하고 멤버 ID 복사를 클릭한다.
 
-  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/slack-user-id.png" width="400">
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/slack-user-id.png" width="300">
 
 - 전달된 메시지는 아래와 같이 표기된다.
 
