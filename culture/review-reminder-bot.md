@@ -137,3 +137,30 @@
 - 아래 화면처럼 메시지가 전송된다.
 
   <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/slack-message2.png" width="400">
+
+## 각자의 PR 목록을 자신만 보고 싶다면?
+
+- 각자의 PR 목록이 공개된 채널에 노출되어 개발팀 전체가 본다고 가정하자.
+- 리뷰어 A,B에게 동일한 리뷰가 요청왔는데, 업무 부하에 따라 누군가는 남은 리뷰가 적고, 누군가는 남은 리뷰가 많을 수 있다.
+  - 여기서 민감하신 분들은 리뷰를 적게 하는 것처럼 보일까봐 스트레스 일 수도 있다. (워낙 다양한 사람들이 일하고 있기 때문에)
+- 만약 특정 채널에서 자신에게 남은 PR을 오직 자신만 볼 수 있게 하려면 어떡해야 할까?
+- postEphemeral 함수를 사용하면 된다.
+
+  ```js
+  const web = new WebClient("slack에서 발급받은 토큰");
+  const result = await web.chat.postEphemeral({
+    text: "이 메시지가 Slack에 전달됩니다.",
+    channel: "랜덤",
+    user: "SLACK ID",
+    icon_emoji: "cubimal_chick",
+    username: "리뷰 비서",
+  });
+  ```
+
+- 여기서 특정 유저의 Slack ID는 프로필을 클릭하고 멤버 ID 복사를 클릭한다.
+
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/slack-user-id.png" width="400">
+
+- 전달된 메시지는 아래와 같이 표기된다.
+
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/slack-message-only-me.png" width="400">
