@@ -119,3 +119,21 @@
 - 메시지 전송 결과
 
   <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/slack-message.png" width="400">
+
+## Avatar와 username 커스터마이징
+
+- Slack에서 노출되는 Avatar와 이름을 변경하고 싶다면 icon_emoji, username 인자를 활용하면 된다.
+
+  ```js
+  const web = new WebClient("slack에서 발급받은 토큰");
+  const result = await web.chat.postMessage({
+    text: "이 메시지가 Slack에 전달됩니다.",
+    channel: "랜덤",
+    icon_emoji: "cubimal_chick",
+    username: "리뷰 비서",
+  });
+  ```
+
+- 아래 화면처럼 메시지가 전송된다.
+
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/slack-message2.png" width="400">
