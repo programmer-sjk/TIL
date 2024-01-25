@@ -56,7 +56,7 @@
   - Bot Token으로 생성시 전달된 메시지는 workspace에 설치된 app에 의해 전송된다.
   - User Token은 워크스페이스 멤버를 의미하며 전달된 메시지는 나에 의해 전송된다.
 
-    <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/slack-bot-step3.png" width="400">
+    <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/slack-bot-step3.png" width="500">
 
   - Bot Token(위) vs User Token(아래)로 메시지 전송시 비교. 다른 사람들은 내가 보낸 메시지로 보여진다.
     <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/bot-vs-user.png" width="400">
@@ -75,7 +75,7 @@
 
 - App Home 페이지에서 App Display Name 옆에 Edit 버튼을 클릭한다.
 
-  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/slack-bot-solve.png" width="400">
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/slack-bot-solve.png" width="600">
 
 - 아래처럼 원하는 Name과 username을 저장하고 Install to Workspace 버튼을 다시 클릭한다
 
@@ -83,4 +83,39 @@
 
 - 정상적으로 토큰을 발급하면 아래와 같이 Token을 확인할 수 있다.
 
-  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/slack-bot-step6.png" width="400">
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/slack-bot-step6.png" width="600">
+
+### Slack 토큰으로 메시지를 받기 위한 설정
+
+- 만약 User Token을 사용한다면 채널에 참여하고 발급받은 토큰으로 메시지를 전달받으면 된다.
+- 만약 Bot Token을 사용한다면 채널 세부정보 -> 통합 -> 앱 추가 버튼을 클릭한다.
+
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/slack-setting1.png" width="400">
+
+- 생성한 app이 목록에 나타난다면 추가 버튼을 눌러준다.
+
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/slack-setting2.png" width="400">
+
+- 만약 나오지 않는다면 Slack 하단에 앱에서 세부정보를 클릭한다.
+
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/slack-setting3.png" width="400">
+
+- 앱을 채널에 추가하기 버튼을 클릭하고 원하는 채널에 앱을 추가한다.
+
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/slack-setting4.png" width="400">
+
+- 그 후 발급받은 토큰을 `@slack/web-api`에서 사용할 수 있는 함수에 넣어주고 메시지를 보내면 Slack에서 정상적으로 메시지를 확인할 수 있다.
+
+  ```js
+  import { WebClient } from "@slack/web-api";
+
+  const web = new WebClient("slack에서 발급받은 토큰");
+  const result = await web.chat.postMessage({
+    text: "이 메시지가 Slack에 전달됩니다.",
+    channel: "랜덤",
+  });
+  ```
+
+- 메시지 전송 결과
+
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/slack-message.png" width="400">
