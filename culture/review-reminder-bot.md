@@ -1,8 +1,12 @@
 # 코드 리뷰 리마인더 봇
 
+- 예시 코드는 [여기](https://github.com/programmer-sjk/pr-reminder-bot)서 확인이 가능하다.
+
 ## 리뷰 리마인더의 필요성
 
 - MSA로 **코드가 여러 Repository에서 관리**되는 환경에서 모든 PR을 리뷰해야 하는 환경에 있다.
+  - 문서를 작성하는 기준으로 6개의 백엔드 Repository가 존재한다.
+  - 문제는 백엔드 개발자 수가 많지 않아 모든 PR에 내가 리뷰어로 할당된다는 점이다.
 - 리뷰를 한 적이 없는 PR이라면 [review-requested](https://github.com/pulls/review-requested) 페이지에서 확인이 가능하지만 comment를 달았던 PR은 이 페이지에서 확인되지 않는다.
 - 매일 출근해서 리뷰를 하는데 두 단계로 나뉘어진다.
   - [review-requested](https://github.com/pulls/review-requested) 페이지에서 나에게 요청은 왔으나 리뷰를 한 적 없는 PR을 리뷰한다.
@@ -164,3 +168,13 @@
 - 전달된 메시지는 아래와 같이 표기된다.
 
   <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/slack-message-only-me.png" width="400">
+
+## 정리하며
+
+- 최종적으로 내가 생각하는 형태는 아래의 예시와 같다.
+
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/final-result.png" width="600">
+
+- 맨 위에 첨부한 링크에서 전체 코드를 확인할 수 있으며, 각 회사 환경에 맞춰 배치로 매일 한 번 실행할 수도 있고, 매일 아침에 스크립트를 직접 실행할 수도 있다.
+  - 내 경우, AWS Batch와 Event Bridge를 활용해 매일 아침에 한 번 동작시킬 생각이다.
+- 사용해 보고 얼마 뒤에는 후기를 남겨야겠다.
