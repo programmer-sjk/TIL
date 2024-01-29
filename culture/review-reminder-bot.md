@@ -1,6 +1,6 @@
 # 코드 리뷰 리마인더 봇
 
-- 예시 코드는 [여기](https://github.com/programmer-sjk/pr-reminder-bot)서 확인이 가능하다.
+- 예시 코드는 [여기](https://github.com/programmer-sjk/pr-reminder-bot/blob/main/example.js)서 확인이 가능하다.
 
 ## 리뷰 리마인더의 필요성
 
