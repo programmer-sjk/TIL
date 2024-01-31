@@ -166,8 +166,13 @@
 
 - 최종적으로 내가 생각하는 형태는 아래의 예시와 같다.
 
-  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/final-result.png" width="600">
+  - 리뷰가 있을 때
 
-- 맨 위에 첨부한 링크에서 전체 코드를 확인할 수 있으며, 각 회사 환경에 맞춰 배치로 매일 한 번 실행할 수도 있고, 매일 아침에 스크립트를 직접 실행할 수도 있다.
-  - 내 경우, AWS Batch와 Event Bridge를 활용해 매일 아침에 한 번 동작시킬 생각이다.
-- 사용해 보고 얼마 뒤에는 후기를 남겨야겠다.
+    <img src="https://github.com/programmer-sjk/pr-reminder-bot/blob/main/images/slack-message.png" width="400">
+
+  - 리뷰가 없을 때
+
+    <img src="https://github.com/programmer-sjk/pr-reminder-bot/blob/main/images/no-review-message.png" width="400">
+
+- 이 문서 맨 위에 첨부한 링크에서 전체 코드를 확인할 수 있으며, 각 회사 환경에 맞춰 배치로 매일 한 번 실행할 수도 있고, 매일 아침에 스크립트를 직접 실행할 수도 있다.
+- 내가 일하는 회사의 경우, util용 서버가 따로 있어 Cron으로 개발자마다 출근하는 시간에 동작시켜 알림을 보내도록 했다.
