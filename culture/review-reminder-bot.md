@@ -24,7 +24,7 @@
 - 찾아보니 [PyGithub](https://github.com/PyGithub/PyGithub)가 제일 유명하고 사용하기 편해보였다.
   - Python으로 뚝딱뚝딱 만들 수 있겠다고 생각했지만, 사내 기술 스택은 JS이고 Python을 사용해 본 적 없는 분들도 있음
   - **내가 아니어도 편하게 유지보수가 가능하도록** JS 스택으로 개발하기로 결정
-- **`js github api`** 검색하며 아래 두 개의 라이브러리로 추렸다.
+- `JS Github API`를 검색해 보며 아래 두 개의 라이브러리로 추렸다.
   - [Octokit](https://docs.github.com/en/rest/guides/scripting-with-the-rest-api-and-javascript?apiVersion=2022-11-28) ([github 주소](https://github.com/octokit/octokit.js))
   - [Github api](https://github.com/github-tools/github)
 - Octokit은 Github REST API를 사용할 수 있는 SDK로 Github에 의해 관리된다.
@@ -69,7 +69,7 @@
 
 - 만약 아래와 같이 `앱에 설치할 봇 사용자가 없습니다` 메시지가 뜬다면
 
-<img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/slack-bot-problem.png" width="400">
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/slack-bot-problem.png" width="400">
 
 - App Home 페이지에서 `App Display Name` 옆에 Edit 버튼을 클릭한다.
 
