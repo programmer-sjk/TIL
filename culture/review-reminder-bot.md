@@ -37,11 +37,11 @@
 - 라이브러리는 사용 목적에 충분한 기능을 제공하는 `@slack/web-api` 모듈을 사용했다.
 - 테스트를 위해 `Slack workspace`를 새로 만들고 app을 생성한다.
   - 아래 절차는 `Slack workspace` 부터 생성해서 전달하는 절차가 기술된다.
-  - 이미 회사에 `Slack hook`을 사용하거나 메시지를 보내는 환경이 마련되었다면 넘어가면 된다.
+  - **이미 회사에 `Slack hook`을 사용하거나 메시지를 보내는 환경이 마련되었다면 넘어가면 된다.**
 
 ### 메시지를 보내기 위한 Slack 토큰 생성 과정
 
-- From Scratch 버튼 클릭
+- `From Scratch` 버튼 클릭
 
   <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/slack-bot-step1.png" width="400">
 
@@ -174,5 +174,6 @@
 
     <img src="https://github.com/programmer-sjk/pr-reminder-bot/blob/main/images/no-review-message.png" width="400">
 
-- 이 문서 맨 위에 첨부한 링크에서 전체 코드를 확인할 수 있으며, 각 회사 환경에 맞춰 배치로 매일 한 번 실행할 수도 있고, 매일 아침에 스크립트를 직접 실행할 수도 있다.
-- 내가 일하는 회사의 경우, util용 서버가 따로 있어 Cron으로 개발자마다 출근하는 시간에 동작시켜 알림을 보내도록 했다.
+- 이 문서 맨 위에 첨부한 링크에서 전체 코드를 확인할 수 있다.
+- 각 회사 환경에 맞춰 배치로 매일 한 번 실행하거나 원하는 방향에 참고용으로 도움이 되면 좋겠다.
+- 내 경우, util용 서버가 따로 있어 Cron으로 개발자마다 출근하는 시간에 동작시켜 리뷰 알림을 보내도록 적용했다.
