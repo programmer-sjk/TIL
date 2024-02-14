@@ -14,6 +14,10 @@
 - [MySQL InnoDB Buffer Pool](db/innodb_buffer_pool.md)
 - [Nested Loop vs Block Nested Loop vs Hash Join](./db/nested-loop-compare.md)
 
+### Redis
+
+- [인프런 강의 - 실전 Redis 활용](db/%EC%8B%A4%EC%A0%84-redis-%ED%99%9C%EC%9A%A9.md)
+
 ## Devops
 
 - [카프카 기초](devops/inflearn-kafka-beginner.md)
