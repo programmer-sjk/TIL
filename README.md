@@ -3,6 +3,7 @@
 ## Culture
 
 - [더 나은 코드 리뷰](culture/better-review.md)
+- [코드 리뷰 리마인드 알림](culture/review-reminder-bot.md)
 
 ## Database
 
