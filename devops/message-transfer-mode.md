@@ -26,7 +26,7 @@
   - 브로커의 ACK를 받은 프로듀서는 다음 메시지 B를 브로커에게 전송한다.
   - 브로커는 메시지를 받았지만 네트워크 오류나 브로커 장애로 인해 **결국 ACK가 프로듀서에게 전달되지 않는다.**
   - 프로듀서는 브로커가 받았다고 가정하고 메시지 C를 전송한다.
-- **`최대 한 번 전송`**은 **ACK를 받지 못해도 재 전송하지 않는다**. 위 그림에서 사실 ACK를 받는 부분은 의미가 없지만 적어도 한 번 전송과 비교하기 위해 넣어두었다. 정리하면 **`최대 한 번 전송은`** **메시지 손실을 감안하더라도 중복 전송은 하지 않는 경우**이다.
+- **`최대 한 번 전송은 **ACK를 받지 못해도 재 전송하지 않는다`**. 위 그림에서 사실 ACK를 받는 부분은 의미가 없지만 적어도 한 번 전송과 비교하기 위해 넣어두었다. 정리하면 **`최대 한 번 전송은`\*\* **메시지 손실을 감안하더라도 중복 전송은 하지 않는 경우**이다.
 - 일부 메시지가 손실되더라도 높은 처리량을 필요로 하는 대량의 로그 수집이나 IoT 같은 환경에서 사용된다.
 
 ## 중복 없는 전송 (멱등성 프로듀서)
@@ -121,6 +121,6 @@
 
 ## 레퍼런스
 
-- https://www.confluent.io/blog/transactions-apache-kafka/
-- https://blog.digitalis.io/read-process-write-with-kafka-transactions-29bc0a70febd
-- https://www.confluent.io/kafka-summit-london18/dont-repeat-yourself-introducing-exactly-once-semantics-in-apache-kafka/
+- <https://www.confluent.io/blog/transactions-apache-kafka/>
+- <https://blog.digitalis.io/read-process-write-with-kafka-transactions-29bc0a70febd>
+- <https://www.confluent.io/kafka-summit-london18/dont-repeat-yourself-introducing-exactly-once-semantics-in-apache-kafka/>
