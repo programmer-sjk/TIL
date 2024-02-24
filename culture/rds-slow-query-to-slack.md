@@ -6,4 +6,4 @@
 
 ## 전체 흐름도
 
-<img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/pr-reminder/rds-slow-query-to-slack.png" width="600">
+<img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/rds-slow-query-to-slack.png" width="600">
