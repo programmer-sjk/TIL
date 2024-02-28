@@ -41,6 +41,10 @@
 
  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/ide/save_prettier.png" width="600">
 
+- 설정에서 Prettier: Single Quote를 활성화 한다.
+
+ <img src="https://github.com/programmer-sjk/TIL/blob/main/images/ide/enable-single-quote.png" width="600">
+
 ## 단축키
 
 - 사용되지 않는 import 제거: shift + option + O
