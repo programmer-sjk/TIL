@@ -26,3 +26,84 @@
 
 ## Redis-cli를 이용한 Sorted Set 다루기
 
+- Redis가 이미 설치되어 있다고 가정하고 local에서 redis-cli 명령어로 실습해본다.
+
+### 추가
+
+- Sorted Set의 추가는 ZADD 명령어로 추가한다.
+  - 명령어: `ZADD SORTED_SET_NAME SCORE MEMBER`
+
+```
+ZADD mySortedSet 10 "1등"
+ZADD mySortedSet 9 "2등"
+ZADD mySortedSet 8 "3등"
+ZADD mySortedSet 7 "4등"
+ZADD mySortedSet 6 "5등"
+```
+
+### 수정
+
+- 동일한 멤버에 대해 ZADD 명령어를 수행하면 SCORE 값이 업데이트 된다.
+
+```
+127.0.0.1:6379> ZREVRANGE mySortedSet 4 5 WITHSCORES
+5등
+6
+
+127.0.0.1:6379> ZADD mySortedSet 3 "5등"
+0
+
+127.0.0.1:6379> ZREVRANGE mySortedSet 4 5 WITHSCORES
+5등
+3
+```
+
+### 조회
+
+- ZRANGE로 Score가 낮은 순부터 조회할 수 있다.
+
+```
+127.0.0.1:6379> ZRANGE mySortedSet 0 5
+5등
+4등
+3등
+2등
+1등
+```
+
+- ZREVRANGE를 이용해 점수가 높은 순부터 조회할 수 있다.
+  - Redis 6.2 버전부터 해당 메소드는 [deprecated](https://redis.io/commands/zrevrange/) 된다.
+  - Redis 6.2 버전부터 REV 인자가 기능을 대체하게 된다.
+
+```
+127.0.0.1:6379> ZREVRANGE mySortedSet 0 5
+1등
+2등
+3등
+4등
+5등
+```
+
+### 삭제
+
+- Sorted Set 내부에서 멤버 삭제는 ZREM 명령어를 이용한다.
+
+```
+127.0.0.1:6379> ZREM mySortedSet "5등"
+1
+
+127.0.0.1:6379> ZREVRANGE mySortedSet 0 5
+1등
+2등
+3등
+4등
+```
+
+- Sorted Set 자체 삭제는 del 명령어를 이용한다.
+
+```
+127.0.0.1:6379> DEL mySortedSet
+1
+
+127.0.0.1:6379> ZREVRANGE mySortedSet 0 5
+```
