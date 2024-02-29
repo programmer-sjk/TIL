@@ -7,7 +7,7 @@
 ## 왜 하필 RedLock 인가?
 
 - Redis는 **`싱글 스레드로`** 동작하기 떄문에 아래의 명령어로도 잠금을 획득할 수 있다.
-  - 아래 명렁어는 `key`가 없을 경우 value를 저장하고 30초 동안 유지한다.
+  - 아래 명령어는 `key`가 없을 경우 value를 저장하고 30초 동안 유지한다.
   - `SET key value NX PX 30000`
 - 따라서 동시성 문제가 발생하지 않는데 **`왜 분산락이 필요할까`**?
   - 만약 Redis가 하나의 서버로 동작할 경우 **`단일 장애 지점(SPOF)이`** 될 수 있다.
@@ -45,7 +45,7 @@
   function writeData(filename, data) {
     var lock = lockService.acquireLock(filename);
     if (!lock) {
-      throw "Failed to acquire lock";
+      throw 'Failed to acquire lock';
     }
 
     try {
@@ -102,7 +102,7 @@ export class ReviewService {
     try {
       lock = await this.redisService.acquireLock(`do-something:${id}`);
     } catch (err) {
-      throw new Error("잠금 획득 실패");
+      throw new Error('잠금 획득 실패');
     }
 
     // 분산 환경에서 한 프로세스만 실행해야 하는 코드 실행
