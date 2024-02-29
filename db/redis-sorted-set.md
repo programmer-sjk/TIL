@@ -6,7 +6,7 @@
 ## 랭킹 정보를 제공한다면 어떤 방법들이 있을까?
 
 - 만약 어떤 종류의 데이터를 **랭킹 순으로** 보여줘야 한다면, 기술적으로 어떻게 제공할 수 있을까?
-- 가장 먼저 생각나는 방법은 **`RDB에 쿼리로 조회해서 제공하는 방법이**` 있다.
+- 가장 먼저 생각나는 방법은 **`RDB에 쿼리로 조회해서 제공하는 방법이`** 있다.
   - Seed 데이터를 합산해서 랭킹 순으로 정렬해서 보여준다.
   - 배치에서 랭킹 데이터를 만들어 저장하고, 랭킹 정보를 단순 조회해서 그대로 보여준다.
 - RDB가 아닌 **`Redis를 이용하여 랭킹 정보를 쉽게 제공할 수 있는데,`** 이 때 활용 가능한 방법이 Sorted Set 이다.
@@ -72,8 +72,8 @@ ZADD mySortedSet 6 "5등"
 ```
 
 - `ZREVRANGE`를 이용해 점수가 높은 순부터 조회할 수 있다.
-  - Redis 6.2 버전부터 해당 메소드는 [deprecated](https://redis.io/commands/zrevrange/) 된다.
-  - Redis 6.2 버전부터 REV 인자가 기능을 대체하게 된다.
+  - `Redis 6.2 버전`부터 해당 메소드는 [deprecated](https://redis.io/commands/zrevrange/) 된다.
+  - `Redis 6.2 버전`부터 REV 인자가 기능을 대체하게 된다.
 
 ```
 127.0.0.1:6379> ZREVRANGE mySortedSet 0 5
@@ -99,7 +99,7 @@ ZADD mySortedSet 6 "5등"
 4등
 ```
 
-- Sorted Set 자체 삭제는 del 명령어를 이용한다.
+- Sorted Set 자체 삭제는 `del` 명령어를 이용한다.
 
 ```
 127.0.0.1:6379> DEL mySortedSet
@@ -111,7 +111,7 @@ ZADD mySortedSet 6 "5등"
 ## NestJS에서 Redis Sorted Set 다루기
 
 - NestJS 프레임워크에서 Redis의 Sorted Set을 사용해보자.
-- 예시에서 사용한 전체 코드는 [여기서](https://github.com/programmer-sjk/nestjs-redis) 확인할 수 있다.
+- 예시에서 사용한 전체 코드는 **[여기서](https://github.com/programmer-sjk/nestjs-redis)** 확인할 수 있다.
 - nest-cli를 활용해 NestJS 프로젝트를 생성하고 Redis 동작에 필요한 모듈을 설치한다.
   - `yarn add @nestjs-modules/ioredis ioredis`
 - Redis와 연동하는 모듈을 생성한다.
@@ -202,4 +202,4 @@ ZADD mySortedSet 6 "5등"
 
 - Person Controller를 생성한 뒤, postman을 이용해 호출하면 아래와 같은 결과를 확인할 수 있다.
 
-  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/db/redis-sorted-set-result.png" width="600">
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/db/redis-sorted-set-result.png" width="400">
