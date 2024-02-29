@@ -107,3 +107,99 @@ ZADD mySortedSet 6 "5등"
 
 127.0.0.1:6379> ZREVRANGE mySortedSet 0 5
 ```
+
+## NestJS에서 Redis Sorted Set 다루기
+
+- NestJS 프레임워크에서 Redis의 Sorted Set을 사용해보자.
+- 예시에서 사용한 전체 코드는 [여기서](https://github.com/programmer-sjk/nestjs-redis) 확인할 수 있다.
+- nest-cli를 활용해 NestJS 프로젝트를 생성하고 Redis 동작에 필요한 모듈을 설치한다.
+  - `yarn add @nestjs-modules/ioredis ioredis`
+- Redis와 연동하는 모듈을 생성한다.
+
+  ```ts
+  import { Module } from '@nestjs/common';
+  import { RedisModule as IORedisModule } from '@nestjs-modules/ioredis';
+  import { RedisService } from './redis.service';
+
+  @Module({
+    imports: [
+      IORedisModule.forRoot({
+        type: 'single',
+        url: 'localhost',
+      }),
+    ],
+    providers: [RedisService],
+    exports: [RedisService],
+  })
+  export class RedisModule {}
+  ```
+
+- 다른 모듈에서 호출 할 RedisService를 아래와 같이 작성한다.
+
+  - 랭킹을 추가할 때 호출할 zadd 명령어와 조회할 때 호출할 zrange, zrevrange를 선언한다.
+
+  ```ts
+  import { InjectRedis } from '@nestjs-modules/ioredis';
+  import { Injectable } from '@nestjs/common';
+  import { Redis } from 'ioredis';
+
+  @Injectable()
+  export class RedisService {
+    constructor(@InjectRedis() private redis: Redis) {}
+
+    async zadd(key: string, score: number, member: string) {
+      return this.redis.zadd(key, score, member);
+    }
+
+    async zrange(key: string, max: number) {
+      return this.redis.zrange(key, 0, max);
+    }
+
+    async zrevrange(key: string, max: number) {
+      return this.redis.zrevrange(key, 0, max);
+    }
+  }
+  ```
+
+- person 서비스에서 redis 서비스를 호출한다.
+
+  - zrange 명령어는 기본적으로 Score가 낮은 순으로 응답한다.
+  - 만약 Sorted Set에 저장되는 Score가 높을 수록 랭킹이 높아진다면 zrevrange를 호출해야 한다.
+  - 아래 예시에서는 Score가 곧 랭킹이므로 zrange를 호출했다.
+
+  ```ts
+  import { Injectable } from '@nestjs/common';
+  import { RedisService } from '../redis/redis.service';
+
+  @Injectable()
+  export class PersonService {
+    constructor(private readonly redisService: RedisService) {}
+
+    async getPersonRanking() {
+      return this.redisService.zrange('mySortedSet', 10);
+    }
+
+    async addPersonRanking() {
+      const persons = [
+        { ranking: 1, name: '마동석' },
+        { ranking: 2, name: '손석구' },
+        { ranking: 3, name: '아이유' },
+        { ranking: 4, name: '유재석' },
+        { ranking: 5, name: '이광수' },
+      ];
+
+      for (const person of persons) {
+        await this.redisService.zadd(
+          'mySortedSet',
+          person.ranking,
+          person.name
+        );
+      }
+      return true;
+    }
+  }
+  ```
+
+- Person Controller를 생성한 뒤, postman을 이용해 호출하면 아래와 같은 결과를 확인할 수 있다.
+
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/db/redis-sorted-set-result.png" width="600">
