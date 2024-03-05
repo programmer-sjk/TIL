@@ -18,6 +18,7 @@
 
 ### Redis
 
+- [Redis Sorted Set을 이용한 랭킹 정보 관리](db/redis-sorted-set.md)
 - [Red Lock](db/redis-red-lock.md)
 - [인프런 강의 - 실전 Redis 활용](db/%EC%8B%A4%EC%A0%84-redis-%ED%99%9C%EC%9A%A9.md)
 
