@@ -1,14 +1,14 @@
 # Redis Red Lock
 
-- **RedLock**은 분산 환경에서 Redis가 권장하는 **`분산 락(Distributed Lock)이다.`**.
-- 이 문서에서는 다음 두 가지를 중점적으로 정리한다.
-  - Redis Set 명령어에 NX 옵션을 통한 Lock을 제공하는 방법과 한계
-  - RedLock의 동작방식 및 한계에 대해 정리하겠다.
+- **RedLock**은 분산 환경에서 Redis가 권장하는 **`분산 락(Distributed Lock)이다`**.
+- 이 문서에서는 `다음 두 가지`를 중점적으로 정리한다.
+  - Redis `Set 명령어에 NX 옵션`을 통한 Lock을 제공하는 방법과 한계
+  - `RedLock`의 동작방식 및 한계에 대해 정리하겠다.
 
 ## Redis SET NX
 
 - Redis는 2.6.12 버전 이전에는 `SETNX` 명령어를 제공했다.
-  - Redis는 2.6.12 버전부터 **`SETNX 명령어는 deprecated`** 하고 SET 명령어에 NX 옵션을 전달하는 방향으로 수정하였다.
+  - 2.6.12 버전부터 **`SETNX 명령어 자체는 deprecated`** 하고 SET 명령어에 NX 옵션을 전달하는 방향으로 수정하였다.
 - NX 옵션을 전달하면 SET 하려는 **`키가 없는 경우에만 SET이 성공한다`**.
   - Redis는 **싱글 스레드로 동작**하기 때문에 여러 프로세스가 공유 자원에 접근할 때 발생하는 동시성 문제를 이 명령어로 해결할 수 있다.
 - 즉 먼저 접근한 쓰레드가 NX 옵션을 전달한 SET에 성공한다면 다른 쓰레드들은 대기한다.
@@ -19,8 +19,8 @@
   - 따라서 Key가 존재하고 값이 일치할 때만 삭제할 수 있도록 아래와 같은 **Lua 스크립트를** 통해 삭제할 것을 권고한다.
 
     ```lua
-      if redis.call("get",KEYS[1]) == ARGV[1] then
-        return redis.call("del",KEYS[1])
+      if redis.call('get', KEYS[1]) == ARGV[1] then
+        return redis.call('del', KEYS[1])
       else
         return 0
       end
