@@ -182,3 +182,89 @@
 - Redis에는 한 쓰레드만 접근이 가능하므로 아래와 같이 테스트 결과가 성공한다.
 
   ![](../images/db/concurrency-test-success-nx.png)
+
+## RedLock을 활용해 동시성 문제 해결하기
+
+- RedLock 알고리즘은 N대의 독립적인 Redis Node가 분산된 환경에서 Lock을 획득 및 해제하는 방법이다.
+- Red Lock 개념에 대한 설명은 이 [문서](./redis-red-lock.md)를 참고하길 바란다.
+
+### NestJS에서 RedLock을 사용해 동시성 문제 해결하기
+
+- [Redis 공식문서](https://redis.io/docs/manual/patterns/distributed-locks/#implementations)를 보면 Node 구현으로 [node-redlock](https://github.com/mike-marcacci/node-redlock)을 언급하고 있다.
+- `yarn add redlock` 명령어로 redlock을 설치한다.
+- Redis Service에 redlock 알고리즘을 사용하려 락을 획득하는 메서드를 제공한다.
+
+  ```ts
+  import Redlock from 'redlock';
+
+  @Injectable()
+  export class RedisService {
+    private readonly redlock: Redlock;
+    private readonly lockDuration = 10_000;
+
+    constructor(@InjectRedis() private redis: Redis) {
+      this.redlock = new Redlock([redis]);
+    }
+
+    async acquireLock(key: string) {
+      return this.redlock.acquire([`lock:${key}`], this.lockDuration);
+    }
+  }
+  ```
+
+- redlock을 활용해 영화의 추천 수를 업데이트하는 `increaseRecommendCountByRedLock` 함수를 추가한다.
+
+  - `acquireLock` 메서드로 락을 획득한 쓰레드만 업데이트 후 락을 해제한다.
+  - 락을 획득하지 못한 쓰레드는 일정 시간 대기 후 락을 획득하기 위한 재 시도를 요청한다.
+
+    ```ts
+    async increaseRecommendCountByRedLock(id: number) {
+      let lock: Lock;
+      try {
+        lock = await this.redisService.acquireLock(
+          `increase-recommend-count:${id}`
+        );
+
+        const movie = await this.movieRepository.findOne(id);
+        await this.movieRepository.updateRecommendCount(
+          id,
+          movie.recommendCount + 1
+        );
+      } catch (err) {
+        throw err;
+      } finally {
+        await lock.release();
+      }
+    }
+    ```
+
+- 위 함수를 부르는 테스트 코드를 작성한다.
+
+  ```ts
+  it('redlock 동시에 10개 요청', async () => {
+    // given
+    // DB에 추천 수가 0인 1번 영화를 수동으로 만들어 둠
+
+    // when
+    await Promise.all([
+      service.increaseRecommendCountByRedLock(1),
+      service.increaseRecommendCountByRedLock(1),
+      service.increaseRecommendCountByRedLock(1),
+      service.increaseRecommendCountByRedLock(1),
+      service.increaseRecommendCountByRedLock(1),
+      service.increaseRecommendCountByRedLock(1),
+      service.increaseRecommendCountByRedLock(1),
+      service.increaseRecommendCountByRedLock(1),
+      service.increaseRecommendCountByRedLock(1),
+      service.increaseRecommendCountByRedLock(1),
+    ]);
+
+    // then
+    const movie = await movieRepository.findOne(1);
+    expect(movie.recommendCount).toBe(10);
+  });
+  ```
+
+- lock을 획득한 쓰레드만 조회 및 업데이트를 동기적으로 수행해 성공한 것을 확인할 수 있다.
+
+  ![](../images/db/concurrency-test-success-lock.png)
