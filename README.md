@@ -23,7 +23,7 @@
 - [Redis를 활용한 동시성 문제 해결](db/redis-red-lock-concurrency.md)
 - [인프런 강의 - 실전 Redis 활용](db/%EC%8B%A4%EC%A0%84-redis-%ED%99%9C%EC%9A%A9.md)
 
-## Devops
+## Message Queue
 
 - [카프카 기초](devops/inflearn-kafka-beginner.md)
 - [왜 카프카 브로커는 3개가 안정적일까](devops/why-3-broker-need.md)
