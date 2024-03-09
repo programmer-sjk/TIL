@@ -67,14 +67,14 @@
 - 간절히 바라고 소망하고 염원했던 결과가 나오질 않았다. 왜 그랬는지 알아보자.
 - 아마 우리는 아래와 같은 흐름처럼 쓰레드 1에서 조회 -> 업데이트 후 쓰레드 2가 작업을 수행하길 바랬을 것이다.
 
-  ![](../images/db/expect-db-concurrency.png)
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/db/expect-db-concurrency.png" width="500">
 
 - 하지만 실제로는 동시에 접근할 경우 아래와 같은 흐름이 충분히 발생할 수 있다.
 
   - 쓰레드 1에서 업데이트를 하기 전에 쓰레드 2가 현재의 추천 수 0을 획득 한다.
   - 쓰레드 1에서 추천 수를 1로 증가시켰지만 쓰레드 2도 마찬가지로 1로 업데이트 한다.
 
-    ![](../images/db/real-db-concurrency.png)
+    <img src="https://github.com/programmer-sjk/TIL/blob/main/images/db/real-db-concurrency.png" width="500">
 
 - DB의 Lock을 이용해 동시성을 해결할 수 있지만, 여기서는 Redis만 활용해 보기로 한다.
 
@@ -181,7 +181,7 @@
 
 - Redis에는 한 쓰레드만 접근이 가능하므로 아래와 같이 테스트 결과가 성공한다.
 
-  ![](../images/db/concurrency-test-success-nx.png)
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/db/concurrency-test-success-nx.png" width="500">
 
 ## RedLock을 활용해 동시성 문제 해결하기
 
@@ -267,4 +267,4 @@
 
 - lock을 획득한 쓰레드만 조회 및 업데이트를 동기적으로 수행해 성공한 것을 확인할 수 있다.
 
-  ![](../images/db/concurrency-test-success-lock.png)
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/db/concurrency-test-success-lock.png" width="500">
