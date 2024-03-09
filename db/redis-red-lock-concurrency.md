@@ -67,14 +67,14 @@
 - 간절히 바라고 소망하고 염원했던 결과가 나오질 않았다. 왜 그랬는지 알아보자.
 - 아마 우리는 아래와 같은 흐름처럼 쓰레드 1에서 조회 -> 업데이트 후 쓰레드 2가 작업을 수행하길 바랬을 것이다.
 
-  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/db/expect-db-concurrency.png" width="500">
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/db/expect-db-concurrency.png" width="650">
 
 - 하지만 실제로는 동시에 접근할 경우 아래와 같은 흐름이 충분히 발생할 수 있다.
 
   - 쓰레드 1에서 업데이트를 하기 전에 쓰레드 2가 현재의 추천 수 0을 획득 한다.
   - 쓰레드 1에서 추천 수를 1로 증가시켰지만 쓰레드 2도 마찬가지로 1로 업데이트 한다.
 
-    <img src="https://github.com/programmer-sjk/TIL/blob/main/images/db/real-db-concurrency.png" width="500">
+    <img src="https://github.com/programmer-sjk/TIL/blob/main/images/db/real-db-concurrency.png" width="650">
 
 - DB의 Lock을 이용해 동시성을 해결할 수 있지만, 여기서는 Redis만 활용해 보기로 한다.
 
