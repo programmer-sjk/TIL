@@ -5,7 +5,7 @@
 
 ## 적어도 한 번 전송 (at-least-once)
 
-<img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/at-least-once.png" width="400">
+<img src="https://github.com/programmer-sjk/TIL/blob/main/images/message-queue/at-least-once.png" width="400">
 
 - 위 그림은 **`적어도 한 번 전송`** 과정을 그림으로 나타낸 것으로 순서대로 살펴보자
   - 프로듀서가 브로커의 특정 토픽으로 메시지 A를 전송한다.
@@ -18,7 +18,7 @@
 
 ## 최대 한 번 전송 (at-most-once)
 
-<img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/at-most-once.png" width="400">
+<img src="https://github.com/programmer-sjk/TIL/blob/main/images/message-queue/at-most-once.png" width="400">
 
 - 위 그림은 **`최대 한 번 전송`** 과정을 그림으로 나타낸 것으로 순서대로 살펴보자
   - 프로듀서가 브로커의 특정 토픽으로 메시지 A를 전송한다.
@@ -33,7 +33,7 @@
 
 - 카프카의 0.11 버전부터 프로듀서가 메시지를 중복 없이 브로커로 전송할 수 있는 기능이 추가되었다.
 
-<img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/no-duplicate.png" width="400">
+<img src="https://github.com/programmer-sjk/TIL/blob/main/images/message-queue/no-duplicate.png" width="400">
 
 - 위 그림은 **`중복 없는 전송`** 과정을 그림으로 나타낸 것으로 순서대로 살펴보자
   - 프로듀서가 브로커의 특정 토픽으로 메시지 A를 전송한다. 이때 **PID(Producer ID)와 메시지의 시퀀스 번호** 0을 같이 전달한다.
@@ -60,11 +60,11 @@
 
 - 아래는 메시지를 유실할 수 있는 그림을 표현한다. 어플리케이션이 컨슘 후 offset을 commit 하고, 컨슘한 데이터로부터 비지니스 로직을 처리하는 도중 실패했을 떄를 보여준다.
 
-  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/consumer-data-loss.png" width="500">
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/message-queue/consumer-data-loss.png" width="500">
 
 - 아래는 메시지를 중복 처리할 수 있는 그림을 표현한다. 어플리케이션이 컨슘 후 비지니스 로직을 정상적으로 처리하고 offset commit에 실패할 경우 다시 컨슘하여 중복 처리할 수 있다.
 
-  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/consumer-duplicate.png" width="500">
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/message-queue/consumer-duplicate.png" width="500">
 
 ### 데이터 파이프라인에서 consume -> process -> send 정확히 한 번 처리를 보장하는 방법
 
@@ -110,7 +110,7 @@
 - 토픽으로부터 **메시지를 받아 DB에 처리하는 어플리케이션**을 생각해보자. 여기에선 정확히 한 번 처리를 어떻게 해야 할까?
 컨슈머는 레코드를 토픽에서 가져가서 처리한 뒤 중복처리를 막기 위해 offset 저장을 수행한다. 예를 들어 토픽의 레코드들을 DB에 저장한다고 가정할 경우 **데이터 insert와 commit offset을 하나의 트랜잭션으로 묶는 것은 불가능**하다. 서로 연동되는 서비스가 아니기 때문이다. 따라서 토픽->컨슈머 처리에서 **정확히 한번**을 달성하기 위해서는 **`멱등성(idempotence) 처리`** 를 하도록 가이드한다.
 
-  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/application-check.png" width="500">
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/message-queue/application-check.png" width="500">
 
 ## 정리하며
 

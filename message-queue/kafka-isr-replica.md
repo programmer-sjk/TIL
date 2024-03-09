@@ -18,15 +18,15 @@
 - 따라서 리더는 팔로워들이 뒤쳐지지 않고 복제를 잘 하고 있는지를 감시한다. **만약 팔로워가 특정 주기의 시간만큼 복제 요청을 하지 않으면 리더는 팔로워에 문제가 발생했다고 판단하고 ISR 그룹에서 추방**한다. 즉 뒤처지지 않고 잘 복제하고 있는 팔로워들만 ISR 그룹에 속하게 되며, 리더에 장애가 발생한 경우 새로운 리더의 자격을 얻을 수 있다.
 - **ISR 내에서 모든 팔로워의 복제가 완료되면 리더는 내부적으로 커밋**되었다는 표시를 하게된다. 여기서 마지막 커밋 오프셋 위치는 **`하이워터마크`** 라고 부른다. 커밋되었다라는 말은 모든 리플리케이션이 전부 메시지를 저장했음을 의미하고 커밋된 메시지만 컨슈머가 읽어갈 수 있다.
 
-<img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/highwatermark.png" width="650">
+<img src="https://github.com/programmer-sjk/TIL/blob/main/images/message-queue/highwatermark.png" width="650">
 
 - 커밋된 메시지만 컨슈머가 읽을 수 있는 이유는 데이터의 일관성을 유지하기 위해서다. 만약 커밋되기 전 메시지를 컨슈머가 읽을 수 있다고 가정하면 어떤 문제가 발생하는지 그림을 통해 알아본다.
 
-  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/hw-problem1.png" width="550">
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/message-queue/hw-problem1.png" width="550">
 
   - 컨슈머 A가 메시지 A, B를 컨슘한다. 이 때 메시지 B는 아직 복제되기 전이다.
 
-  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/hw-problem2.png" width="550">
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/message-queue/hw-problem2.png" width="550">
 
   - 이때 리더가 있는 브로커에 문제가 발생해 팔로워가 새로운 리더가 된다.
   - 컨슈머 B가 새로 붙었는데 메시지 B는 소실되어 메시지 A만 받게 된다.
@@ -38,28 +38,28 @@
 - **워터하이마크는 복제가 완료된 offset**을 말하고 LEO는 리더 파티션에 추가된 **메시지의 끝**을 가리킨다.
 - LEO는 항상 워터하이마크와 동일하거나 크다.
 
-<img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/log-end-offset.png" width="550">
+<img src="https://github.com/programmer-sjk/TIL/blob/main/images/message-queue/log-end-offset.png" width="550">
 
 ## 리더와 팔로워의 단계별 리플리케이션 동작
 
 - 수 많은 메시지를 읽고 쓰기 처리하는 리더가 복제 과정에서 많은 관여를 하면 리더의 성능이 떨어지게 된다. 따라서 카프카는 리더와 팔로워 간의 복제 과정에서 서로의 통신을 최소화 할 수 있도록 설계하여 리더의 부하를 줄였는데 이 과정을 알아보자.
 
-<img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/replica-1.png" width="300">
+<img src="https://github.com/programmer-sjk/TIL/blob/main/images/message-queue/replica-1.png" width="300">
 
 - 리더가 메시지를 받아 0번 오프셋에 저장한 그림이다. 아직 팔로워들은 복제를 하기 전 모습이다.
 
-<img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/replica-2.png" width="300">
+<img src="https://github.com/programmer-sjk/TIL/blob/main/images/message-queue/replica-2.png" width="300">
 
 - 팔로워들이 리더에게 0번 오프셋 메시지 가져오기를 요청(fetch)을 보낸 후 메시지를 복제하는 과정이다. 현재 리더는 팔로워가 0번 오프셋 메시지를 복제하기 위해 요청을 보낸것은 알 수 있지만 복제가 성공했는지는 알 수 없다.
 - **래빗 MQ**의 트랜잭션 모드에서는 모든 미러(팔로워 역할)가 리더에게 **ACK를 리턴하므로 리더는 미러들이 메시지를 받았는지 알 수 있지만** 카프카에서는 **ACK를 통신을 제거해 복제 성능을 더욱 높였다.** 그렇다면 카프카에서는 ACK 없이 어떻게 동작하는지 살펴보자.
 
-<img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/replica-3.png" width="500">
+<img src="https://github.com/programmer-sjk/TIL/blob/main/images/message-queue/replica-3.png" width="500">
 
 - 리더는 프로듀서가 새로 보낸 메시지를 1번 오프셋에 저장한다. 팔로워들은 0번 오프셋에 대한 복제 동작을 마치고 리더에게 1번 오프셋에 대한 복제를 요청한다. 이떄 리더는 팔로워들의 0번 오프셋에 대한 복제가 성공함을 인지할 수 있다.
 - **팔로워가 0번 오프셋 복제를 실패했다면 1번 오프셋 복제 요청이 아닌 0번 오프셋 복제를 요청**하게 된다. 따라서 리더는 팔로워들의 복제 요청 오프셋을 보고 팔로워들이 어느 위치의 오프셋까지 복제를 성공했는지 알게 된다.
 - ISR 내의 모든 팔로워의 1번 오프셋 메시지에 대해 요청을 하면, 리더는 모든 팔로워들이 복제에 성공함을 인지하고 오프셋 0에 대해 커밋 표시를 한 후 하이워터마크를 증가시킨다. 그 후 복제요청을 받은 리더는 응답에 0번 오프셋 메시지가 커밋되었다는 사실을 함께 응답한다.
 
-<img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/replica-4.png" width="500">
+<img src="https://github.com/programmer-sjk/TIL/blob/main/images/message-queue/replica-4.png" width="500">
 
 - 리더의 응답을 받은 팔로워들은 0번 오프셋 메시지가 커밋됨을 알고 리더와 동일하게 커밋을 표시한다. 그리고 1번 오프셋의 메시지를 복제한다. 리더와 팔로워들은 이런 과정을 반복하여 복제를 이어나간다.
 - 리더와 팔로워 사이에 ACK 통신을 주고 받지 않는게 한 두번은 큰 성능의 차이가 없지만 대량의 메시지를 처리하는 어플리케이션은 이러한 작은 차이도 크게 부각된다.
@@ -71,31 +71,31 @@
 
 ### 리더에포크가 없을 경우 복구 과정에서의 문제
 
-<img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/leader-epoch-1.png" width="500">
+<img src="https://github.com/programmer-sjk/TIL/blob/main/images/message-queue/leader-epoch-1.png" width="500">
 
 - 위 그림은 리더와 팔로워는 오프셋 0과 1에 해당하는 메시지를 복제한 상황이다. 이 때 팔로워는 1번 오프셋의 메시지는 복제를 완료했지만 아직 리더로부터 하이워터마크를 2로 올리라는(커밋 됨) 응답은 전달받지 못했다. 이때 팔로워가 다운된다.
 
-<img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/leader-epoch-2.png" width="500">
+<img src="https://github.com/programmer-sjk/TIL/blob/main/images/message-queue/leader-epoch-2.png" width="500">
 
 - 위 그림은 다운된 팔로워가 복구된 후의 상태를 나타낸다.
   - 팔로워는 자신이 가진 메시지 중, 자신의 워터마크보다 높은 메시지는 신뢰할 수 없다고 판단해 삭제한다. 즉 저장되었던 오프셋 1에 해당하는 메시지는 삭제되고 오프셋 0에 해당하는 메시지만 남게된다.
   - 팔로워는 리더에게 1번 오프셋 메시지를 요청하는데, 이때 리더가 다운되면서 팔로워가 리더로 승격된다.
 
-<img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/leader-epoch-3.png" width="500">
+<img src="https://github.com/programmer-sjk/TIL/blob/main/images/message-queue/leader-epoch-3.png" width="500">
 
 - 위 그림은 기존의 팔로워가 새로운 리더로 승격된 상태를 나타낸다. **결과적으로 리더와 팔로워간의 복제 과정이 있었음에도 불구하고 오프셋 1에 해당하는 메시지는 손실**된다.
 
 ### 리더에포크가 있을 경우
 
-<img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/leader-epoch-2.png" width="500">
+<img src="https://github.com/programmer-sjk/TIL/blob/main/images/message-queue/leader-epoch-2.png" width="500">
 
 - 위 그림은 앞에서 다운된 팔로워가 복구 후 실행된 상태를 나타낸다. 리더에포크가 없을 때 팔로워는 자신의 하이워터마크보다 높은 메시지를 즉시 삭제했다. 하지만 **리더에포크를 사용하는 경우에는 메시지를 무조건 삭제하지 않고 리더에게 리더에포크 요청**을 보낸다.
 
-<img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/leader-epoch-4.png" width="500">
+<img src="https://github.com/programmer-sjk/TIL/blob/main/images/message-queue/leader-epoch-4.png" width="500">
 
 - 팔로워는 복구 동작을 하면서 리더에게 리더에포크 요청을 보낸다. 리더는 응답으로 마킹된 오프셋은 1번이라고 응답을 보낸다. 응답을 받은 **팔로워는 자신의 하이워터마크 보다 높은 1번 오프셋의 메시지를 삭제하지 않고 자신의 하이워터마크를 상향 조정**한다.
 
-<img src="https://github.com/programmer-sjk/TIL/blob/main/images/devops/leader-epoch-5.png" width="500">
+<img src="https://github.com/programmer-sjk/TIL/blob/main/images/message-queue/leader-epoch-5.png" width="500">
 
 - 위 그림은 리더가 갑자기 다운되면서 팔로워가 새로운 리더가 된 그림이다. 리더에포크가 없을때랑 비교해서 메시지를 손실하지 않고 정상적으로 복구할 수 있었다.
 
