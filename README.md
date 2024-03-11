@@ -25,11 +25,11 @@
 
 ## Message Queue
 
-- [카프카 기초](devops/inflearn-kafka-beginner.md)
-- [왜 카프카 브로커는 3개가 안정적일까](devops/why-3-broker-need.md)
-- [Kafka가 File System을 쓰는데도 빠른 이유](devops/why-kafka-fs-fast.md)
-- [Kafka ISR과 복제](devops/kafka-isr-replica.md)
-- [Kafka 메시지 전송 방식](devops/message-transfer-mode.md)
+- [카프카 기초](message-queue/inflearn-kafka-beginner.md)
+- [왜 카프카 브로커는 3개가 안정적일까](message-queue/why-3-broker-need.md)
+- [Kafka가 File System을 쓰는데도 빠른 이유](message-queue/why-kafka-fs-fast.md)
+- [Kafka ISR과 복제](message-queue/kafka-isr-replica.md)
+- [Kafka 메시지 전송 방식](message-queue/message-transfer-mode.md)
 
 ## IDE
 
@@ -59,10 +59,10 @@
 
 - [대규모 서비스를 지탱하는 기술](books/architecture/large-service-technology.md)
 
-### devops
+### message-queue
 
-- [아파치 카프카 애플리케이션 프로그래밍 with 자바](books/devops/apache-kafka-with-java.md)
-- [실전 카프카 개발부터 운영까지](books/devops/practice-kafka-develop-production.md)
+- [아파치 카프카 애플리케이션 프로그래밍 with 자바](books/message-queue/apache-kafka-with-java.md)
+- [실전 카프카 개발부터 운영까지](books/message-queue/practice-kafka-develop-production.md)
 
 ### Elastic Search
 
