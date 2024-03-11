@@ -220,7 +220,7 @@
 
 - 카프카의 컴팩션은 일반 압축과는 다르게 키 값을 기준으로 마지막 데이터만 보관하게 된다.
 - 예를 들어 세그먼트에 키가 k1인 밸류로 v1, v2, v3가 저장되어 있다고 가정하자. 컴팩션이 발생하면 이 세그먼트에는 키가 k1이고 밸류가 v3만 남게 되는 것이다. 이처럼 로그 컴팩션은 키를 기준으로 과거 정보는 중요하지 않고 가장 마지막 값이 필요한 경우에만 사용한다.
-  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/books/devops/log-compaction.png" width="500">
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/books/message-queue/log-compaction.png" width="500">
 
 - 로그 컴팩션의 다른 장점으로는 빠른 장애 복구이다. 장애 복구 시 전체 로그를 복구하지 않고 메시지 키를 기준으로 최신의 상태만 복구한다. 하지만 로그 컴팩션은 키 값을 기준으로 최종값만 필요한 토픽에 적용해야 하며 모든 토픽에 적용하는 것은 좋지 않다.
 
@@ -408,7 +408,7 @@
 
 - 카프카에서 스키마를 활용하는 방법은 **스키마 레지스트리**라는 별도의 어플리케이션을 이용하는 것이다. 스키마 레지스트리는 컨플루언트 커뮤니티 라이선스를 가지고 있는데 비상업적 용도에 한해 무료로 사용할 수 있다.
 
-  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/books/devops/schema-registry.png" width="500">
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/books/message-queue/schema-registry.png" width="500">
 
 - 위 그림에서 알 수 있듯이 스키마 레지스트리는 카프카와 별도로 구성된 어플리케이션이다. 클라이언트들이 스키마 정보를 사용하기 위해서는 프로듀서, 스키마 레지스트리, 컨슈머간 직접 통신이 이뤄져야 한다.
 - 프로듀서는 스키마 레지스트리에 스키마를 등록하고 스키마 레지스트리는 프로듀서에 의해 등록된 스키마 정보를 카프카의 내부 토픽에 저장한다. 프로듀서는 스키마 레지스트리에 등록된 스키마의 ID와 메시지를 카프카로 전송하고 컨슈머는 스키마 ID를 스키마 레지스트리로부터 읽어온 후 프로듀서가 전송한 스키마 ID와 메시지를 조합해 읽을 수 있다.
