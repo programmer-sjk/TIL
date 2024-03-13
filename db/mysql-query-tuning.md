@@ -30,3 +30,16 @@
     // 이럴 때는 id까지 같이 정렬해야 순서가 보장됨
     SELECT * FROM ratings ORDER BY category, id;
   ```
+
+## offset
+
+- LIMIT 절에 offset을 사용하면 데이터를 가져온 후 offset 이전의 데이터는 버림
+- 마지막으로 처리 된 레코드의 키를 사용해서 offset을 사용하지 않는다.
+
+  ```sql
+    // 처음 조회
+    SELECT * FROM my_table WHERE status = 'pending' ORDER BY id LIMIT 10000;
+
+    // 다음 조회
+    SELECT * FROM my_table WHERE id > 15800 AND status = 'pending' ORDER BY id LIMIT 10000;
+  ```
