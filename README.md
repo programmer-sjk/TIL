@@ -10,10 +10,10 @@
 
 ### MySQL
 
-- [READ_COMMITED 격리수준과 SELECT 성능](db/isolation_level_select_performance.md)
-- [MySQL Query Cache는 왜 사용되지 않을까](db/query_cache.md)
-- [MySQL Table Cache](db/table_cache.md)
-- [MySQL InnoDB Buffer Pool](db/innodb_buffer_pool.md)
+- [READ_COMMITED 격리수준과 SELECT 성능](db/isolation-level-select-performance.md)
+- [MySQL Query Cache는 왜 사용되지 않을까](db/query-cache.md)
+- [MySQL Table Cache](db/table-cache.md)
+- [MySQL InnoDB Buffer Pool](db/innodb-buffer-pool.md)
 - [Nested Loop vs Block Nested Loop vs Hash Join](./db/nested-loop-compare.md)
 
 ### Redis
