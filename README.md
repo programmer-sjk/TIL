@@ -33,9 +33,9 @@
 
 ## IDE
 
-- [VScode 설정 & 단축키](/ide/vscode_setting.md)
-- [Jetbrains IDE 쓰다가 VScode를 쓰고 느끼는 점](/ide/vscode_disadvantage.md)
-- [VScode extenstion](/ide/vscode_extension_recommend.md)
+- [VScode 설정 & 단축키](/ide/vscode-setting.md)
+- [Jetbrains IDE 쓰다가 VScode를 쓰고 느끼는 점](/ide/vscode-disadvantage.md)
+- [VScode extenstion](/ide/vscode-extension-recommend.md)
 
 ## JavaScript
 
