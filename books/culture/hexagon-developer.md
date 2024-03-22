@@ -145,3 +145,110 @@
 - 시니어 개발자로 성장하기 위해서는 유지보수와 비용에 대해 고민해야 한다.
   - 단순히 어떤 기술과 아키텍처가 유행한다고 선택하면 안된다.
   - 선택에 따른 장,단점을 따져 SW 가치를 안정적으로 높일 수 있는 방법을 선택해야 한다.
+
+## 코드 이해
+
+### 코드 변경
+
+- 개발자가 코드를 변경하기 위해 코드를 읽는 시간은 얼마나 될까?
+  - 일반적으로 코드를 이해하는 데 개발 시간의 60%를 사용한다.
+  - 버그 수정과 같은 코드를 이해하는데 90% 이상의 시간을 쏟기도 한다.
+  - 이처럼 코드를 이해하는 시간이 더 소요되기 때문에 코드를 이해하는 작업은 유지보수 하는 데 매우 중요하다.
+- 코드를 이해하는 시간을 줄이기 위해서는 2가지 역량이 요구된다.
+  - 당연하게도 코드를 제대로 이해할 수 있는 역량이다.
+  - 이해하기 쉬운 코드를 작성하는 역량이다.
+- 품질이 낮은 스파게티 코드를 이해하기 위해서는 품질이 좋은 코드보다 40% 정도 더 많은 시간이 소요된다고 한다.
+- 결과적으로 이해하기 좋은 코드를 만들면 코드를 이해하는데 들어가는 시간을 줄일 수 있고 개발 시간도 줄어든다.
+
+### 이해하기 좋은 코드
+
+- 이해하기 좋은 코드는 코드 분석에 필요한 노력을 줄여준다.
+- 이해하기 좋은 코드를 만들 때 가장 중요한 것은 가독성이다.
+- 저자는 이해하기 좋은 코드를 작성하는 방법을 알려주는 책으로 두 권을 뽑았다.
+  - 켄트 백의 구현 패턴
+  - 클린 코드
+
+#### 이해를 돕는 몇 가지 코드 작성법
+
+- 이름
+  - 이름은 코드 가독성에 큰 영향을 준다.
+  - 이름은 짧을 수록 좋지만 사용 범위가 넓다면 서술적인 이름을 사용해야 한다.
+  - 클래스 이름이 맥락을 제공하기 때문에 필드 이름은 짧아도 의미가 잘 전달된다.
+    - ex) Member class에 memberName 대신 name 필드 제공
+- 중첩 if문 최소화
+  - if 구조가 복잡할 때 if 조건을 역으로 바꾸면 else가 없다는 사실을 알 수 있다.
+  - 기억할 범위도 좁아지고 코드 들여쓰기가 줄어들어 복잡도가 낮아진다.
+- 변수 줄이기
+
+  - 변수는 함수 시작 부분에 선언하지 않고, 사용되기 직전에 정의하자
+  - 같은 변수가 타입이 같다고 여러 의미로 사용하지 말자.
+    - ex) result 변수가 성공, 실패 용도로 사용하다가 처리 개수를 저장하는 식
+  - 변수가 재사용되지 않고 값이 명확하다면 변수 자체를 줄여야 한다.
+  - 반대로 어떤 의미를 부여할때 변수를 사용하면 도움이 된다.
+
+    ```ts
+      // 변수 없는 경우
+      checkLimit(thisYear - member.getBirthYear())
+
+      // 변수에 담아 전달
+      int age = thisYear - member.getBirthYear();
+      checkLimit(age);
+    ```
+
+- 값 변경 최소화하기
+  - 변수 값이 중간에 계속해서 바뀌면 변수 값을 추적해야 한다는 부담이 생긴다.
+  - 변수의 값이 바뀌지 않는다면 쉽게 코드 동작을 유추할 수 있기에 변수 변경은 가능한 최소화해야 한다.
+- 길지 않은 코드와 추상화하기
+
+  - 긴 코브보다는 짧은 코드가 분석하기 쉽다. 아래 코드를 보자.
+
+    ```java
+    public void save(SaveRequest req) {
+      if (!StringUtils.hasText(req.getId()))
+        throw new IllegalArgumentException('id 필수');
+      if (!StringUtils.hasText(req.getName()))
+        throw new IllegalArgumentException('name 필수');
+      if (!StringUtils.hasText(req.getEmail()))
+        throw new IllegalArgumentException('email 필수');
+
+      Long seq = repository.createSeq();
+      Member member = Member.builder()
+        .seq(seq)
+        .id(req.getId()).name(req.getName()).email(req.getEmail())
+        .createdAt(LocalDateTime.now())
+        .build();
+      repository.save(member);
+    }
+    ```
+
+  - 위 코드를 아래와 같이 줄여보자
+
+    ```java
+    public void save(SaveRequest req) {
+      validate(req);
+      Member member = create(req);
+      repository.save(member);
+    }
+
+    private void validate(SaveRequest req) {
+      if (!StringUtils.hasText(req.getId()))
+        throw new IllegalArgumentException('id 필수');
+      if (!StringUtils.hasText(req.getName()))
+        throw new IllegalArgumentException('name 필수');
+      if (!StringUtils.hasText(req.getEmail()))
+        throw new IllegalArgumentException('email 필수');
+    }
+
+    private Member create(SaveRequest req) {
+      Long seq = repository.createSeq();
+      return Member.builder()
+        .seq(seq)
+        .id(req.getId()).name(req.getName()).email(req.getEmail())
+        .createdAt(LocalDateTime.now())
+        .build();
+    }
+    ```
+
+  - save() 메서드는 코드가 길지 않기 때문에 전반적인 흐름을 빨리 이해할 수 있다.
+  - save() 메서드의 상세한 구현은 알 수 없지만 대략 데이터 검증 후 Member 객체를 생성해 저장하는 것을 알 수 있다.
+  - 자세한 구현이 궁금하면 각 메서드로 이동한다.
