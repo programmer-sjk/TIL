@@ -60,7 +60,7 @@
 
 - [대규모 서비스를 지탱하는 기술](books/architecture/large-service-technology.md)
 
-### message-queue
+### Message-Queue
 
 - [아파치 카프카 애플리케이션 프로그래밍 with 자바](books/message-queue/apache-kafka-with-java.md)
 - [실전 카프카 개발부터 운영까지](books/message-queue/practice-kafka-develop-production.md)
