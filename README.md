@@ -54,6 +54,7 @@
 
 - [구글 엔지니어는 이렇게 일한다](books/culture/google-work-culture.md)
 - [개발자 원칙](books/culture/engineer-principle.md)
+- [육각형 개발자](books/culture/hexagon-developer.md)
 
 ### 설계
 
