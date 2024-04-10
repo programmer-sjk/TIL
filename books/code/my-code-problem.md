@@ -27,3 +27,75 @@
 
 - 악마들을 물리치기 위해 나쁜 구조의 폐해를 인지해야 한다.
   - **`나쁜 폐해를 인지하면`** 어떻게든 대처해야겠다 라고 생각하게 된다.
+
+## 설계 첫 걸음
+
+### 의도를 분명히 전달할 수 있는 이름 설계하기
+
+- 위 코드보다는 아래 코드가 낫다
+
+  ```java
+    // bad
+    int d = 0;
+    d = p1 + p2;
+    d = d - ((d1 +d2) / 2);
+    if (d < 0) {
+      d = 0;
+    }
+
+    // better
+    int damageAmount = 0;
+    damageAmount = playerArmPower + playerWeaponPower;  // A
+    damageAmount = damageAmount - ((enemyBodyDefence + eenemyArmorDefence) / 2);
+    if (damageAmount < 0) {
+      damageAmount = 0;
+    }
+  ```
+
+### 목적별로 변수를 따로 만들어 사용하기
+
+- 위 코드는 이해하기 쉬워졌지만 damageAmount 변수에 재할당이 반복되고 있다.
+  - 재할당은 변수의 용도가 바뀌는 문제를 일으키기 쉽고, 코드를 읽는 사람을 혼란스럽게 만든다.
+- 주석 A 부분은 실제 플레이어 공격력의 총량이므로 아래와 같이 수정하면 어떤 값을 계산하는데 어떤 값을 사용하는지 관계를 파악하기 쉽다.
+
+  ```java
+    // best
+    int totalPlayerAttackPower = playerArmPower + playerWeaponPower;
+    int totalEnemyDefence = (enemyBodyDefence + eenemyArmorDefence) / 2);
+
+    int damageAmount = totalPlayerAttackPower - totalEnemyDefence;
+    if (damageAmount < 0) {
+      damageAmount = 0;
+    }
+  ```
+
+### 관련된 데이터와 로직을 클래스에 모으기
+
+- 어떤 변수와 변수를 조작하는 로직이 이곳저곳 만들어지면 버그가 발생할 것이다.
+- 이러한 문제를 해결하기 위해 데이터와 메서드를 모아놓은 클래스가 존재한다.
+
+  ```java
+    // 게임의 HP를 나타내는 HitPoint
+    class HitPoint {
+      private static final int MIN = 0;
+      private static final int MAX = 999;
+      final int value;
+
+      HitPoint(final int value) {
+        if (value < MIN) throw new IllegalArgumentException("불라불라");
+        if (value > MAX) throw new IllegalArgumentException("불라불라");
+
+        this.value = value;
+      }
+
+      HitPoint damage(final int damageAmount) {
+        // 데미지를 받은 경우 계산 로직
+      }
+
+      HitPoint recover(final int recoveryAmount) {
+        // 데미지 회복 계산 로직
+      }
+    }
+  ```
+
+- HitPoint 클래스는 HP와 밀접한 변수와 로직을 담고 있어서 이곳저곳에서 수정하지 않아도 된다.
