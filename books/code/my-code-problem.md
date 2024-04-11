@@ -99,3 +99,126 @@
   ```
 
 - HitPoint 클래스는 HP와 밀접한 변수와 로직을 담고 있어서 이곳저곳에서 수정하지 않아도 된다.
+
+## 클래스 설계: 모든 것과 연결되는 설계 기반
+
+### 클래스 단위로 잘 동작하도록 설계하기
+
+- 우리가 사용하는 전자 제품은 그 자체로 잘 동작하게 설계되어 있다.
+- 클래스 설계도 마찬가지로 클래스는 클래스 하나로도 잘 동작할 수 있도록 설계해야 한다.
+
+#### 클래스의 구성요소
+
+- 잘 만들어진 클래스는 다음 두 가지로 구성된다.
+  - 인스턴스 변수
+  - 인스턴스 변수에 잘못된 값이 할당되지 않게 막고, 정상적으로 조작하는 메서드
+- 데이터 클래스는 변수의 초기화가 조작하는 로직이 다른 클래스에 있으므로 혼자서는 아무것도 할 수 없는 클래스가 된다.
+
+#### 모든 클래스가 갖추어야 하는 자기 방어 임무
+
+- 다른 클래스를 사용해서 초기화와 유효성 검사를 해야 하는 클래스는 그 자체로 안전할 수 없는 클래스다.
+- 클래스 스스로 자기 방어 임무를 수행할 수 있어야 품질을 높이는데 도움이 된다.
+
+### 성숙한 클래스로 성장시키는 설계 기법
+
+- 아래의 Money 데이터 클래스를 성장시켜 보자.
+
+  ```java
+    class Money {
+      int amount;
+      Currency currency;
+    }
+  ```
+
+#### 생성자로 확실하게 정상적인 값 설정하기
+
+- 유효성 검사와 초기화 로직을 생성자 내부에 구현하자
+
+  ```java
+    Money(int amount, Currency currency) {
+      if (amount < 0) throw new IllegalArgumentException("불라불라");
+      if (currency == null) throw new IllegalArgumentException("불라불라");
+
+      this.amount = amount;
+      this.currency = currency;
+    }
+  ```
+
+- 생성자에 유효성 검사 로직을 작성해두면 항상 안전하고 정상적인 객체만 존재하게 된다.
+
+#### 계산 로직도 데이터를 가진 쪽에 구현하기
+
+- 객체의 데이터를 조작하는 메서드는 객체 내부에 둔다.
+
+  ```java
+    class Money {
+      void add(int other) {
+        amount += other;
+      }
+    }
+  ```
+
+#### 불변 변수로 만들어서 예상하지 못한 동작 막기
+
+- 변수의 값이 바뀌면, 값이 언제 변경되는지 현재 값은 무엇인지 계속 신경써야 한다.
+- 또 요구사항이 바뀌면서 예상치 못한 부수 효과가 쉽게 발생할 수 있다.
+- 이를 위해 변수를 불변으로 만든다. 값을 한 번 할당하면 다시 바꿀 수 없는 변수를 불변 변수라고 부른다.
+- 인스턴스 변수에 final 키워드를 붙이면 한 번만 할당할 수 있다.
+
+  ```java
+    class Money {
+      final int amount;
+      final Currency currency;
+
+      Money(int amount, Currency currency) {
+        this.amount = amount;
+        this.currency = currency;
+      }
+    }
+  ```
+
+#### 변경하고 싶다면 새로운 인스턴스 만들기
+
+- 인스턴스 변수의 값을 변경하는게 아니라, 변경된 값을 가진 인스턴스를 만들어서 사용하면 된다.
+
+  ```java
+    class Money {
+      Mony add(int other) {
+        int added = amount + other;
+        return new Money(added, currency);
+      }
+    }
+  ```
+
+#### 메서드 매개변수와 지역 변수도 불변으로 만들기
+
+- 메서드의 매개 변수도 값이 바뀔 수 있는데, 값이 중간에 바뀌면 값의 변화를 추적하기 힘들어진다.
+- 매개 변수와 지역 변수도 final 키워드를 붙여서 변경될 수 없도록 하자
+
+  ```java
+    class Money {
+      Mony add(final int other) {
+        final int added = amount + other;
+        return new Money(added, currency);
+      }
+    }
+  ```
+
+#### 엉뚱한 값을 전달하지 않도록 하기
+
+- 부수 효과로는 잘못된 값의 전달도 포함이 된다.
+- 엉뚱한 값이 전달되지 않도록 하려면 Money 자료형만 받도록 수정한다.
+
+  ```java
+    class Money {
+      Mony add(final Mony other) {
+        final int added = amount + other.amount;
+        return new Money(added, currency);
+      }
+    }
+  ```
+
+#### 의미 없는 메서드 추가하지 않기
+
+- 시스템 사양에 필요하지 않은 메서드를 선의로 추가했다면, 이후 누군가 사용시 버그가 될 수 있다.
+- 시스템 사양에 꼭 필요한 메서드만 정의하자.
