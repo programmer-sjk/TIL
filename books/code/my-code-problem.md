@@ -391,3 +391,111 @@
 - 특별한 이유 없이 외부 상태에 의존하는 코드를 작성하면 동작 예측이 힘들어지므로 문제가 발생할 가능성이 높아진다.
 - 최근에는 **`코드 외부와 데이터 교환을 국소화하도록`** 레포지터리 패턴을 많이 사용한다.
   - 레포지터리 패턴은 특정 클래스에 DB 관련 로직을 격리해서 어플리케이션 로직과 섞이지 않도록 한다.
+
+## 응집도
+
+- 응집도란 모듈 내부에 있는 데이터와 로직이 얼마나 강한지 나타내는 지표이다.
+- 일반적으로 응집도가 높은 구조는 변경하기 쉽고 바람직한 구조이다.
+
+### static 메서드 오용
+
+- 아래 주문을 관리하는 클래스가 있다.
+
+  ```java
+    class OrderManager {
+      static int add(int amount1, int amount2) {
+        return amount1 + amount2;
+      }
+    }
+  ```
+
+- static 메서드를 정의하면 클래스의 인스턴스를 생성하지 않고도 add 메서드를 호출할 수 있다.
+
+  ```java
+    // moneyData1, moneyData2는 데이터 클래스
+    moneyData1.amount = OrderManager.add(moneyData1.amount1, moneyData2.amount);
+  ```
+
+- 이 구조의 문제는 무엇일까? 데이터는 MoneyData에 있고 데이터를 조작하는 로직은 OrderManager에 있는게 문제다.
+- static 메서드는 인스턴스 변수를 사용할 수 없고, 데이터와 로직 사이에 괴리가 생긴다.
+
+#### 인스턴스 메서드인 척 하는 static 메서드 주의
+
+- static 키워드가 없더라도 인스턴수 변수를 사용하지 않고 매개변수만 활용하는 메서드도 응집도를 낮춘다.
+
+  ```java
+    class PaymentManager {
+      private int discountRate; // 할인률
+
+      int add(int amount1, int amount2) {
+        return amount1 + amount2;
+      }
+    }
+  ```
+
+### 초기화 로직 분산
+
+- 클래스를 잘 설계해도 초기화 로직이 분산되어 응집도가 낮은 구조가 될 수 있다.
+
+  ```java
+    class GiftPoint {
+      private static final int MIN_POINT = 0;
+      final int value;
+
+      GiftPoint(final int point) {
+        // 예외처리
+        value = point;
+      }
+
+      GiftPoint add(final GiftPoint other) {
+        return new GiftPoint(value + other.value);
+      }
+
+      GiftPoint consume(final ConsumptionPoint point) {
+        return new GiftPoint(value - point.value);
+      }
+    }
+  ```
+
+- 기프트 포인트와 관련된 데이터와 로직이 응집되어 보이지만 아래 코드를 보자
+
+  ```java
+    // 일반 회원
+    GiftPoint standardMembershipPoint = new GiftPoint(3000);
+    // 프리미엄 회원
+    GiftPoint PremiumMembershipPoint = new GiftPoint(10000);
+  ```
+
+- 생성자를 public으로 만들면 관련된 로직이 분산되어 유지보수하기 힘들어진다.
+  - 예를 들어 회원 가입 포인트를 변경하고 싶을 때 소스 코드 전체를 확인해야 한다.
+
+#### private 생성자 + 팩토리 메서드를 사용해 목적에 따라 초기화하기
+
+- 위의 초기화 로직의 분산을 막으려면 생성자를 private로 만들고 목적에 따라 팩토리 메서드를 만든다.
+
+  ```java
+      class GiftPoint {
+        private static final int MIN_POINT = 0;
+        private static final int STANDARD_MEMBERSHIP_POINT = 3_000;
+        private static final int PREMIUM_MEMBERSHIP_POINT = 10_000;
+        final int value;
+
+        GiftPoint(final int point) {
+          // 예외처리
+          value = point;
+        }
+
+        static GiftPoint forStandardMembership() {
+          return new GiftPoint(STANDARD_MEMBERSHIP_POINT)
+        }
+
+        static GiftPoint forPremiumMembership() {
+          return new GiftPoint(PREMIUM_MEMBERSHIP_POINT)
+        }
+      }
+  ```
+
+- 생성자를 private로 만들면 클래스 내부에서만 인스턴스를 생성할 수 있다.
+- static 메서드에선 생성자를 호출한다. 팩토리 메서드는 목적에 따라 만들어 두는 것이 일반적이다.
+- 이렇게 만들면 신규 가입 포인트와 관련된 로직이 GiftPoint 클래스에 응집된다.
+- 포인트와 관련된 사양에 변경이 있는 경우 GiftPoint 클래스만 변경하면 되고, 다른 클래스의 로직을 찾지 않아도 된다.
