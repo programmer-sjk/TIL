@@ -724,3 +724,106 @@
   ```
 
 - 위 코드는 단순히 가독성이 좋아진 것 외에도 요구사항을 그대로 표현한 형태가 되었다는 의미도 있다.
+
+### switch 조건문 중복
+
+- switch 조건이 어떤 문제를 일으킬 수 있는지 게임을 예로 들어보자.
+  - 어떤 게임에서 마법은 다음과 같은 요구사항을 갖는다. (마법 이름, 매직포인트 소비량(MP), 공격력)
+  - 개발 초기에 마법의 종류는 파이어, 라이트닝 밖에 없었다.
+- enum을 사용해 마법 종류를 정의하고 switch 로직을 작성했다.
+
+  ```java
+    enum MagicType {
+      fire,
+      lighting
+    }
+
+    class MagicManager {
+      String getName(MagicType magicType) {
+        String name = '';
+
+        switch (magicType) {
+          case fire:
+            name = '파이어';
+            break;
+          case lighting:
+            name = '라이트닝'
+            break;
+        }
+
+        return name;
+      }
+    }
+  ```
+
+#### 같은 형태의 switch 조건문이 여러개 사용되기 시작
+
+- 마법의 종류에 따라 처리가 달라지는 부분은 마법 이름뿐만이 아니다.
+- 매직 포인트와 공격력도 모두 마법에 따라 달라진다.
+
+  ```java
+    // 매직 포인트
+    int costMagicPoint(MagicType magicType, Member member) {
+      int magicPoint = 0;
+
+      switch (magicType) {
+        case fire:
+          magicPoint = 2;
+          break;
+        case lighting:
+          magicPoint = 5;
+          break;
+      }
+
+      return magicPoint;
+    }
+
+    // 공격력도 이런 switch 문을 통해 계산
+    int attackPower(MagicType magicType, Member member) {
+      int attackPower = 0;
+      switch (magicType) {
+        ...
+      }
+      return attackPower;
+    }
+  ```
+
+- 같은 형태의 switch 조건문을 여러 번 사용하는 것은 좋지 않다.
+
+#### 요구사항 변경 시 수정 누락
+
+- 출시일이 다가와 정신없는데 새로운 마법 헬 파이어가 추가 되었다.
+  - 담당자는 이전에 마법 종류 별로 switch 코드를 기억하고 getName 메서드에 case 구문을 추가했다.
+  - 출시 후, 헬 파이어 공격력이 너무 약한 것을 발견했는데 확인해보니 attackPower 메서드에 case 구문을 추가하지 않은 것이다.
+- 새로운 요구사항으로 마법을 사용하면 테크니컬 포인트를 소비하는 기능이 추가되었다.
+  - 다른 팀에서 개발을 담당했는데 추가 된 마법 헬 파이어를 모르고 case에 넣지 않아 문제가 되었다.
+
+#### 폭발적으로 늘어나는 switch 조건문 중복
+
+- 이 예시에서 마법은 세 종류밖에 없었고 처리할 대상은 이름, 매직포인트 소비량, 공격력, 테크니컬 포인트 뿐이었다.
+- 실무에서는 훨씬 많은 대상들이 있고, switch 조건문의 중복이 많아지면 주의 깊게 대응해도 실수가 발생할 수 밖에 없다.
+- 결국 요구사항이 추가될 때 마다 case 구문이 누락될 것이고 버그가 만들어지게 된다.
+
+#### 인터페이스로 switch 조건문 중복 해소하기
+
+- 인터페이스를 사용하면 분기 로직을 작성하지 않고도 분기 기능을 구현할 수 있다.
+- 아래 면적을 구하는 Circle, Rectangle 클래스는 서로 다르다.
+
+  ```java
+    interface Shape {
+      double area();
+    }
+
+    class Rectangle implements Shape {...}
+    class Circle implements Shape {...}
+  ```
+
+- 하지만 인터페이스를 사용해 조건 분기를 작성하지 않고도 각각의 코드를 실행할 수 있다.
+
+  ```java
+    Shape circle = new Circle(10);
+    circle.area();
+
+    Shape rectangle = new Rectangle(20):
+    rectangle.area();
+  ```
