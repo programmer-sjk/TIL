@@ -646,3 +646,81 @@
 
 - 위와 같이 하면 방어구의 탈착과 관련된 로직이 `Equipments`에 응집된다.
 - 방어구와 관련된 요구사항이 변경되었을 때 `Equipments`만 보면 된다. 코드 이곳저곳을 찾을 필요가 없다.
+
+## 조건 분기
+
+- if문을 중첩하면 가독성이 크게 떨어지고 어디부터 어디까지 if문의 블록인지 이해하기 힘들게 된다.
+
+  ```java
+    // 게임에서 마법을 쓰는 경우
+    if (member.hitPoint > 0) { // 살아 있는가
+      if (member.canAct()) { // 움직일 수 있는가
+        if(magic.point <= member.magicPoint) {
+          // 마법 시전
+        }
+      }
+    }
+
+    // 중첩과 코드가 복잡한 경우
+    if (조건) {
+      // 수십 ~ 수백 줄의 코드
+      if (조건) {
+        // 수십 ~ 수백 줄의 코드
+        if (조건) {
+        // 수십 ~ 수백 줄의 코드
+          if (조건) {
+          // 수십 ~ 수백 줄의 코드
+          }
+        }
+      }
+    }
+  ```
+
+### 조기 리턴으로 중첩 제거하기
+
+- 조기 리턴으로 중첩을 제거하고 가독성이 좋아진 코드
+
+  ```java
+    if (member.hitPoint < 0) return;
+    if (!member.canAct()) return;
+    if (member.magicPoint < magic.point) return;
+
+    // 마법 수행
+  ```
+
+- 조기 리턴의 다른 장점은 조건 로직과 실행 로직을 분리할 수 있다는 점이다.
+- 마법을 쓸 수 없는 조건은 앞 부분에 조기 리턴으로 모았고, 마법 발동시 실행 로직은 뒤로 모았다.
+
+### 가독성을 낮추는 else 구문도 조기 리턴으로 해결하기
+
+- else 구문도 가독성을 나쁘게 만드는 원인 중 하나이다.
+- HP 비율에 따라 건강 상태를 리턴하는 로직을 생각해보자.
+
+  ```java
+    float hitPointRate = member.hitPoint / member.maxHitPoint;
+    HealthCondition currentHealthCondition;
+
+    if (hitPointRate == 0) {
+      currentHealthCondition = HealthCondition.dead;
+    } else if (hitPointRate < 0.3) {
+      currentHealthCondition = HealthCondition.danger;
+    } else if (hitPointRate < 0.5) {
+      currentHealthCondition = HealthCondition.caution;
+    } else {
+      currentHealthCondition = HealthCondition.fine;
+    }
+  ```
+
+- 조기 리턴을 사용해 아래와 같이 수정해볼 수 있다.
+
+  ```java
+    float hitPointRate = member.hitPoint / member.maxHitPoint;
+
+    if (hitPointRate == 0) return HealthCondition.dead;
+    if (hitPointRate < 0.3) return HealthCondition.danger;
+    if (hitPointRate < 0.5) HealthCondition.caution;
+
+    return HealthCondition.fine;
+  ```
+
+- 위 코드는 단순히 가독성이 좋아진 것 외에도 요구사항을 그대로 표현한 형태가 되었다는 의미도 있다.
