@@ -499,3 +499,150 @@
 - `static` 메서드에선 생성자를 호출한다. **`팩토리 메서드는 목적에 따라 만들어 두는 것이 일반적이다`**.
 - 이렇게 만들면 신규 가입 포인트와 관련된 로직이 `GiftPoint` 클래스에 응집된다.
 - 포인트와 관련된 사양에 변경이 있는 경우 `GiftPoint` 클래스만 변경하면 되고, 다른 클래스의 로직을 찾지 않아도 된다.
+
+### 범용 처리 클래스 (Common/Util)
+
+- static으로 실무에서 빈번하게 사용되는 클래스는 Common, Util 이라는 이름이 붙게 된다.
+- 결국 static 메서드이기 때문에 응집도를 낮추게 된다.
+- 꼭 필요한 경우가 아니라면 객체지향 설계의 기본으로 돌아가 필요한 클래스를 설계하자
+
+#### 횡단 관심사
+
+- 로그 출력과 오류 확인은 어플리케이션의 모든 동작에 필요한 기능이다.
+- 이처럼 다양한 상황에서 넓게 사용되는 기능을 횡단 관심사라 부른다.
+  - ex) 로그 출력, 오류 확인, 디버깅, 예외처리, 캐시 등등
+- 이런 기능은 범용 코드로 만들고 인스턴스화 할 필요가 없으니 static 메서드로 만들어도 좋다.
+
+### 결과를 리턴하는데 매개변수 사용하지 않기
+
+- 매개 변수를 잘못 다루면 응집도가 낮아지게 된다.
+
+  ```java
+    class Actor {
+      void shift(Location location, int shiftX, int shifty) {
+        location.x += shiftX;
+        location.y += shiftY;
+      }
+    }
+  ```
+
+- 위 코드는 매개변수를 전달받아 이를 변경하고 있다.
+  - 데이터는 Location, 조작 로직은 Actor로 응집도가 낮은 구조이다.
+- 이처럼 매개변수를 리턴하지 말고 데이터와 데이터 조작 조직을 같은 클래스에 배치하자.
+
+  ```java
+    class Location {
+      final int x;
+      final int y;
+
+      Location(final int x, final int y) {
+        this.x = x;
+        this.y = y;
+      }
+
+      Location Shift(final int shiftX, final int shiftY) {
+        return new Location(x + shiftX, y + shiftY);
+      }
+    }
+  ```
+
+### 매개변수가 너무 많은 경우
+
+- 매개변수가 너무 많은 메서드는 응집도가 낮아지기 쉽다.
+- 메서드에 매개변수를 전달한다는 것은 매개변수를 사용해 어떤 기능을 수행하고 싶다는 의미이다.
+- 그래서 매개변수가 많다는 것은 많은 기능을 처리하고 싶다는 의미가 된다.
+- 이런 경우 로직이 복잡해지거나 중복 코드가 생길 가능성이 높아진다.
+
+#### 기본 자료형에 대한 집착
+
+- 아래 discountedPrice 메서드는 매개변수와 리턴 값에 모두 기본 자료형만 쓰고 있다.
+
+  ```java
+    class Common {
+      int discountedPrice(int regularPrice, float discountRate) {
+        if (regularPrice < 0) throw new IllegalArgumentException("불라불라");
+        if (discountRate < 0) throw new IllegalArgumentException("불라불라");
+      }
+    }
+  ```
+
+- 일반적인 구현 스타일이라고 생각할 수 있지만 다른 클래스에서도 유효성 검사 코드가 중복될 수 있다.
+- 기본 자료형만으로 동작하는 코드를 작성할 수 있다. 하지만 관련된 데이터와 로직을 집약하긴 힘들다.
+- 데이터는 계산하거나 데이터에 따라 제어 흐름을 전환할 때 사용된다.
+  - 기본 자료형 만으로만 구현하려고 하면 계산과 제어 로직이 모두 분산되어 응집도가 낮은 구조가 된다.
+- 아래 코드처럼 할인 요금, 정가 할인율을 하나하나의 클래스로 발전시켜 보자.
+
+  ```java
+    class RegularPrice {
+      final int amount;
+
+      RegularPrice(final int amount) {
+        if (amoun < 0) // 예외처리
+        this.amount = amount;
+      }
+    }
+
+    class DiscountPrice {
+      final int amount ;
+
+      DiscountPrice(
+        final RegularPrice regularPrice,
+        final DiscountRate discountRate
+      ) {
+        // 로직을 사용해서 계산
+      }
+    }
+  ```
+
+- 위와 같이 하면 관련있는 데이터와 로직을 각각의 클래스에 응집할 수 있다.
+- 매개변수가 많으면 데이터 하나하나를 매개 변수로 다루지 말고, 그 데이터를 인스턴스 변수로 갖는 클래스를 만들어 활용해보자.
+
+### 메서드 체인
+
+- 아래 코드는 멤버의 갑옷을 변경하는 메서드이다.
+
+  ```java
+    // 갑옷 입기
+    void equipArmor(int memberId, Armor newArmor) {
+      if (party.members[memberId].equipments.canChange) {
+        party.members[memberId].equipments.armor = newArmor;
+      }
+    }
+  ```
+
+- 위처럼 점(.)으로 여러 메서드를 연결해 리턴 값의 요소에 접근하는 방법을 메서드 체인이라고 부른다.
+- 이 방법도 응집도를 낮출 수 있어 좋지 않은 작성 방법이다.
+  - armor에 할당하는 코드를 어디에서나 작성할 수 있다.
+  - 비슷한 코드가 여러 곳에 중복 작성될 가능성이 있다.
+  - 접근하는 요소의 사양이 변경되면, 해당 요소에 접근하는 모든 코드를 확인하고 수정해야 한다.
+- 데메테르의 법칙이 있다. 사용하는 객체 내부를 알아서는 안 된다는 법칙이다.
+
+#### 묻지말고 명령하기
+
+- SW 설계에선 묻지말고, 명령하기(Tell, Don't Ask)라는 유명한 격언이 있다.
+- 다른 객체의 내부 상태를 판단하거나 제어하려 하지 말고, 메서드로 명령해서 객체가 알아서 판단하고 제어하도록 설계하란 의미다.
+- 인스턴스 변수를 private로 변경해 외부에서 접근할 수 없게 하고, 외부에선 메서드로 명령하 인스턴스 변수를 제어해야 한다.
+
+  ```java
+    class Equipments {
+      private boolean canChange;
+      private Equipment armor;
+      private Equipment head;
+
+      // 갑옷 입기
+      void equipArmor(final Equipment newArmor) {
+        if (canChange) {
+          armor = newArmor;
+        }
+      }
+
+      // 전체 장비 해제
+      void deactivateAll() {
+        head = Equipment.EMPTY;
+        armor = Equipment.EMPTY;
+      }
+    }
+  ```
+
+- 위와 같이 하면 방어구의 탈착과 관련된 로직이 Equipments에 응집된다.
+- 방어구와 관련된 요구사항이 변경되었을 때 Equipments만 보면 된다. 코드 이곳저곳을 찾을 필요가 없다.
