@@ -827,3 +827,251 @@
     Shape rectangle = new Rectangle(20):
     rectangle.area();
   ```
+
+#### 인터페이스를 switch 조건문 중복에 응용하기 (전략 패턴)
+
+- 인터페이스의 큰 장점 중 하나는 다른 로직을 같은 방식으로 처리할 수 있다는 점이다.
+- 앞서 마법 예시는 switch 조건문을 이용해 이름, 매직포인트 소비량, 공격력, 테크니컬 포인트 소비량을 다르게 처리했다.
+- 이를 Magic 인터페이스로 구현해보자.
+
+  ```java
+    interface Magic {
+      String name();
+      int costMagicPoint();
+      int attackPower();
+      int costTechnicalPoint();
+    }
+  ```
+
+- 이어서 마법 종류 별로 클래스로 만들어보자.
+
+  ```java
+    class Fire implements Magic {
+      private final Member;
+
+      Fire(final Member member) {
+        this.member = member;
+      }
+
+      public String name() {
+        return "파이어";
+      }
+
+      public int costMagicPoint() {
+        return 2;
+      }
+
+      public int attackPower() {
+        return 20;
+      }
+
+      public int costTechnicalPoint() {
+        return 0;
+      }
+    }
+
+    class Lightning implements Magic() {
+      private final Member;
+
+      Fire(final Member member) {
+        this.member = member;
+      }
+
+      public String name() {
+        return "라이트닝";
+      }
+
+      // 생략
+    }
+
+    class HellFire implements Magic() {
+      // 생략
+    }
+  ```
+
+- 이와 같이 구현하면 파이어, 라이트닝, 헬 파이어를 모두 Magic 자료형으로 활용할 수 있다.
+- switch 문 대신 Map으로 변경해보자.
+
+  ```java
+    final Map<MagicType, Magic> magics = new HashMap<>();
+
+    final Fire fire = new Fire(member);
+    final Lightning lightning = new Lightning(lightning);
+    final HellFire hellFire = new HellFire(hellFire);
+
+    magics.put(MagicType.fire, fire);
+    magics.put(MagicType.lightning, lightning);
+    magics.put(MagicType.hellFire, hellFire);
+  ```
+
+- 이제 데미지를 계산하기 위해 Map에서 꺼내 attackPower를 호출한다.
+
+  ```java
+    void magicAttack(final MagicType magicType) {
+      final Magic magic = magics.get(magicType);
+      magic.attackPower();
+    }
+  ```
+
+- 이제 매개 변수로 파이어, 라이트닝, 헬 파이어를 전달함에 따라 조건문처럼 각각의 처리를 하게 된다.
+- 이름, MP, 공격력, 테크니컬 포인트를 모두 변경해보자.
+
+  ```java
+    void magicAttack(final MagicType magicType) {
+      final Magic magic = magics.get(magicType);
+
+      magic.name(); // 호출 후 이름 출력
+      magic.attackPower(); // 공격력 계산
+      magic.costMagicPoint(); // MP 계산해서 소비
+      magic.costTechnicalPoint(); // TP 계산해서 소비
+    }
+  ```
+
+- switch 조건문을 사용하지 않고도 마법별로 처리를 나누었다.
+- 이처럼 인터페이스를 사용해 처리를 전환하는 설계를 전략 패턴이라고 부른다.
+- 인터페이스를 활용한 전략 패턴은 그 외에도 장점이 있다.
+  - switch 구문을 쓸 때 HellFire 처리를 깜빡 잊었다고 해보자.
+  - 인터페이스를 사용하면 컴파일 조차 실패한다. 인터페이스의 메서드는 반드시 구현되어야 하기 때문이다.
+  - 따라서 switch 구문처럼 구현하지 않는다는 실수 자체를 방지할 수 있다.
+
+### 조건 분기 중복과 중첩
+
+- 인터페이스는 switch 조건문의 중복 뿐 아니라 다중 중첩된 복잡한 분기를 제거할 수 있다.
+- 아래는 온라인 쇼핑몰에서 우수 고객인지 판정하는 로직으로 다음 조건을 모두 만족하면 골드 회원으로 인정된다.
+
+  ```java
+    // 총 구매 금액 100만원 이상 & 한 달 구매 횟수 10회 이상 & 반품률 0.1 이하
+    boolean isGoldCustomer(PurchaseHistory history) {
+      if (history.totalAmount >= 1_000_000) {
+        if (history.purchaseFrequencyPerMonth >= 10) {
+          if (history.returnRate <= 0.001) {
+              return ture;
+          }
+        }
+      }
+
+      return false;
+    }
+  ```
+
+- 아래는 실버 회원의 판단 로직이다.
+
+  ```java
+    // 한 달 구매 횟수 10회 이상 & 반품률 0.1 이하
+    boolean isSilverCustomer(PurchaseHistory history) {
+      if (history.purchaseFrequencyPerMonth >= 10) {
+        if (history.returnRate <= 0.001) {
+          return ture;
+        }
+      }
+
+      return false;
+    }
+  ```
+
+- 만약 다이아나 브론즈 등급이 추가되고, 비슷한 조건들이 사용된다면 어떻게 해야 할까?
+
+#### 정책 패턴으로 조건 집약하기
+
+- 이러한 상황에서 유용하게 활용할 수 있는 패턴이 정책 패턴이다.
+- 조건을 부품처럼 만들고 부품으로 만든 조건을 조합해서 사용한다.
+- 우선 아래와 같이 인터페이스를 하나 만든다.
+
+  ```java
+    interface ExcellentCustomerRule {
+      // 구매 조건을 만족해야 true
+      boolean ok(final purchaseHistory history);
+    }
+  ```
+
+- 골드 회원이 되려면 3개의 조건을 만족해야 한다. 각 조건을 인터페이스를 구현하여 만든다.
+
+  ```java
+    // 골드 회원 구매 금액 규칙
+    class GoldCustomerPurchaseAmountRule implements ExcellentCustomerRule {
+      public boolean ok(final PurchaseHistory history) {
+        return history.totalAmount >= 1_000_000;
+      }
+    }
+
+    // 구매 빈도 규칙
+    class PurchaseFrequencyRule implements ExcellentCustomerRule {
+      public boolean ok(final PurchaseHistory history) {
+        return history.purchaseFrequencyPerMonth >= 10;
+      }
+    }
+
+    // 반품률 규칙
+    class ReturnRateRule implements ExcellentCustomerRule {
+      public boolean ok(final PurchaseHistory history) {
+        return history.returnRate <= 0.001;
+      }
+    }
+  ```
+
+- 이어서 정책 클래스를 만든다. add 메서드로 규칙을 넣고 complyWithAll 메서드에서 모든 규칙을 만족하는지 확인한다.
+
+  ```java
+    class ExcellentCustomerPolicy {
+      private final Set<ExcellentCustomerRule> rules;
+      ExcellentCustomerPolicy() {
+        rules = new HashSet();
+      }
+
+      void add(final ExcellentCustomerRule rule) {
+        rules.add(rule);
+      }
+
+      boolean complyWithAll(final PurchaseHistory history) {
+        for (ExcellentCustomerRule each: rules) {
+          if (!each.ok(history)) return false;
+        }
+        return true;
+      }
+    }
+  ```
+
+- 사용하는 쪽에선 골드 회원의 조건 3가지를 추가하고 판정한다.
+
+  ```java
+    ExcellentCustomerPolicy goldCustomerPolicy = new ExcellentCustomerPolicy();
+    goldCustomerPolicy.add(new GoldCustomerPurchaseAmountRule());
+    goldCustomerPolicy.add(new PurchaseFrequencyRule());
+    goldCustomerPolicy.add(new ReturnRateRule());
+
+    goldCustomerPolicy.complyWithAll(purchaseHistory); // 골드 회원 조건 검증
+  ```
+
+- if 조건문이 complyWithAll 메서드 내부에 하나만 있어 로직이 단순해졌다.
+- 이런 경우 골드 회원과 무관한 로직을 삽입할 가능성이 있으니 확실하게 골드 회원을 판단하는 클래스를 만든다.
+
+  ```java
+    class GoldCustomerPolicy {
+      private final ExcellentCustomerPolicy policy;
+
+      GoldCustomerPolicy() {
+        policy = new ExcellentCustomerPolicy();
+        policy.add(new GoldCustomerPurchaseAmountRule());
+        policy.add(new PurchaseFrequencyRule());
+        policy.add(new ReturnRateRule());
+      }
+
+      boolean complyWithAll(final PurchaseHistory history) {
+        return policy.complyWithAll(history);
+      }
+    }
+  ```
+
+- 실버 회원도 같은 방법으로 만들 수 있고 규칙이 재사용되고 있으므로 괜찮은 클래스 구조라 할 수 있다.
+
+  ```java
+    class SilverCustomerPolicy {
+      private final ExcellentCustomerPolicy policy;
+
+      SilverCustomerPolicy() {
+        policy = new ExcellentCustomerPolicy();
+        policy.add(new PurchaseFrequencyRule());
+        policy.add(new ReturnRateRule());
+      }
+    }
+  ```
