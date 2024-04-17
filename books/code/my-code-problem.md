@@ -1075,3 +1075,77 @@
       }
     }
   ```
+
+### 자료형 확인에 조건 분기 사용하지 않기
+
+- 인터페이스는 조건 분기를 제거할 때 활용할 수 있다.
+- 하지만 인터페이스를 충분히 이해하지 못하고 사용하면 조건 분기가 줄어드지 않는 경우도 있다.
+- 호텔 숙박 요금을 예로 일반 객실과 비싼 객실이 있다고 하자
+
+  ```java
+    interface HotelRates {
+      Money fee(); // 요금
+    }
+
+    class RegularRates implements HotelRates {
+      public Money fee() {
+        return new Money(70_000);
+      }
+    }
+
+    class PremiumRates implements HotelRates {
+      public Money fee() {
+        return new Money(120_000);
+      }
+    }
+  ```
+
+- 위 까지는 좋은데 성수기처럼 특정 기간에 숙박 요금을 높게 설정하는 경우 아래처럼 구현했다고 가정하자
+
+  ```java
+    Money busySeasonFee;
+    if (hotelRates instanceof RegularRates) {
+      busySeasonFee = hotelRates.fee().add(new Money(30_000));
+    } else if (hotelRates instanceof PremiumRates) {
+      busySeasonFee = hotelRates.fee().add(new Money(50_000));
+    }
+  ```
+
+- 모처럼 인터페이스를 사용했는데 조건 분기가 그대로 있다.
+- 특정 기간에 적용되는 요금이 추가된다면 분기는 더 늘어나게 될 것이다.
+- 성수기 요금도 인터페이스로 변경해보자
+
+  ```java
+    interface HotelRates {
+      Money fee(); // 요금
+      Money busySeasonFee(); // 성수기 요금
+    }
+
+    class RegularRates implements HotelRates {
+      public Money fee() {
+        return new Money(70_000);
+      }
+
+      public Money busySeasonFee() {
+        return new fee().add(new Money(30_000));
+      }
+    }
+
+    class PremiumRates implements HotelRates {
+      public Money fee() {
+        return new Money(120_000);
+      }
+
+      public Money busySeasonFee() {
+        return new fee().add(new Money(50_000));
+      }
+    }
+  ```
+
+### 인터페이스 사용 능력이 중급으로 올라가는 첫 걸음
+
+- 인터페이스를 잘 사용하는지가 설계 능력의 전환점 중 하나이다.
+- 저자의 개인 생각으로 설계 레벨에 따른 사고 방식의 차이를 아래와 같이 제시함
+  - 초보자: if, switch 조건 그냥 씀 + 분기마다 처리는 그냥 로직을 작성
+  - 중급자: 분기는 인터페이스 설계 사용 + 분기마다 로직은 클래스에게 위임
+- 조건 분기를 써야 하는 상황에는 일단 인터페이스 설계를 떠올리자! 새겨두기만 해도 방식 자체가 달라질 것이다.
