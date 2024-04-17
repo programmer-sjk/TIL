@@ -1149,3 +1149,88 @@
   - **`초보자`**: if, switch 조건 그냥 씀 + 분기마다 처리는 그냥 로직을 작성
   - **`중급자`**: 분기는 인터페이스 설계 사용 + 분기마다 로직은 클래스에게 위임
 - 조건 분기를 써야 하는 상황에는 일단 인터페이스 설계를 떠올리자! 새겨두기만 해도 방식 자체가 달라질 것이다.
+
+### 플래그 매개변수
+
+- 메서드 내부에서 기능을 전환하는 boolean 자료형의 매개변수를 플래그 매개변수라고 부른다.
+
+  ```java
+    // 메서드 호출 로직
+    damage(true, damageAmount);
+
+    // 메서드
+    void damage(boolean damageFlag, int damageAmount) {
+      if (damageFlag) {
+        // 물리 데미지
+      } else {
+        // 마법 데미지
+      }
+    }
+  ```
+
+- 플래그 매개변수를 받는 메서드는 어떤 일을 하는지 예측하기 힘들어 가독성이 떨어지고 개발 생산성이 저하된다.
+- boolean 자료형 뿐 아니라 아래와 같이 int 자료형을 사용해 기능을 전환하는 경우에도 문제가 발생한다.
+
+  ```java
+    void execute(int processNumber) {
+      if (processNumber == 0) {...}
+      else if (processNumber == 1) {...}
+      else if (processNumber == 2) {...}
+    }
+  ```
+
+### 메서드 분리하기
+
+- 플래그 매개변수를 받는 메서드는 내부적으로 여러 기능을 수행하게 된다.
+- 메서드는 하나의 기능만 가지도록 설계하는 것이 좋기 때문에 기능별로 분리하고 메서드에 맞는 이름을 붙이면 가독성이 좋아진다.
+
+  ```java
+    void hitDamage(final int damageAmount) {
+      // 물리 데미지 입은 로직
+    }
+
+    void magicDamage(final int damageAmount) {
+      // 마법 데미지 입은 로직
+    }
+  ```
+
+### 전환은 전략 패턴으로 구현하기
+
+- 히트 데미지와 매직 데미지를 전환해야 하는 경우 boolean 자료형을 사용하면 플래그 매개변수로 되돌아 가게 된다.
+- 플래그 매개변수가 아니라 전략 패턴을 사용하자. 전환 대상은 히트 데미지와 매직 데미지이다.
+- Damage 인터페이스를 구현하고 전환하고자 하는 로직을 각 클래스에게 맡긴다.
+
+  ```java
+    interface Damage {
+      void execute(final int damageAmount);
+    }
+
+    class HitDamage implements Damage {
+      public void execute(final int damageAmount) {
+        ...
+      }
+    }
+
+    class MagicDamage implements Damage {
+      public void execute(final int damageAmount) {
+        ...
+      }
+    }
+
+    Enum DamageType {
+      hit,
+      magic
+    }
+
+    private final Map<DamageType, Damage> damages;
+
+    void applyDamage(final DamageType damageType, final int damageAmount) {
+      final Damage damage = damages.get(damageType);
+      damage.execute(damageAmount);
+    }
+
+    // 호출 로직
+    applyDamage(DamageType.magic, damageAmount);
+  ```
+
+- 가독성이 높아진 것 외에도 전략 패턴으로 설계하면 새로운 종류의 데미지가 추가되었을 때 쉽게 대응할 수 있다.
