@@ -1234,3 +1234,176 @@
   ```
 
 - 가독성이 높아진 것 외에도 **`전략 패턴으로 설계하면`** 새로운 종류의 데미지가 추가되었을 때 쉽게 대응할 수 있다.
+
+## 컬렉션
+
+- 배열과 List 같은 컬렉션을 따라다니는 악마를 소개하고 퇴치 방법을 알아본다.
+
+### 이미 존재하는 기능을 다시 구현하지 말자
+
+- 소지품에 감옥 열쇠가 있는지 확인하는 아래 코드는 for문 내부에 반복문이 있어 가독성이 좋지 않다.
+
+  ```java
+    boolean hasPrisonKey = false;
+    for (Item each: items) {
+      if (each.name.equals('감옥 열쇠')) {
+        hasPrisonKey = true;
+        break;
+      }
+    }
+  ```
+
+- 같은 기능을 아래와 같이 구현할 수 있다.
+
+  ```java
+    boolean hasPrisonKey = items.stream().anyMatch(item -> item.name.equals('감옥 열쇠'))
+  ```
+
+- anyMatch 메서드를 알고 있으면 복잡한 로직을 직접 구현하지 않아도 된다.
+- 바퀴의 재발명
+  - 이미 널리 사용되고 있는 기술과 해결법이 있는데 이를 몰라 비슷한 것을 만들어 내는 것을 바퀴의 재발명이라고 한다.
+  - 참고로 존재하는 것보다 좋지 못한 결과물을 만들어내면 네모난 바퀴의 재발명이라 부른다.
+  - 라이브러리가 어떻게 동작하는지, 구조를 학습하는 과정에선 이런 과정이 도움이 된다.
+
+### 반복문 내부의 조건 분기 중첩
+
+- 반복문 내부에서 특정 조건을 만족시키는 요소에 대해서만 어떤 작업을 수행하고 싶은 경우가 있다.
+- RPG 파티원 중 독에 의해 중독된 멤버들의 HP를 감소하는 로직이 아래와 같이 있다.
+
+  ```java
+    for (Member member: members) {
+      if (member.hitPoint > 0) {
+        if (member.containState(StateType.poison)) {
+          member.hitPoint -= 10;
+          if (member.hitPoint <= 0) {
+            member.hitPoint = 0;
+            member.addState(StateType.dead);
+          }
+        }
+      }
+    }
+  ```
+
+- 이럴 때 조기 continue를 사용해 가독성을 높일 수 있다.
+
+  ```java
+    for (Member member: members) {
+      if (member.hitPoint == 0) continue;
+      if (!member.containState(StateType.poison)) continue;
+
+      member.hitPoint -= 10;
+      if (member.hitPoint > 0) continue;
+
+      member.hitPoint = 0;
+      member.addState(StateType.dead);
+    }
+  ```
+
+- 이 외에도 조기 break를 통해 중첩을 제거하고 가독성을 높일 수 있다.
+
+### 응집도가 낮은 컬렉션 처리
+
+- 컬렉션에 대한 추가 작업도 응집도가 낮아지기 쉽다.
+- RPG에서 필드 맵을 관리하는 클래스에 파티 멤버를 추가하는 아래 로직이 있다.
+
+  ```java
+    class FieldManager {
+      void addMember(List<Member> members, Member newMember) {
+        ...
+      }
+    }
+  ```
+
+- 그런데 필드 맵 말고도 게임에서 멤버를 추가하는 시점이 있다.
+
+  ```java
+    // 특별한 이벤트를 관리하는 클래스
+    class SpecialEventManager {
+      void addMember(List<Member> members, Member newMember) {
+        ...
+      }
+    }
+  ```
+
+- 이처럼 컬렉션과 관련된 작업을 처리하는 코드가 여기저기에 구현되어 응집도가 낮아질 가능성이 높다.
+
+#### 컬렉션 처리를 캡슐화하기
+
+- 컬렉션과 관련된 응집도가 낮아지는 문제는 일급 컬렉션 패턴을 사용해 해결할 수 있다.
+- 일급 컬렉션이란 컬렉션과 관련된 로직을 캡슐화하는 디자인 패턴이다.
+- 클래스의 설계 원리를 반영하면 일급 컬렉션은 아래 요소로 구성된다.
+  - 컬렉션 자료형의 인스턴스 변수
+  - 컬렉션 자료형의 인스턴스 변수에 잘못된 값이 할당되지 않게 막고, 정상적으로 조작하는 메서드
+- 파티의 멤버 컬렉션을 인스턴스 변수로 가지는 Party 클래스를 설계해보자.
+
+  ```java
+    class Party {
+      private final List<Member> members;
+
+      Party() {
+        members = new ArrayList<Member>();
+      }
+
+      void add(final Member newMember) {
+        members.add(newMember);
+      }
+    }
+  ```
+
+- 위의 add 메서드는 members의 요소가 변화(추가)되는 부수 효과가 발생한다.
+- 부수 효과를 막기 위해 새로운 리스트를 생성하는 형태로 add 메서드를 구현한다.
+
+  ```java
+    class Party {
+      void add(final Member newMember) {
+        List<Member> members = new ArrayList<>(this.members);
+        members.add(newMember);
+        return new Party(members);
+      }
+    }
+  ```
+
+- 위와 같이 하면 원래 members를 변화시키지 않아 부수 효과를 막을 수 있다.
+- 파티의 인원수를 확인하는 isFull 메서드 등, 컬렉션과 컬렉션을 조작하는 로직을 한 클래스에 응집한 구조로 만들 수 있다.
+
+  ```java
+    class Party {
+      static final int MAX_MEMBER_COUNT = 4;
+      private final List<Member> members;
+
+      Party() {
+        members = new ArrayList<Member>();
+      }
+
+      private Party(List<Member> members) {
+        this.members = members;
+      }
+
+      void add(final Member newMember) {
+        if (isFull()) throw new IllegalArgumentException("불라불라");
+
+        List<Member> members = new ArrayList<>(this.members);
+        members.add(newMember);
+        return new Party(members);
+      }
+
+      boolean isFull() {
+        return members.size() == MAX_MEMBER_COUNT;
+      }
+    }
+  ```
+
+#### 외부로 전달할 때 컬렉션의 변경 막기
+
+- 파티 멤버 전원의 상태를 표시하는 기능이 추가된다면 members에 접근해 전체 데이터를 참조할 수 있어야 한다.
+- 인스턴스 변수 그대로 외부에 전달하면 Party 클래스 외부에서 마음대로 멤버를 추가하고 제거할 수 있다.
+- 외부로 전달할 때는 컬렉션이 요소를 변경하지 못하게 막아두는게 좋다.
+
+  ```java
+    class Party {
+      // 생략
+      List<Member> members() {
+        return members.unmodifiableList(); // 요소를 추가하거나 제거할 수 없다.
+      }
+    }
+  ```
