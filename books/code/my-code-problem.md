@@ -1535,3 +1535,141 @@
 - 같은 로직, 비슷한 로직이라도 **`개념이 다르면 중복을 허용해야 한다`**.
   - 일반 할인과 여름 할인은 서로 다른 개념이다.
   - DRY는 같은 개념 내에서 반복을 하지 말라는 의미이다.
+
+### 다양한 결합 사례와 대처 방법
+
+#### 상속과 관련된 강한 결합
+
+- 상속은 주의해서 다루지 않으면 곧바로 강한 결합 구조를 유발하는 위험한 문제가 발생한다.
+- 상속에서는 서브 클래스는 슈퍼 클래스에 굉장히 크게 의존한다.
+  - 따라서 서브 클래스는 슈퍼 클래스의 구조를 신경써야 하고, 슈퍼 클래스의 변화를 놓치는 순간 버그가 발생할 수 있다.
+- 슈퍼 클래스 의존으로 인한 강한 결합을 피하려면 상속보다 컴포지션(합성)을 사용하면 좋다.
+  - 컴포지션이란 사용하고 싶은 클래스를 인스턴스 변수로 갖고 사용하는 것을 의미한다.
+- 상속을 사용하면 서브 클래스가 슈퍼 클래스의 로직을 그대로 사용하므로 슈퍼 클래스가 공통 로직을 두는 장소로 사용된다.
+  - 위의 예시에서 일반 할인과 여름 할인을 상속으로 사용하고 getDiscountedPrice를 공통으로 사용했다고 가정하자.
+  - 일반 할인과 여름 할인이라는 두 가지 책임을 지게 되므로 단일 원칙 책임을 위반해서 좋은 구현이라고 말할 수 없다.
+- 서브 클래스가 일부는 부모의 메서드를 그대로 쓰고 일부는 오버라이딩을 시작한다고 가정하자.
+  - 이때 물려받아 그대로 쓰는 메서드 내부에서 서브 클래스가 오버라이딩 하는 메서드를 사용한다.
+  - 이런 경우 각 서브클래스의 오버라이딩 메서드는 부모의 물려받은 메서드를 자세하게 알아야 한다.
+- 이렇게 슈퍼/서브 클래스간 강한 결합이 되면 로직을 추적하기가 매우 어려워지며 요구사항 변경이 매우 힘들어진다.
+- 상속도 설계를 잘하면 아무런 문제가 없다. 하지만 강한 결합과 로직 분산 등의 악마를 불러들이므로 신중하게 사용해야 한다.
+
+#### 인스턴스 변수 별로 클래스 분할이 가능한 로직
+
+- 아래 코드는 책임이 완전히 다른 메서드들이 하나의 클래스 안에 정의되어 있다.
+
+  ```java
+    class Util {
+      private int reservationId;
+      private ViewSettings viewSettings;
+
+      void cancelReservation() {
+        ... // reservationId 사용
+      }
+
+      void darkMode() {
+        ... // viewSettings 사용
+      }
+
+    }
+  ```
+
+- 위와 같은 클래스는 각각의 역할에 따라 클래스를 분리해야 한다.
+
+#### 특별한 이유 없이 public 사용하기
+
+- 이유 없이 public으로 만들면 관계를 맺지 않길 원하는 클래스끼리 결합되어 영향범위가 확대된다.
+- 강한 결합을 피하려면 외부에 공개할 필요가 있는 클래스와 메서드만 public으로 선언하자.
+
+#### private 메서드가 너무 많다는 것은 책임이 많다는 것
+
+- 규모가 점점 커진 온라인 쇼핑몰의 주문을 담당하는 클래스이다.
+
+  ```java
+    class OrderService {
+      private int calculateDiscountPrice(int price) {
+        // 할인 가격 계산 로직
+      }
+
+      private List<Product> getProductBrowsingHistory(int userId) {
+        // 최근 본 상품 리스트를 확인하는 로직
+      }
+    }
+  ```
+
+- 위 코드는 주문 시 할인을 적용하거나, 최근 본 상품을 곧바로 주문하고 싶은 기능이 반영된 클래스이다.
+- 책임의 관점에서 생각해보면 가격 할인과, 최근 본 상품은 주문과는 다른 책임이다.
+- private 메서드가 너무 많이 쓰인 클래스는 많은 책임을 갖고 있을 가능성이 높으니 책임이 다르다면 분리하자.
+
+#### 높은 응집도를 오해해서 생기는 강한 결합
+
+- 높은 응집도를 잘못 이해해서 강한 결합이 발생하는 경우가 있다.
+
+  ```java
+    // 판매 가격 클래스
+    class SellingPrice {
+      final int amount;
+
+      SellingPrice(final int amount) {
+        if (amount < 0) throw new IllegalArgumentException("불라불라");
+        this.amount = amount;
+      }
+
+      int calcSellingCommission() {
+        // 판매 수수료 계산 로직
+      }
+
+      int calcDeliveryCharge() {
+        // 배송비 계산하기
+       }
+
+      int calcShoppingPoint() {
+        // 쇼핑 포인트 계산
+      }
+    }
+  ```
+
+- 일부 엔지니어는 판매 수수료와 배송비는 판매 가격과 관련이 깊을 것이다 생각해 위와 같이 작성했다.
+- 하지만 판매 가격과 쇼핑 포인트, 배송비, 판매 수수료는 판매 가격과는 다른 개념이다.
+- 응집도를 생각해 관련이 깊다고 생각한 로직을 한 곳에 모으려 했지만 결과적으로 강한 결합을 만들었다.
+  - 이런 상황은 자주 일어나고 누구라도 빠질 수 있는 함정이다.
+  - 그렇기 때문에 결합이 느슨하고 응집도가 높은 설계를 한 덩어리로 묶어 이야기하곤 한다.
+- 각 개념을 클래스로 분할하고 값 객체로 설계하는게 좋다.
+- 어떤 개념의 값을 사용해 다른 개념의 값을 구하고 싶을 때는 생성자에 매개변수로 계산에 사용할 값을 전달한다.
+
+  ```java
+    class SellingCommission {
+      private static final float SELLING_COMMISSION_RATE = 0.05f;
+      final int amount;
+
+      SellingCommission(final SellingPrice price) {
+        amount = (int)(price.amount * SELLING_COMMISSION_RATE);
+      }
+    }
+
+    class DeliveryCharge {
+      private static final int DELIVERY_FREE_MIN = 20000;
+      final int amount;
+
+      DeliveryCharge(final SellingPrice price) {
+        amount = DELIVERY_FREE_MIN <= price.amount ? 0 : 5000;
+      }
+    }
+
+    class ShoppingPoint {
+      private static final float SHOPPING_POINT_RATE = 0.01f;
+      final int value;
+
+      ShoppingPoint(final SellingPrice price) {
+        value = price.amount * SHOPPING_POINT_RATE;
+      }
+    }
+  ```
+
+#### 스마트 UI, 거대 데이터 클래스, 트랜잭션 스크립트 패턴
+
+- 스마트 UI는 화면과 관련없는 책임이 구현되어 있는 클래스이다.
+  - 예를 들어 복잡한 금액 계산 로직을 프런트에 구현하면 디자인을 변경할 때 변경하기 힘들게 된다.
+- 수 많은 인스턴스 변수와 많은 기능을 가진 거대 데이터 클래스도 다양한 버그를 발생하게 된다.
+- 메서드 내부에 일련의 처리가 하나하나 길게 작성된 구조를 트랜잭션 스크립트 패턴이라 부른다.
+  - 메서드 하나가 길에는 수백 줄의 거대한 로직을 갖게 되며 변경하기 매우 어려워진다.
