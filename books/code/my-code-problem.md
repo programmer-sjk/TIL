@@ -2108,3 +2108,154 @@
       }
     }
   ```
+
+## 메서드: 좋은 클래스에는 좋은 메서드가 있다
+
+### 반드시 현재 클래스의 인스턴스 변수 사용하기
+
+- 인스턴스 변수를 안전하게 조작하도록 메서드를 설계하면 클래스 내부가 정상 상태인지 보장할 수 있다.
+- 메서드는 인스턴스 변수를 사용하도록 설계하자. 예외도 있지만 이것이 기본 원칙이다.
+- 완전 생성자로 인스턴스 변수를 안전하게 만들고 다른 클래스에 인스턴스 변수를 제공한다면 새로운 인스턴스를 생성해 리턴하자.
+
+### 불변을 활용해 예상할 수 있는 메서드를 만들기
+
+- 가변 인스턴스는 의도하지 않게 다른 부분에 영향을 줄 수 있고 유지보수 하기 어려워진다.
+- 불변을 활용해 예상치 못한 동작 자체를 막을 수 있게 설계하자.
+
+### 묻지 말고 명령하라
+
+- 인스턴스 변수 값을 추출하는 메서드를 getter, 값을 설정하는 메서드를 setter 라고 부른다.
+- getter/setter는 다른 클래스를 확인하고 조작하는 구조가 되기 쉽기 때문에 좋지 않다.
+- 메서드를 호출하는 쪽에서는 복잡한 처리를 하지 않는게 좋다. 이때 묻지말고 명령하라 방법이 유효하다.
+
+### 커맨트/쿼리 분리
+
+- 아래 메서드는 상태 변경과 추출을 동시에 하고 있다.
+
+  ```java
+    int gainAndGetPoint() {
+      point += 10;
+      return point;
+    }
+  ```
+
+- 상태 변경과 추출을 동시에 하는 메서드는 재 사용 하기도 힘들고 좋을게 없는 형태이다.
+- 커맨드/쿼리 분리(CQS, Command-Query Separation) 패턴이 있다.
+  - 메서드는 커맨드 or 쿼리 중에 하나만 하도록 설계해야 한다는 패턴이다.
+- 커맨드와 쿼리를 분리해보자. 쿼리가 하나의 책임만 가지며 단순해졌다.
+
+  ```java
+    int gainPoint() {
+      point += 10;
+    }
+
+    int getPoint() {
+      return point;
+    }
+  ```
+
+### 매개 변수
+
+#### 불변 매개변수로 만들자
+
+- 매개 변수를 변경하면 값을 추적해야 하고 의미를 유추하기 어렵다.
+- 매개 변수에 final 수식자를 붙여 불변으로 만들자.
+
+#### 플래그 매개변수를 사용하지 말자
+
+- 플래그 매개변수를 받는 메서드는 코드를 읽는 사람이 메서드가 무슨 일을 하는지 이해하기 어렵게 된다.
+- 메서드 내부의 로직을 확인해야 하므로 가독성이 낮아진다.
+
+#### null을 전달하지 말자
+
+- null을 사용하는 로직은 NullPointerException이 발생할 수 있으며 null 체크가 필요해 복잡해진다.
+- null 대신 초기화 상태를 Equipment.EMPTY로 표현했던 것처럼 구현하자.
+
+#### 출력 매개변수를 사용하지 말자
+
+- 매개변수는 입력 값으로만 사용하는게 기본이다.
+- 매개변수를 리턴하면 코드를 읽는 사람에게 혼란을 줄 수 있다.
+
+#### 매개변수는 최대한 적게 사용하자
+
+- 매개변수가 많다는 것은 메서드가 여러 기능을 처리한다는 의미이다.
+
+### 리턴 값
+
+#### 자료형을 사용해서 리턴 값의 의도 나타내기
+
+- 아래 Price.add 메서드는 int 자료형을 리턴하고 있다.
+
+  ```java
+    class Price {
+      int add(final Price other) {
+        return amount + other.amount;
+      }
+    }
+  ```
+
+- int 기본 자료형을 리턴하면 호출하는 쪽에 의미를 전달할 수 없다.
+- 아래 코드를 보면 가격뿐 아니라 할인 금액과 배송비까지 모두 int 자료형을 사용하고 있다.
+
+  ```java
+    int price = productPrice.add(otherPrice);
+    int discountPrice = calcDiscountedPrice(price);
+    int deliveryPrice = calcDeliveryPrice(discountPrice);
+  ```
+
+- int 자료형을 리턴하게 만들면 어떤 값이 어떤 금액을 의미하는지 알기 힘들다.
+- 따라서 매개변수를 잘못 전달하는 등의 실수가 발생할 수 있다.
+
+  ```java
+    // 배송비가 전달되어야 하는데 상품 가격이 전달되고 있음
+    DeliveryCharge deliveryCharge = new Delivery(price);
+  ```
+
+- 따라서 기본 자료형을 사용하지 말고 값 객체를 사용해서 의도를 명확히 나타내는게 좋다.
+
+  ```java
+    class Price {
+      Price add(final Price other) {
+        return new Price(amount + other.amount);
+      }
+    }
+  ```
+
+#### null 리턴하지 않기
+
+- 매개변수로 null을 전달하지 않듯이, null을 리턴하지 않아야 좋다.
+
+#### 오류는 리턴하지 말고 예외를 발생시키기
+
+- 아래는 문제가 있는 오류 처리 코드이다.
+
+  ```java
+    class Location {
+      Location shift(final int x, final int y) {
+        ...
+
+        // (-1, -1)은 오류 값
+        return new Location(-1, -1);
+      }
+    }
+  ```
+
+- 이러한 구현은 호출하는 쪽에서 오류가 발생하면 Location(-1, -1)을 리턴하는 사실을 알고 있어야 한다.
+- 만약 오류 처리를 잊으면 Location(-1, -1) 값이 후속 로직에서 정상 값처럼 사용되어 버그를 만들게 된다.
+- 잘못된 상태에서는 관용을 베풀어선 안된다. 오류 값을 리턴하지 말고 곧바로 예외를 발생시켜야 한다.
+
+  ```java
+    class Location {
+      Location(final int x, final int y) {
+        if (!valid(x, y)) {
+          throw new IllegalArgumentException("불라불라");
+        }
+        this.x = x;
+        this.y = y;
+      }
+
+      Location shift(final int x, final int y) {
+        ...
+      }
+    }
+  ```
