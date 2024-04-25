@@ -2259,3 +2259,140 @@
       }
     }
   ```
+
+## 리팩토링
+
+### 리팩토링의 흐름
+
+- 리팩토링은 실제 동작은 유지하면서 구조만 정리하는 작업이다.
+- 리팩터링으로 코드를 변경할 때 실제 동작까지 바뀌어 버린다면 이는 리팩터링이라 할 수 없다.
+- 아래는 리팩토링에 활용할 구매 결제를 나타내는 클래스다.
+
+  ```java
+    class PurchasePointPayment {
+      final CustomerId customerId;
+      final ComicId comicId;
+      final PurchasePoint consumptionPoint;
+      final LocalDateTime paymentDateTime;
+
+      PurchasePointPayment(final Customer customer, final Comic comic) {
+        if (customer.isEnabled()) {
+          customerId = customer.id;
+          if (comic.isEnabled()) {
+            comicId = comic.id;
+            if (comic.currentPurchasePoint.amount <= customer.possessionPoint.amount) {
+              consumptionPoint = comic.currentPurchasePoint;
+              paymentDateTime = LocalDateTime.now();
+            } else {
+              throw new RunTimeException('보유하고 있는 포인트가 부족합니다.');
+            }
+          } else {
+            throw new IllegalArgumentException('현재 구매할 수 없는 만화입니다.');
+          }
+        } else {
+          throw new IllegalArgumentException('유효하지 않은 계정입니다.');
+        }
+      }
+    }
+  ```
+
+#### 중첩을 제거하여 보기 좋게 만들기
+
+- if 조건문을 여러 번 중첩하고 있으니 early return을 적용해보자.
+
+  ```java
+    PurchasePointPayment(final Customer customer, final Comic comic) {
+      if (!customer.isEnabled()) {
+        throw new IllegalArgumentException('유효하지 않은 계정입니다.');
+      }
+
+      customerId = customer.id;
+      if (!comic.isEnabled()) {
+        throw new IllegalArgumentException('현재 구매할 수 없는 만화입니다.');
+      }
+      comicId = comic.id;
+      if (comic.currentPurchasePoint.amount > customer.possessionPoint.amount) {
+        throw new RunTimeException('보유하고 있는 포인트가 부족합니다.');
+      }
+      consumptionPoint = comic.currentPurchasePoint;
+      paymentDateTime = LocalDateTime.now();
+    }
+  ```
+
+#### 의미 단위로 로직 정리하기
+
+- 결제 조건을 확인하는 로직과 변수에 대입하는 로직이 섞여 있으니 각각 분리해서 정리해준다.
+- 조건 확인을 모두 완료한 이후에 값을 대입하는 순서로 바꾸자
+
+  ```java
+    PurchasePointPayment(final Customer customer, final Comic comic) {
+      if (!customer.isEnabled()) {
+        throw new IllegalArgumentException('유효하지 않은 계정입니다.');
+      }
+      if (!comic.isEnabled()) {
+        throw new IllegalArgumentException('현재 구매할 수 없는 만화입니다.');
+      }
+      if (comic.currentPurchasePoint.amount > customer.possessionPoint.amount) {
+        throw new RunTimeException('보유하고 있는 포인트가 부족합니다.');
+      }
+
+      customerId = customer.id;
+      comicId = comic.id;
+      consumptionPoint = comic.currentPurchasePoint;
+      paymentDateTime = LocalDateTime.now();
+    }
+  ```
+
+#### 조건을 읽기 쉽게 하기
+
+- if 문에서 `!`로 부정 연산자를 사용하고 있다. 각 class에 isDisabled 메서드를 추가한다.
+
+  ```java
+    PurchasePointPayment(final Customer customer, final Comic comic) {
+      if (customer.isDisabled()) {
+        throw new IllegalArgumentException('유효하지 않은 계정입니다.');
+      }
+      if (comic.isDisabled()) {
+        throw new IllegalArgumentException('현재 구매할 수 없는 만화입니다.');
+      }
+      if (comic.currentPurchasePoint.amount > customer.possessionPoint.amount) {
+        throw new RunTimeException('보유하고 있는 포인트가 부족합니다.');
+      }
+
+      customerId = customer.id;
+      comicId = comic.id;
+      consumptionPoint = comic.currentPurchasePoint;
+      paymentDateTime = LocalDateTime.now();
+    }
+  ```
+
+#### 무턱대고 작성한 로직을 목적을 나타내는 메서드로 바꾸기
+
+- 생성자에서 amount 비교로 포인트가 부족한지 판단하고 있다. 그런데 이 로직만 봐서는 목적을 알기 힘들다.
+- 무턱대고 로직을 작성하지 말고 목적을 나타내는 메서드로 만들어 사용하는게 좋다.
+- customer 클래스에 보유 포인트가 부족한지 리턴하는 메서드를 추가한다.
+
+  ```java
+    class Customer {
+      boolean isShortOfPoint(Comic comic) {
+        return possessionPoint.amount < comic.currentPurchasePoint.amount;
+      }
+    }
+
+    PurchasePointPayment(final Customer customer, final Comic comic) {
+      if (customer.isDisabled()) {
+        throw new IllegalArgumentException('유효하지 않은 계정입니다.');
+      }
+      if (comic.isDisabled()) {
+        throw new IllegalArgumentException('현재 구매할 수 없는 만화입니다.');
+      }
+      if (customer.isShortOfPoint(comic)) { // 메서드로 목적 제공
+        throw new RunTimeException('보유하고 있는 포인트가 부족합니다.');
+      }
+
+      customerId = customer.id;
+      comicId = comic.id;
+      consumptionPoint = comic.currentPurchasePoint;
+      paymentDateTime = LocalDateTime.now();
+    }
+  ```
