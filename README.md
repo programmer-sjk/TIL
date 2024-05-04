@@ -59,6 +59,8 @@
 
 ### 코드
 
+- [내 코드가 그렇게 이상한가요?](books/code/my-code-problem.md)
+
 ### 설계
 
 - [대규모 서비스를 지탱하는 기술](books/architecture/large-service-technology.md)
