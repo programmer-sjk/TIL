@@ -214,3 +214,74 @@
 - **`구조에 의한 서브 타입은`** 클래스 A가 클래스 B에 정의된 **`필드와 메서드를 모두 정의한다면`** A는 B의 서브타입이란 의미다.
   - 위 예시에서 `Student`는 `Person`이 가지는 `name, email, id`를 모두 포함하므로 Person의 서브 타입이다.
   - 따라서 **`상속이 아니더라도 필드와 메서드를 모두 갖기에 서브타입에 의한 다형성을 지원할 수 있다`**.
+
+#### 추상 메서드
+
+- 학교 행정처리 프로그램에 자주 거래하는 회사를 나타내는 Company 클래스를 정의한다.
+
+  ```java
+    class Company {
+      String name;
+      String website;
+      String manager;
+
+      void sendEmail(String title, String content) {
+        String email = this.manager + '@' + this.website;
+        ...
+      }
+    }
+  ```
+
+- 새해를 맞이해 학교에 있는 모든 사람, 거래하는 모든 회사에 인사 메일을 보내기 위해 아래 메서드를 작성하자
+
+  ```java
+    void sendNewYearEmail(??? destination) {
+      destination.sendEmail(...)
+    }
+  ```
+
+- 문제는 매개변수 타입이다. 이 함수는 Person과 Company 타입을 둘 다 받아야 한다.
+- 간단한 해결 방법은 새로운 클래스를 정의하고 Person과 Company가 그 클래스를 상속받는 것이다.
+
+  ```java
+    class EmailDst {}
+    class Person extends EmailDst {...}
+    class Company extends EmailDst {...}
+
+    void sendNewYearEmail(EmailDst destination) {
+      destination.sendEmail(...)
+    }
+  ```
+
+- 안타깝게도 코드는 타입 검사를 통과하지 못한다. 이유는 EmailDst에 어떤 필드나 메서드도 정의되어 있지 않다.
+- 추상 메서드는 이 문제를 해결하기 위해 도입된 개념이다.
+- 메서드를 정의하지는 않되 이 클래스를 상속하려면 특정 메서드를 반드시 정의해야 한다는 사실을 표현하는 것이다.
+
+  ```java
+    abstract class EmailDst {
+      void sendEmail(String title, String content);
+    }
+  ```
+
+- 추상 메서드는 구현없이 이름, 매개변수, 결과 타입만 작성된 메서드다. 이를 메서드의 시그니처라 부른다.
+  - 시그니처를 통해 타입 검사기가 원하는 이름과 타입을 알 수 있다.
+- EmailDst에 추상 메서드를 추가함으로써 상속하는 모든 클래스에 sendMail 구현을 강제한다.
+
+  ```java
+    class Person extends EmailDst {
+      void sendEmail(String title, String content) {
+        ...
+      }
+    }
+
+    class Company extends EmailDst {
+      void sendEmail(String title, String content) {
+        ...
+      }
+    }
+  ```
+
+- 추상 메서드를 가진 클래스는 객체를 직접 만들 수 없다.
+  - 오직 클래스를 상속해 새로운 클래스를 만들고, 새로운 클래스로부터 객체를 만들 수 있다.
+  - 이렇게 클래스가 객체를 직접 만들 수 없다는 사실을 드러내는 키워드가 abstract이다.
+- 추상 메서드를 가진 객체를 직접 만들 수 없는 클래스를 추상 클래스라고 부른다.
