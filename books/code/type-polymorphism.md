@@ -145,3 +145,72 @@
 - **`다형성은 타입 검사기의 오판을 줄이는 안전한 기능을 제공한다`**.
   - 다형성은 프로그램의 한 개체가 여러 타입에 속하게 만든다.
   - 다형성은 크게 **`서브타입에 의한 다형성, 매개변수에 의한 다형성, 오버로딩에 의한 다형성으로`** 나눌 수 있다.
+
+## 서브타입에 의한 다형성
+
+### 객체와 서브타입
+
+- 서브타입에 의한 다형성은 클래스를 다루는 정적 언어라면 대부분 제공한다.
+
+  ```java
+    class Person {
+      String name;
+      String email;
+      int id;
+    }
+
+    class Student extends Person {
+      int grade;
+      Float gpa;
+      Boolean paid;
+    }
+  ```
+
+- 학생들에게 메일을 발송하려 한다. 학생 정보를 담은 students 변수와 메일 전송 로직을 아래와 같이 작성했다.
+
+  ```java
+    void sendMail(Person person, String title, String content) {
+      String email = person.email;
+      ...
+    }
+
+    // 서브타입에 의한 다형성이 없었다면 아래 코드는 타입 오류가 발생
+    for (int i = 0; i < students.length; i++) {
+      Student st = students[i];
+      sendMail(st, ...);
+    }
+  ```
+
+- 코드를 보면 sendMail의 인자는 Person 타입인데 Student 타입을 전달하고 있다.
+- 서브타입이란 A는 B다 관계가 성립할 때 A는 B의 서브 타입이다.
+  - 학생은 사람이다 관계가 성립하기 때문에 학생은 사람의 서브 타입이다.
+- 서브타입에 의한 다형성은 자식인 타입이, 자식인 동시에 부모(Person)인 타입에도 속하게 만든다.
+  - A가 B의 서브타입 일 때, A 타입의 부품을 B 타입의 부품으로도 간주할 수 있게 한다.
+  - 즉 학생은 Student 타입이지만, Person 타입으로도 간주된다.
+
+#### 구조에 의한 서브타입
+
+- 이미 정의된 클래스를 수정할 수 없는 경우(라이브러리에 포함된 클래스) 상속으로 인한 서브타입으로 부족할 수 있다.
+
+  ```java
+    // 라이브러리 1에 포함
+    class Person {
+      String name;
+      String email;
+      int id;
+    }
+
+    // 라이브러리 2에 포함
+    class Student {
+      String name;
+      String email;
+      int id;
+      int grade;
+    }
+  ```
+
+- 두 라이브러리가 별개로 개발되는 바람에 Student가 Person을 상속하지 않는다.
+- 따라서 타입 검사에서 오류가 발생하고 서브타입에 의한 다형성을 구현할 수 없다.
+- 구조에 의한 서브 타입은 클래스 A가 클래스 B에 정의된 필드와 메서드를 모두 정의한다면 A는 B의 서브타입이란 의미다.
+  - 위 예시에서 Student는 Person이 가지는 `name, email, id`를 모두 포함하므로 Person의 서브 타입이다.
+  - 따라서 상속이 아니더라도 필드와 메서드를 모두 갖기에 서브타입에 의한 다형성을 지원할 수 있다.
