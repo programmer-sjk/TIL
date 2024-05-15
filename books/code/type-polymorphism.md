@@ -348,3 +348,124 @@
 - 결국 위 코드는 타입 검사를 통과하지 못하기 때문에 프로그램의 구조를 단순하게 만들어야 한다.
   - `data is String` 코드를 **`if 문의 조건으로 바로 사용해야 한다`**.
   - `data is String` 값을 변수에 저장하거나 다른 함수에서 계산하면 타입 검사를 통과하지 못할 수 있다.
+
+## 매개변수에 의한 다형성
+
+### 제네릭 함수
+
+- 매개변수에 의한 다형성은, 제네릭스라고도 부른다.
+- 매개변수에 의한 다형성을 언어에 추가하는 것은 어려운 일이지만, 중요하기에 많은 언어들이 지원하고 있다.
+- choose 함수는 문자열 두 개를 사용자에게 보여 준 뒤, 0 또는 1을 눌러 둘 중 하나를 선택하라는 문구를 출력한다.
+
+  ```java
+    String choose(String v1, String v2) {
+      Int input = readInt();
+      return (input === 0) ? v1 : v2;
+    }
+  ```
+
+- 만약 똑같은 기능인데 정수를 입력받는다면, 하나의 해결책은 정수를 입력받는 함수를 만드는 것이다.
+
+  ```java
+    Int choose(Int v1, Int v2) {
+      Int input = readInt();
+      return (input === 0) ? v1 : v2;
+    }
+  ```
+
+- 중복을 피하기 위해 최대타입인 Any를 사용해 함수를 만들었다고 가정하자
+
+  ```java
+    Any choose(Any v1, Any v2) {
+      Int input = readInt();
+      return (input === 0) ? v1 : v2;
+    }
+  ```
+
+- 위 코드의 문제는 함수 내부와, 함수를 호출하는 곳에서 타입이 없기 떄문에 아래와 같은 코드를 작성하지 못한다.
+
+  ```java
+    choose("korean", "foreigner").contains("k")
+  ```
+
+- 문자열이 contains 메서드를 제공하는데 타입이 Any로 바뀌었기 때문이다.
+- 매개변수에 의한 다형성을 사용해 choose를 다시 작성하면 다음과 같다.
+
+  ```java
+    T choose<T>(T v1, T v2) {
+      Int input = readInt();
+      return (input === 0) ? v1 : v2;
+    }
+
+    // 호출 부
+    choose<String>("korean", "foreigner")
+  ```
+
+- choose는 먼저 타입 인자로 String 타입을 받기 때문에 인자와 리턴의 타입을 파악할 수 있다.
+
+#### 제너릭 메서드
+
+- 제너릭 메서드는 클래스 안에 정의된다는 것을 제외하고는 제너릭 함수와 똑같다.
+
+  ```java
+    class Chooser {
+      String msg;
+
+      T choose<T>(T v1, T v2) {
+        Int input = readInt();
+        return (input === 0) ? v1 : v2;
+      }
+    }
+  ```
+
+#### 타입 인자 추론
+
+- 위 예시에는 호출할 때 매번 타입 인자를 써야 하는 단점이 있었다.
+- 대부분 제너릭을 지원하는 언어는 타입 인자 추론을 함께 제공해 타입 인자를 생략할 수 있다.
+
+  ```java
+    choose(1, 2);
+    choose("korean", "foreigner");
+  ```
+
+- 코드가 복잡해지면 타입 검사기가 타입 추론에 실패할 수 있다.
+- 따라서 타입 인자 추론이 언제나 내가 원하는 대로 되지 않는다는 사실을 항상 기억하자.
+
+### 제네릭 타입
+
+- 일반적으로 List는 자료구조이지만 모든 List의 타입을 List라고 가정해보자.
+- 이처럼 타입에 타입 매개변수를 추가하면 제너릭 타입이 된다.
+
+  ```java
+    List integers = List(1, 2, 3, 4, 5);
+    List countries = List("Korea", "Japan", "China");
+  ```
+
+- 지금까진 순탄했다. 정수의 리스트를 받아 합을 구하는 함수를 작성해보자.
+
+  ```java
+    Int sum(List lst) {
+      Int rest = 0;
+      for (int i = 0; i <lst.length; i++) {
+        res = res + lst[i];
+      }
+      return res;
+    }
+  ```
+
+- 이 코드는 res + lst[i] 에서 오류가 검출된다. 타입 검사기 입장에선 lst는 아무 리스트나 될 수 있기 떄문이다.
+- 이때 매개변수에 의한 다형성으로 타입을 받음으로써 타입 검사기로부터 문제 없다는 결과를 얻을 수 있다.
+
+  ```java
+    Int sum(List<Int> lst) { // 매개변수에 List<Int>로 타입을 전달받음
+      Int rest = 0;
+      for (int i = 0; i <lst.length; i++) {
+        res = res + lst[i];
+      }
+      return res;
+    }
+  ```
+
+- 단 대부분의 언어는 타입 추론을 제공하므로, 타입을 제공하지 않더라도 대게 잘 통과한다.
+- 리스트 말고 흔히 볼 수 있는 제네릭 타입으로는 맵이 있다.
+  - 각 맵의 타입은 Map<A, B> 형태로 key 타입이 A, value 타입이 B가 된다.
