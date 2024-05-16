@@ -76,17 +76,29 @@ export const main: Handler<CloudWatchLogsEvent, void> = async (event) => {
     return;
   }
 
-  const { logStream, events } = payloadJson;
-  for (const event of events) {
-    const queryInfoes = event.split('\n');
-    const json = convertToJson(queryInfoes);
+  const { logStream, logEvents } = payloadJson;
+  for (const event of logEvents) {
+    try {
+      const json = convertToJson(event);
+      if (+json.queryTime >= SLOW_TIME) {
+        await sendToSlack({
+          text: convertToSlackMessage({ logStream, ...json }),
+          channel: '#log-query',
+        });
+      }
+    } catch (e) {
+      console.log(
+        `Convert Json Fail event=${toString(event)}, err=${toString(e)} }`
+      );
+    }
   }
 };
 
-function convertToJson(queryInfoes) {
-  const offset = 9 * 60 * 60 * 1000;
+function convertToJson(event: CloudWatchLogsLogEvent) {
+  const queryInfoes: string[] = event.message.split('\n');
+
   const utc = new Date(queryInfoes[0].match('(?<=Time: ).+')[0]);
-  const kst = new Date(utc.getTime() + offset);
+  const kst = convertToKstFormat(utc);
 
   const removeBracketRegex = /[\[\]']+/g;
   const accountInfoes = [];
@@ -100,5 +112,28 @@ function convertToJson(queryInfoes) {
   const query = queryInfoes[queryInfoes.length - 1];
 
   return { kst, host, ip, queryTime, query };
+}
+
+function convertToKstFormat(utc: Date) {
+  const offset = 9 * 60 * 60 * 1000;
+  const kst = new Date(utc.getTime() + offset);
+
+  const yyyymmddhhmmssEndOffset = 19;
+  return kst
+    .toISOString()
+    .replace('T', ' ')
+    .substring(0, yyyymmddhhmmssEndOffset);
+}
+
+function convertToSlackMessage(json: IQueryMessage) {
+  const { kst, logStream, host, ip, queryTime, query } = json;
+  let message = '';
+  message += `시간: ${kst}\n`;
+  message += `위치: ${logStream}\n`;
+  message += `계정: ${host}\n`;
+  message += `IP: ${ip}\n`;
+  message += `쿼리시간: ${(+queryTime).toFixed(3)} 초\n`;
+  message += `쿼리: ${query}\n`;
+  return message;
 }
 ```
