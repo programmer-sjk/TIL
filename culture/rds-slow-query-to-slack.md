@@ -83,7 +83,7 @@ export const main: Handler<CloudWatchLogsEvent, void> = async (event) => {
       if (+json.queryTime >= SLOW_TIME) {
         await sendToSlack({
           text: convertToSlackMessage({ logStream, ...json }),
-          channel: '#log-query',
+          channel: '#slack-channel',
         });
       }
     } catch (e) {
@@ -137,3 +137,5 @@ function convertToSlackMessage(json: IQueryMessage) {
   return message;
 }
 ```
+
+##
