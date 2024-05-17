@@ -16,7 +16,7 @@
 
 - cloudwatch logs와 lambda가 연동된 상태에서 sleep(10) 쿼리를 실행하면 아래와 같이 인코딩 + 압축된 데이터가 lambda로 전달된다.
 
-  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/rds-slow-query/raw.png" width="600">
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/rds-slow-query/raw.png" width="800">
 
 - 원본 데이터를 얻기 위해 디코딩 + 압축을 풀어보자.
 
@@ -142,4 +142,4 @@ function convertToSlackMessage(json: IQueryMessage) {
 
 - Slack으로 전달된 결과는 아래와 같다.
 
-<img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/rds-slow-query/slack-result.png" width="500">
+<img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/rds-slow-query/slack-result.png" width="400">
