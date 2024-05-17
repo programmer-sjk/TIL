@@ -138,4 +138,8 @@ function convertToSlackMessage(json: IQueryMessage) {
 }
 ```
 
-##
+## 결과
+
+- Slack으로 전달된 결과는 아래와 같다.
+
+<img src="https://github.com/programmer-sjk/TIL/blob/main/images/culture/rds-slow-query/slack-result.png" width="500">
