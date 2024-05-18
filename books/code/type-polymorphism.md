@@ -469,3 +469,96 @@
 - 단 대부분의 언어는 타입 추론을 제공하므로, 타입을 제공하지 않더라도 대게 잘 통과한다.
 - 리스트 말고 흔히 볼 수 있는 제네릭 타입으로는 맵이 있다.
   - 각 맵의 타입은 `Map<A, B>` 형태로 `key 타입이 A, value 타입이 B`가 된다.
+
+## 두 다형성의 만남
+
+### 제네릭 클래스와 상속
+
+- 전통적으로 객체지향 언어가 서브타입에 의한 다형성을 지원했고, 함수형 언어가 매개변수에 의한 다형성을 지원했다.
+- 최근에는 한 언어가 두 종류의 다형성을 모두 제공하는 경우가 흔하다.
+- 이번 장에서는 두 다형성이 만나서 존재하는 흥미로운 기능들을 살펴본다.
+- 많은 언어에서 리스트를 클래스로 표준 라이브러리에 구현해 놓는다. 이때 리스트는 배열 리스트와 연결 리스트로 구현할 수 있다.
+
+  ```java
+    class ArrayList<T> {
+      T get(int idx) {...}
+    }
+
+    class LinkedList<T> {
+      T get(int idx) {...}
+    }
+  ```
+
+- ArrayList와 LinkedList는 구현 방법만 다를 뿐 완전히 같은 기능을 제공한다.
+- 만약 함수 매개변수 타입을 ArrayList로 한다면 LinkedList는 매개 변수로 받을 수 없다.
+- 따라서 다음과 같이 List 타입을 추상 클래스로 정의하고 상속받는다.
+
+  ```java
+    abstract class List<T> {
+      T get(int idx);
+    }
+
+    class ArrayList<T> extends<T> {
+      T get(int idx) {...}
+    }
+
+    class LinkedList<T> extends<T> {
+      T get(int idx) {...}
+    }
+  ```
+
+- 상속할 때도 타입 인자(T)를 전달한다.
+
+### 타입 매개변수 제한
+
+- 타입 검사기는 타입 매개변수(T)가 아무 타입이나 나타낼 수 있다고 간주한다.
+- T 타입의 매개변수가 출력이나 반환할 수는 있어도, 덧셈이나 곱셈같은 특별한 타입에 국한되는 곳은 사용할 수 없다.
+- 만약 몇몇 타입만 가지고 있는 능력을 사용하고 싶으면 어떡할까? 아래 예제를 보자.
+
+  ```java
+    class Person {
+      int age;
+    }
+
+    class Student extends Person {...}
+  ```
+
+- 사람의 나이를 의미하는 age 필드를 가지고, 나이가 많은 사람을 반환하는 elder 함수를 작성한다.
+
+  ```java
+    Person elder(Person p, Person q) {
+      return p.age >= q.age ? p : q;
+    }
+  ```
+
+- 문제는 더 나이 많은 학생을 찾으려는 경우 발생한다.
+
+  ```java
+    Person p = elder(p1, p2); // 정상
+    Student s = elder(s1, s2); // 실패
+  ```
+
+- elder가 반환한 Person 값을 Student 타입에 대입하는 과정에서 문제가 발생한다.
+- 학생이 사람의 서브 타입이지, 사람이 학생의 서브 타입이 아니기 때문이다.
+  - Student가 Person을 상속하므로 Student가 Person의 서브타입이다.
+- 반대로 개발자는 학생이 들어가는 걸 알기 때문에 억울하다. 이를 위해 Generic 타입으로 바꿔보자.
+
+  ```java
+    T elder(T p, T q) {
+      return p.age >= q.age ? p : q;
+    }
+  ```
+
+- 위 함수도 타입 검사를 통과하지 못한다. T 타입인데 age 값을 읽으려고 했기 때문이다.
+  - Int, String에는 age 필드가 없다.
+- 이 문제를 해결하려면 언어의 새로운 기능이 필요한데, 이를 타입 매개변수 제한이라 부른다.
+- 즉 T가 모든 타입이 아니라 특정 타입이란걸 명시하는 방법이다.
+
+  ```java
+    <T extends Person> elder(T p, T q) {
+      return p.age >= q.age ? p : q;
+    }
+  ```
+
+- 해석하면 T가 최대로 Person 타입까지 커질 수 있다는 것을 의미한다.
+- 바꿔서 T가 Person의 서브타입이라고 말할 수 있다.
