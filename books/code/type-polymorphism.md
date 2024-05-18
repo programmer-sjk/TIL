@@ -562,3 +562,82 @@
 
 - 해석하면 **`T가 최대로 Person 타입까지 커질 수 있다는 것을 의미한다`**.
 - 바꿔서 T가 `Person`의 서브타입이라고 말할 수 있다.
+
+## 오버로딩에 의한 다형성
+
+### 오버로딩
+
+- 위에서 본 예시 중, 여러 타입의 인자를 받도록 만든 함수가 있었다.
+
+  ```java
+    void write(String | Int data) {
+      if (data is String) {
+        setData(data);
+      } else {
+        setData(intToString(data));
+      }
+    }
+  ```
+
+- 함수 오버로딩은 매개변수 타입이 다른 이름이 같은 함수들을 만드는 방법이다.
+
+  ```java
+    void write(String data) {
+      setData(data);
+    }
+
+    void write(int data) {
+      setData(intToString(data));
+    }
+  ```
+
+- 함수 오버로딩은 다형성을 만들어 내는 세번째 방법이다.
+  - write 함수는 (String) => void 타입이면서 (int) => void 타입이다.
+- 이렇게 같은 이름을 여러 번 정의함으로써 만들어지는 다형성을 오버로딩에 의한 다형성이라 부른다.
+  - 오버로딩이란 함수, 메서드 연산자를 모두 통틀어 일컫는 용어다.
+
+### 메서드 오버라이딩
+
+- 아래 코드는 부모의 메서드를 그대로 쓰는 경우이다.
+
+  ```java
+    class Vector {
+      int length {}
+    }
+
+    class SparseVector extends Vector {...}
+
+    Vector v = Vector(...);
+    v.length();
+
+    SparseVector v = SparseVector(...);
+    v.length();
+  ```
+
+- 문제는 희소벡터(SparseVector)가 부모의 length를 재사용하다 보니 비효율적이라는 것이다.
+- 메소드 오버라이딩이란 자식 클래스가 부모 클래스의 메서드를 재 정의하는 것이다.
+
+  ```java
+    class Vector {
+      int length {}
+    }
+
+    class SparseVector extends Vector {
+      int length {}
+    }
+  ```
+
+- 그렇다면 다양한 상황에서 length 메서드를 호출하면 어떻게 될까?
+
+  ```java
+    Vector v = Vector(...);
+    v.length(); // Vector의 length 호출
+
+    SparseVector v = SparseVector(...);
+    v.length(); // SparseVector의 length 호출
+
+    Vector v = SparseVector(...);
+    v.length(); // ???
+  ```
+
+- v가 실제로 나타내는 값에 따라 가장 특화된 메서드가 호출되기 때문에 SparseVector의 length가 호출된다.
