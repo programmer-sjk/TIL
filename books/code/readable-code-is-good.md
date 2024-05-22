@@ -158,3 +158,88 @@
 - 경계를 포함한다면 `first/last`를, 경계의 마지막을 배제한다면 `begin/end`가 널리 사용되는 이름이다.
 - 불리언 이름을 정할 때는 불리언이라는 사실을 드러내기 위해 `is, has` 같은 단어를 사용하는게 좋다.
 - 사람들이 일반적으로 기대하는 `get, size` 같은 함수는 복잡하지 않은 가벼운 함수라고 기대할지도 모른다.
+
+## 미학
+
+- 좋은 코드는 눈을 편하게 해야 한다.
+
+### 미학이 무슨 상관인가?
+
+- 미학적으로 보기 좋은 코드가 읽기 쉽고 사용하기 쉽다는 사실은 명백하다.
+- 가독성이 떨어지는 긴 코드와, 논리적으로 쪼개지고 가독성이 좋은 긴 코드를 상상해보자.
+
+### 도움이 된다면 코드의 열을 맞춰라
+
+- 경우에 따라 열 정렬을 통해 코드를 더 읽기 쉽게 할 수 있다.
+
+  ```js
+  // POST 파라미터를 지역변수에 저장. (lint 때문에 열 정렬 안되는 중)
+  details = request.POST.get('details');
+  location = request.POST.get('location');
+  phone = request.POST.get('phone');
+  email = request.POST.get('email');
+  url = request.POST.get('url');
+  ```
+
+### 코드를 문단으로 쪼개라
+
+- 비슷한 생각을 묶어서, 성격이 다른 생각과 구분한다.
+
+  ```python
+    # bad
+    def suggest_new_feinds(user, email_password):
+      friends = user.friends()
+      friend_emails = set(...)
+      contacts = ...
+      non_friend_emails = ...
+      suggested_friends = ...
+      display['user'] = ...
+      display['friends'] = ...
+      display['suggested_friends'] = ...
+      return render(...)
+
+    # good
+    def suggest_new_feinds(user, email_password):
+      # 사용자 친구들의 정보를 얻음
+      friends = user.friends()
+      friend_emails = set(...)
+
+      # 사용자 이메일 계정으로부터 작업
+      contacts = ...
+
+      # 친구가 아닌 사용자 찾기
+      non_friend_emails = ...
+      suggested_friends = ...
+
+      # 사용자 정보를 화면에 출력
+      display['user'] = ...
+      display['friends'] = ...
+      display['suggested_friends'] = ...
+
+      return render(...)
+  ```
+
+### 개인적인 스타일 대 일관성
+
+- 아래 두가지 스타일 중 하나를 선택한다고 가독성에 실질적인 영향을 주진 않는다.
+
+  ```java
+    class Logger {
+
+    }
+
+    class Logger
+    {
+
+    }
+  ```
+
+- 하지만 두 스타일이 섞이면 가독성에 영향을 준다.
+- 저자 기준에 잘못된 스타일을 사용하는 경우도 많았지만, 일관성 유지가 훨씬 중요하므로 해당 프로젝트의 스타일을 따랐다.
+
+### 요약
+
+- 코드를 일관성 있게, 의미있게 정렬하면 읽기 더 편하고 빠르게 만들 수 있다.
+- 여러 코드가 비슷한 일을 수행하면, 실루엣이 동일해 보이게 만들자.
+- 열로 만들어서 줄을 맞추면 코드를 한 눈에 보기 편하다.
+- 빈 줄을 이용해 커다란 문단을 논리적인 문단으로 나누자.
