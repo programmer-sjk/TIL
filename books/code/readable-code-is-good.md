@@ -328,3 +328,96 @@
 - 코드를 처음 본느 사람들을 위한 주석을 남겨두자
   - 코드를 읽는 사람이 왜? 라고 생각할 부분을 예측해 주석을 달자.
   - 일반적으로 예상하지 못할 특이한 동작을 기록하자.
+
+## 읽기 쉽게 흐름제어 만들기
+
+### 조건문에서 인수의 순서
+
+- 다음 두 코드 중 어떤 코드가 읽기 쉬운가?
+
+  ```js
+    if (lenght >= 10)
+    if (10 >= length)
+  ```
+
+- 대부분은 첫 번째 코드가 더 읽기 쉽다고 느낀다. 그렇다면 아래는 어떤가?
+
+  ```js
+    if (bytesReceived < bytesExpected)
+    if (bytesExpected > bytesReceived)
+  ```
+
+- 이 경우에도 첫 번째가 읽기 쉽다. 이 가이드라이은 영어 어순과 일치한다.
+  - 당신이 18세라면, 당신이 1년에 10만불을 번다면
+- 때문에 왼쪽에는 질문을 받는 표현, 오른쪽은 비교대상으로 표현되는 값이 오는게 좋다.
+
+### if/else 순서
+
+- 부정이 아닌 긍정을 다루자.
+
+  ```js
+  if (a == b) {
+  } else {
+  } // ok
+  if (a != b) {
+  } else {
+  } // ok
+  ```
+
+- 더 흥미롭고 확실한 것을 먼저 다루자. (early return의 경우는 반대)
+  - if에 더 중요한 것을 두고 else에 아닌것을 배치하자.
+
+### do/while 루프를 피하자
+
+- 일반적으로 if, while, for 동작이 위에서 아래로 읽는다.
+- do/while 문은 역순으로 코드를 두 번 읽어야 하기 때문에 부자연스럽다.
+
+### 중첩을 최소화하기
+
+- 코드의 중첩이 심할수록 이해하기 어렵다.
+
+  ```js
+  if (userResult == SUCCESS) {
+    if (permission != SUCCESS) {
+      reply.writeErrors('...');
+      reply.done();
+      return;
+    }
+    reply.writeErrors('');
+  } else {
+    reply.writeErrors(userResult);
+  }
+  reply.done();
+  ```
+
+- 위 코드는 중첩되지 않은 코드에 비해 읽기 어렵다.
+  - userResult와 permission 결과를 머릿속에 저장한 상태에서 코드를 읽어나가야 한다.
+  - 또한 결과가 SUCCESS 인 경우와 아닌 경우를 계속해서 왔다 갔다 해야 한다.
+- early return 하여 중첩을 제거하라.
+
+  ```js
+  if (userResult != SUCCESS) {
+    reply.writeErrors(userResult);
+    reply.done();
+    return;
+  }
+
+  if (permission != SUCCESS) {
+    reply.writeErrors(permission);
+    reply.done();
+    return;
+  }
+
+  reply.writeErrors('');
+  reply.done();
+  ```
+
+- 루프 내부에 중첩을 제거하자
+  - if (...) return 형태처럼 if (...) continue 구문으로 중첩을 제거할 수 있다.
+
+### 요약
+
+- 흐름제어 코드에서 변하는 값을 왼쪽에 두고, 안정적인 값을 오른쪽에 두는 것이 좋다.
+- if/else 에서 긍적적이고 중요한 경우를 앞에 두어라.
+- 과도한 삼항연산자, do/while, goto 문은 종종 코드의 가독성을 떨어뜨린다.
+- 중첩된 구조보다는 선형적인 코드를 추구하자. 함수 중간에 반환하면 코드를 더 깔끔하게 작성할 수 있다.
