@@ -421,3 +421,63 @@
 - `if/else` 에서 긍적적이고 중요한 경우를 앞에 두어라.
 - 과도한 삼항연산자, `do/while`, `goto` 문은 종종 코드의 가독성을 떨어뜨린다.
 - **`중첩된 구조보다는 선형적인 코드를 추구하자`**. 함수 중간에 반환하면 코드를 더 깔끔하게 작성할 수 있다.
+
+## 거대한 표현을 잘게 쪼개기
+
+### 설명 변수 / 요약 변수
+
+- 하위 표현을 설명하는 설명 변수 예시를 보자.
+
+  ```js
+    if (line.split(':')[0].stipe() == 'root') {...}
+
+    // 설명 변수 사용
+    const username = line.split(':')[0].stipe();
+    if (username === 'root') {...}
+  ```
+
+- 코드의 덩어리를 변수로 쉽게 관리 및 파악하는 변수를 요약 변수라고 한다.
+
+```js
+  if (req.user.id === document.ownerId) {...}
+
+  // 개선
+  const userOwnsDocument = req.user.id === document.ownerId;
+  if (userOwnsDocument) {...}
+```
+
+### 드모르간 법칙 사용하기
+
+- 수학이나 과학시간에 드모르간 법칙을 기억할 것이다.
+- 이 법칙으로 불리언 표현을 간단하게 만들 수 있다.
+
+  ```js
+    if (!(fileExists && !isProtected)) console.error(...)
+
+    // 개선
+    if (!fileExists || isProtected) console.error(...)
+  ```
+
+### 쇼트 서킷 논리 오용하지 않기
+
+- 대부분의 프로그래밍 언어는 쇼트 서킷 평가를 지원한다.
+- 예로 if (a || b) 에서 a가 참이면 b를 평가하지 않는다.
+- 매우 편리하지만 복잡한 연산을 수행할 때는 오용될 수 있다.
+
+  ```c++
+    assert((!(bucket = FindBucket(key))) || !bucket->IsOccupied());
+  ```
+
+- 위 코드는 한 줄이지만, 대부분의 프로그래머는 이해하기 위해 손을 멈추고 생각을 해야 한다.
+- 아래 코드는 동일한 일을 수행한다. 코드는 두 줄로 늘어났지만 훨씬 이해하기 쉬워졌다.
+
+  ```c++
+    bucket = FindBucket(key);
+    if (bucket != NULL) assert(!bucket->IsOccupied())
+  ```
+
+### 요약
+
+- 거대한 표현을 쪼개서 코드를 읽는 사람이 더 쉽게 소화하는 방법을 알아보았다.
+- 하위표현을 대체하는 설명 변수는 코드를 읽는 사람이 코드의 핵심 개념을 파악하는 것을 돕는다.
+- 드모르간 법칙을 이용해 복잡한 if 문을 개선할 수 있다.
