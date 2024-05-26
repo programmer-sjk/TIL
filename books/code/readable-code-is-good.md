@@ -522,3 +522,56 @@
 
 - 변수를 덜 사용하고, 최대한 가볍게 만들어 가독성을 높일 수 있다.
 - **`변수의 범위를 최대한 줄이고 불변 변수 (const, final 등등)를 사용하자`**
+
+## 상관없는 하위문제 추출하기
+
+- 어떤 코드가 있을 때, 상위 수준에서 이 코드의 목적이 무엇인지 물어야 한다.
+  - 이 코드는 직접적인 목적을 위해서 존재하는가?
+  - 목적을 위해 필요하긴 하지만 목적과 직접적으로 상관없는 하위 문제를 해결하는가?
+- 다시 말해, 파일을 업로드 하는 기능이 있다.
+  - 헌데 데이터를 파싱해서 로깅하는 하위 로직들이 코드 대부분을 차지하며 가독성을 어지럽힌다.
+  - 이런 경우 하위 문제를 함수나 메서드로 추출하자.
+
+### 특정한 목적을 위한 기능
+
+- 아래 파이썬 코드는 Business 객체를 만들고, name, url 값을 설정한다.
+
+  ```python
+    business = Business()
+    business.name = req.POST['name']
+    url_path_name = business.name.lower()
+    url_path_name = re.sub(r"['\.]", "", url_path_name)
+    url_path_name = re.sub(r"[^a-z0-9]+", "-", url_path_name)
+    business.url = "/biz/" + url_path_name
+  ```
+
+- 이때 name을 기반으로 url을 만드는 하위 문제가 있으므로 이를 쉽게 추출할 수 있다.
+
+  ```python
+    CHARS_TO_REMOVE = re.compile(r"['\.]+")
+    CHARS_TO_DASH = re.compile(r"[^a-z0-9]+")
+
+    def make_url_friendly(text):
+      text = text.lower()
+      text = CHARS_TO_REMOVE.sub('', text)
+      text = CHARS_TO_DASH.sub('-', text)
+      return text
+
+    business = Business()
+    business.name = req.POST['name']
+    business.url = "/biz/" + make_url_friendly(business.name)
+  ```
+
+- 결과적으로 코드를 읽으면서 복잡한 문자열 처리를 신경쓰지 않아도 되서 가독성이 더 좋아졌다.
+
+### 지나치게 추출하기
+
+- 함수를 너무 많이 쪼개면 오히려 가독성을 해친다.
+  - 사용자가 신경써야 하는 내용이 늘어나고, 실행 경로를 추적하려면 코드 곳곳을 돌아다녀야 하기 떄문이다.
+- 코드에 새로운 함수를 더하는 일은 약간의 가독성 비용이 든다.
+- 작게 쪼갠 함수들이 다른 곳에서도 사용되는게 아니라면, 너무 지나치게 분리할 필요는 없다.
+
+### 요약
+
+- 일반적인 목적의 코드(파싱, 로깅, 변환)를 특정 코드에서 분리해야 한다.
+- 문제를 해결하기 위한 라이브러리, 헬퍼 함수를 분리하면 작은 핵심들만 남을 것이다.
