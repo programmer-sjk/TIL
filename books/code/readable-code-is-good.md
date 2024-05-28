@@ -575,3 +575,61 @@
 
 - 일반적인 목적의 코드(파싱, 로깅, 변환)를 특정 코드에서 분리해야 한다.
 - 문제를 해결하기 위한 라이브러리, 헬퍼 함수를 분리하면 작은 핵심들만 남을 것이다.
+
+## 한번에 하나씩
+
+- 한 번에 여러가지 일을 수행하는 코드는 이해하기 어렵다.
+- 블록 안에서 객체 초기화, 데이터 청소, 입력 분석, 비지니스 로직이 섞이는 경우 그렇다.
+
+### 작업은 작을 수 있다
+
+- 댓글에 추천/반대 할 수 있는 투표가 있다고 가정하자. 사용자가 투표 버튼을 누르면 아래 함수가 호출된다.
+
+  ```js
+  function voteChanged(oldVote, newVote) {
+    const score = getScore();
+
+    if (oldVote != newVote) {
+      if (newVote === 'UP') {
+        score += oldVote === 'DOWN' ? 2 : 1;
+      } else if (newVote === 'DOWN') {
+        score += oldVote === 'UP' ? 2 : 1;
+      } else if (newVote === '') {
+        score += oldVote === 'UP' ? -1 : 1;
+      }
+    }
+
+    setScore(score);
+  }
+  ```
+
+- 위 함수는 코드의 길이는 짧지만 두 가지 작업을 수행한다.
+  - oldVote, newVote로 score 값을 구한다.
+  - 점수가 반영된다.
+- 각각의 작업을 분리하여 코드를 더 읽기 편하게 만들 수 있다.
+
+  ```js
+  function voteChanged(oldVote, newVote) {
+    const score = getScore();
+    score -= voteValue(oldVote);
+    score += voteValue(newVote);
+    setScore(score);
+  }
+
+  function voteValue(vote) {
+    if (vote === 'UP') {
+      return 1;
+    }
+
+    if (vote === 'DOWN') {
+      return -1;
+    }
+
+    return 0;
+  }
+  ```
+
+### 요약
+
+- 작성한 코드가 읽기 어렵다면, 일단 수행하는 작업을 모두 나열하라.
+- 나열된 작업 중 일부는 별도의 함수나 클래스로 분리할 수 있을 것이다.
