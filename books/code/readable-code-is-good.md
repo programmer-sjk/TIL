@@ -127,7 +127,7 @@
 
 ### 요약
 
-- 이름에 모호하고 보편적인 단어를 피하고, 구체적인 단어를 사용하자
+- **`이름에 모호하고 보편적인 단어를 피하고, 구체적인 단어를 사용하자`**
 - 변수명에 ms 같은 세부적인 정보를 붙이고, 사용범위가 넓다면 짧은 이름을 사용하지 말자.
 
 ## 오해할 수 없는 이름들
@@ -138,11 +138,11 @@
 - 경계를 포함하고 배제하는 범위에는 `begin/end`를 사용하자.
 
   ```js
-    if (shoppingCart.numItems > MAX_ITEMS_IN_CART)
-    function numberRange(first, last) // first <= x <= last
+  if (shoppingCart.numItems > MAX_ITEMS_IN_CART);
+  function numberRange(first, last) {} // first <= x <= last
 
-    function printEventInRange(begin, end) // begin <= x < end
-    printEventInRange('2024-01-01', '2024-01-02') // 1일을 포함해서 2일까지
+  function printEventInRange(begin, end) {} // begin <= x < end
+  printEventInRange('2024-01-01', '2024-01-02'); // 1일을 포함해서 2일까지
   ```
 
 ### 불리언 변수에 이름 붙이기
@@ -253,7 +253,7 @@
 - **`설명 자체를 위한 주석을 달지 말자`**. 아래는 무가치한 주석에 속한다.
 
   ```c++
-    // 주어진 이름과 깊이를 이용해서 서브트르에 있는 노드를 찾는다.
+    // 주어진 이름과 깊이를 이용해서 서브트리에 있는 노드를 찾는다.
     Node* FindNodeInSubtree(Node* subtree, String name, int depth)
   ```
 
@@ -305,7 +305,7 @@
 
 ### 코드를 읽는 사람의 입장이 되어라
 
-- 이 책은 코드를 처음으로 읽는 외부인의 입장에 자기 자신을 놓는 기법을 다루고 있다.
+- 이 책은 코드를 처음으로 읽는 동료의 입장에 자기 자신을 놓는 기법을 다루고 있다.
 - 나올 것 같은 질문을 예측해서 주석을 달 수도 있다.
 
   ```c++
@@ -336,7 +336,7 @@
 - 다음 두 코드 중 어떤 코드가 읽기 쉬운가?
 
   ```js
-    if (lenght >= 10)
+    if (length >= 10)
     if (10 >= length)
   ```
 
@@ -391,7 +391,7 @@
   ```
 
 - 위 코드는 중첩되지 않은 코드에 비해 읽기 어렵다.
-  - userResult와 permission 결과를 머릿속에 저장한 상태에서 코드를 읽어나가야 한다.
+  - `userResult와 permission` 결과를 머릿속에 저장한 상태에서 코드를 읽어나가야 한다.
   - 또한 결과가 SUCCESS 인 경우와 아닌 경우를 계속해서 왔다 갔다 해야 한다.
 - **`early return 하여 중첩을 제거하라`**.
 
@@ -419,7 +419,7 @@
 
 - 흐름제어 코드에서 변하는 값을 왼쪽에 두고, 안정적인 값을 오른쪽에 두는 것이 좋다.
 - `if/else` 에서 긍적적이고 중요한 경우를 앞에 두어라.
-- 과도한 삼항연산자, `do/while`, `goto` 문은 종종 코드의 가독성을 떨어뜨린다.
+- 과도한 삼항 연산자, `do/while`, `goto` 문은 종종 코드의 가독성을 떨어뜨린다.
 - **`중첩된 구조보다는 선형적인 코드를 추구하자`**. 함수 중간에 반환하면 코드를 더 깔끔하게 작성할 수 있다.
 
 ## 거대한 표현을 잘게 쪼개기
@@ -438,13 +438,13 @@
 
 - 코드의 덩어리를 변수로 쉽게 관리 및 파악하는 변수를 요약 변수라고 한다.
 
-```js
-  if (req.user.id === document.ownerId) {...}
+  ```js
+    if (req.user.id === document.ownerId) {...}
 
-  // 개선
-  const userOwnsDocument = req.user.id === document.ownerId;
-  if (userOwnsDocument) {...}
-```
+    // 개선
+    const userOwnsDocument = req.user.id === document.ownerId;
+    if (userOwnsDocument) {...}
+  ```
 
 ### 드모르간 법칙 사용하기
 
