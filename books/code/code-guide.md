@@ -111,3 +111,59 @@
   - numOfUsers는 후보지만 가급적이면 전치사를 사용하는 것보다 인원수를 의미하는 단어를 마지막에 두는게 좋다.
   - userNumber로 바꿀 수 있지만, 사용자의 식별자(ID)로 오해할 수 있다.
   - userCount나 userTotal이 오해의 소지가 적고 명확해진다.
+
+#### 명령문
+
+- 메서드의 네이밍에는 명령문을 사용한다. 명령문을 사용할 때는 동사 원형을 이름 앞에 붙이는게 좋다.
+
+### 이름에서 알 수 있는 내용
+
+- 이름은 대상이 무엇이며, 무엇을 하는지를 표현해야 한다.
+- 바꾸어 말해 대상이 언제, 어디서, 어떻게 사용되는지를 언급하면 안 된다.
+
+#### 인수 이름
+
+- 사용자 목록을 가져와서 표시하는 showUserList 라는 함수가 있다고 가정하자.
+- 이 함수는 boolean 변수를 받아 오류 대화 상자 표시 여부를 결정한다.
+
+  ```js
+    // 무엇을 하는지에 초점을 둔 네이밍. GOOD
+    function showUserList(shouldShowDialogOnError: boolean)
+
+    // 어디서 호출하는지를 설명하는 네이밍. BAD
+    function showUserList(isCalledFromLandingScreen: boolean)
+  ```
+
+- `shouldShowDialogOnError` 이름은 boolean으로 전달될 때 어떤일이 일어나는지 함수 선언만 봐도 알 수 있다.
+- `isCalledFromLandingScreen` 이름은 어떤 일이 발생하는지 함수 내부의 코드를 읽어야 한다.
+  - 또한 사양이 조금만 변경되어도 함수 이름과 실제 기능에 차이가 발생하게 된다. (LandingScreen이 아닌 EditScreen의 경우)
+  - 또한 값의 책임 범위가 명확하지 않아 원래 목적과 다른 용도로 사용될 수 있다.
+
+#### 함수 이름
+
+- 메시지를 받았을 때 내용을 표시하는 함수를 네이밍해보자.
+  - 내용을 표시한다에 초점을 맞추어 `showReceivedMessage`는 적절하다.
+  - 메시지를 받았을 때에 초점을 맞추어 `onMessageReceived`로 네이밍하면 적절하지 않다.
+- 메시지를 받았을 때 저장하는 함수의 경우
+  - `storeReceivedMessage`는 적절하지만 `onMessageReceived`는 적절하지 않다.
+- 두 네이밍의 차이는 호출하는 쪽의 코드를 비교하면 명확해진다.
+
+  ```js
+  // 호출하는 쪽에서 무엇을 하는지 알 수 있음
+  presenter.showReceivedMessage(messageModel);
+  repository.storeReceivedMessage(messageModel);
+
+  // 호출하는 쪽에서 뭐하는지 알 수 없음
+  presenter.onMessageReceived(messageModel);
+  repository.onMessageReceived(messageModel);
+  ```
+
+- `onMessageReceived` 이름은 호출하는 쪽에서 무엇을 하는지 알 수가 없어서 세부 구현까지 읽어야 한다.
+  - 호출자 입장에서 호출하는 시점이 메시지를 받았을 때로 이미 알고 있으므로 이름의 정보가 도움이 되질 않는다.
+  - 함수의 책임 범위도 모호하다. 메시지를 표시하는 역할을 책임져야 하지만, DB에 데이터를 저장하는 코드가 있더라도 이름을 봐서는 이상함을 알 수 없다.
+
+#### 예외: 추상 메서드
+
+- 이름은 대상이 무엇이며, 무엇을 할 것인가를 명시해야 한다고 설명했다.
+- 하지만 추상 메서드는 선언 시점에 무엇을 할 것인지 정해져있지 않은 경우가 많다.
+- 이럴 때는 onClicked, onDestroyed 등과 같이 언제, 어디서 호출되는지를 기준으로 네이밍해도 된다.
