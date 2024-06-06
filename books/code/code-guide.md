@@ -251,7 +251,7 @@
     * 키워드와 의미를 새로 추가 또는 덮어쓰기
     * 추가한 값은 getDescription으로 참조할 수 있다
     */
-    fun registerDescription(keyword: string, description: string)
+    fun registerDescription(keyword: String, description: String)
   ```
 
 - 위처럼 주석의 길이와 복잡성은 어느정도 상관관계를 가진다. 단순한 코드에 주석이 길다면 개선할 여지가 있는지 확인하자.
