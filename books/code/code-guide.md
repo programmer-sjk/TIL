@@ -528,3 +528,89 @@
 
 - 함수의 책임을 명확히 하기 위해 단일 책임 원칙을 함수에도 적용하는 것이 중요하다.
 - 함수의 흐름을 명확하게 하기 위한 방법으로 정의 기반 프로그래밍, 조기 리턴 기법 등이 있다.
+
+## 의존 관계
+
+- 결합되는 두 클래스 사이에는 사용하는 클래스와 사용되는 클래스가 존재하는데 이를 의존 관계라고 한다.
+
+### 의존 관계의 예
+
+- 의존 관계는 필수적인 요소이지만, 적절히 다루지 않으면 가독성을 쉽게 해칠 수 있다.
+- 아래 코드에선 두 클래스가 서로 의존적이라 fun1 동작을 이해하려면 Y의 세부사항을 알아야 한다.
+
+  - 또한 Y도 X에 의존적이라 fun1의 동작을 쉽게 파악할 수 없다.
+
+  ```kotlin
+    class X {
+      private val y = Y(this)
+      fun func1() {
+        y.func2();
+      }
+
+      fun func3() {
+        ...
+      }
+    }
+
+    class Y(private val x: X) {
+      fun func2() {
+        x.func3()
+      }
+    }
+  ```
+
+- 위처럼 극단적인 코드는 드물거라 생각하지만, 코드가 거대해지는 과정에서 의존 관계가 꼬이는 일은 흔히 발생한다.
+- 결론적으로 의존도는 약하게, 순환하지 않고, 중복되지 않으며 관계는 명확하게 하는 것이 좋다. 왜 그런지 알아보자.
+
+### 의존의 강도: 결합도
+
+- 결합도란 클래스 간의 의존 정도를 나타내는 지표로 결합도는 낮을수록 좋다.
+
+#### 호출 순서가 정해져있는 결합
+
+- 아래는 함수의 호출 순서가 정해져 있는 코드의 예시다.
+- Calculator는 Caller가 다음 제약 사항을 충족할 것을 기대한다.
+
+  - calculate 호출 전에는 prepare(), 호출 후에는 teardown()을 호출한다.
+
+  ```js
+  class Calculator {
+    prepare() {...}
+    calculate() {...}
+    teardown() {...}
+  }
+
+  class Caller {
+    private readonly calculator = new Calculator();
+
+    callCalculator() {
+      calculator.prepare();
+      calculator.calculate();
+      calculator.teardown();
+    }
+  }
+  ```
+
+- 호출하는 쪽에 제약을 두는 것은, 그 제약 조건을 잊어버리고 위반하면 잘못 사용하는 것을 뜻한다.
+- 따라서 Caller의 제약을 최소화하기 위해, 호출할 순서가 정해져 있는 함수들을 묶어서 은닉한다.
+
+  ```js
+  class Calculator {
+    calculate() {
+      prepare();
+      // 실제 계산 로직
+      teardown();
+    }
+
+    prepare() {...}
+    teardown() {...}
+  }
+
+  class Caller {
+    private readonly calculator = new Calculator();
+
+    callCalculator() {
+      calculator.calculate();
+    }
+  }
+  ```
