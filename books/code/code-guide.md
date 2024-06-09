@@ -484,3 +484,47 @@
   ```
 
 - 정의 기반 프로그래밍을 적용할 때는 적용 범위에 주의하자. 범위가 부적절하면 오히려 가독성이 저하된다.
+
+#### 조기 반환
+
+- 함수의 로직이 성공 경로와 실패 경로가 있다고 가정하자.
+- 성공 로직이 눈에 띄게 하고, 실패 경로를 깔끔하게 정리하기 위해서는 조기 반환을 활용하는게 좋다.
+- 조기 반환은 함수 구현 초반부에 실패를 처리하는 부분을 모아두고 return 하여 함수를 종료시킨다.
+- 결과적으로 함수의 초반부를 제외하고는 모두 성공 경로가 되기 때문에 흐름을 이해하기 수월해진다.
+
+  ```js
+  // Bad
+  if (isNetworkAvailable()) {
+    const queryResult = queryToServer();
+    if (queryResult.isValid) {
+      // 성공 경로 처리
+    } else {
+      showInvalidResponseDialog();
+    }
+  } else {
+    showNetworkUnavailableDialog();
+  }
+  ```
+
+- 위 코드보다는 조기 리턴을 적용시킨 아래 코드가 읽기 쉽다.
+
+  ```js
+  // Good. 조기 리턴 적용
+  if (!isNetworkAvailable()) {
+    showNetworkUnavailableDialog();
+    return;
+  }
+
+  const queryResult = queryToServer();
+  if (!queryResult.isValid) {
+    showInvalidResponseDialog();
+    return;
+  }
+
+  // 성공 경로 처리
+  ```
+
+### 정리
+
+- 함수의 책임을 명확히 하기 위해 단일 책임 원칙을 함수에도 적용하는 것이 중요하다.
+- 함수의 흐름을 명확하게 하기 위한 방법으로 정의 기반 프로그래밍, 조기 리턴 기법 등이 있다.
