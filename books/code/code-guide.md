@@ -411,3 +411,76 @@
   - 쿼리: 반환값으로 정보를 취득하는 함수. 외부 상태를 변경하지 않는다.
 - 명령과 쿼리의 분리 원칙 역시 가독성과 견고함을 위한 수단일 뿐, 목적이 되어서는 안 된다.
   - 이 원칙을 지나치게 적용하면, 함수와 호출자 사이에 강한 의존 관계가 발생하게 된다.
+
+### 함수의 흐름
+
+- 짧은 시간에 대략적으로 봐도 흐름이 명확한 함수를 만드려면, 함수가 아래 특성을 갖춰야 한다.
+  - 세부 동작(중첩, 값 할당, 예외처리)을 읽지 않고도 이해할 수 있다.
+  - 함수의 핵심이 되는 부분을 쉽게 파악할 수 있다.
+  - 모든 조건 분기를 확인하지 않아도 이해할 수 있다.
+- 위 특성을 만족시키기 위해 정의 기반 프로그래밍, 조기 반환을 소개한다.
+
+#### 정의기반 프로그래밍
+
+- 정의 기반 프로그래밍은 이름이 있는 변수, 함수를 주로 사용하는 프로그래밍 스타일을 말한다.
+- 정의 기반 프로그래밍은 높은 추상화와 쉽게 파악할 수 있는 코드라는 장점을 제공한다.
+- 아래 함수의 인자가 중첩된 구조를 살펴보자.
+
+  ```js
+  showDialogOnError(
+    presenter.updateSelfProfileView(repository.queryUserModel(userId))
+  );
+  ```
+
+- 위 코드의 문제는 어느 부분이 중요한 코드인지 알기 어렵다는 점이다.
+- 정의 기반 프로그래밍으로 바꿔보면, 함수에 어떤 동작들이 있는지 더 쉽게 파악할 수 있다.
+
+  ```js
+  const userModel = repository.queryUserModel(userId);
+  const viewUpdateResult = presenter.updateSelfProfileView(userModel);
+
+  showDialogOnError(viewUpdateResult);
+  ```
+
+- 아래 if문 중첩은 지역변수나 비공개 함수를 이용해 개선해볼 수 있다.
+
+  ```js
+  if (messageModel.hasValidModel(messageId)) {
+    if (messagePresenter.isMessageShown(messageId)) {
+      if (queue.contains(messageId)) {
+        showText('Sending');
+      }
+    }
+  }
+
+  // 지역변수 예제
+  const isMessageValid = messageModel.hasValidModel(messageId);
+  const isMessageShown = messagePresenter.isMessageShown(messageId);
+  const isMessageSendingOnGoing = queue.contains(messageId);
+
+  if (isMessageValid && isMessageShown && isMessageSendingOnGoing) {
+    showText('Sending');
+  }
+
+  // 비공개 함수 예제
+  if (
+    isValidMessage(messageId) &&
+    isViewShown(messageId) &&
+    isUnderSending(messageId)
+  ) {
+    showText('Sending');
+  }
+  ```
+
+- 이렇게 지역변수와 비공개 함수를 사용한다. 다만 비공개 함수가 너무 많으면 오히려 가독성을 떨어뜨리기 쉽다.
+  - 지역변수로 충분하다면 비공개 함수를 사용하는 방법은 고려하지 않아도 된다.
+- 이름이 없는 리터럴을 매직넘버라고 한다.
+  - 의미가 명확하고 값이 변하지 않는 매직 넘버는 문제가 되지 않는다.
+  - 배열 인덱스의 맨 앞을 나타내는 0이나, 다음을 구하는 +1, 중간을 나타내는 / 2는 모두 의미가 명확하다.
+- 이렇게 명확하지 않은 매직 넘버는 그대로 사용하지 말고 읽기 전용 변수로 정의해야 한다.
+
+  ```kotlin
+    private const val QUERY_TIMEOUT_IN_MILLIS = 10000
+  ```
+
+- 정의 기반 프로그래밍을 적용할 때는 적용 범위에 주의하자. 범위가 부적절하면 오히려 가독성이 저하된다.
