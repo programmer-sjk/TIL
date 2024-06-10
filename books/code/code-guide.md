@@ -614,3 +614,62 @@
     }
   }
   ```
+
+#### 내부 상태를 공유하는 결합
+
+- 변수가 여러 객체에 의해 변경되는 경우, 어느 객체가 변경에 대한 책임을 가지는지 명확히 해야 한다.
+
+  ```kotlin
+  class UserListPresenter(private val userList: List<UserModel>) {
+    fun refreshViews() {
+      // userList를 사용해 뷰를 업데이트
+    }
+  }
+
+  class Caller {
+    private val userList: MutableList<UserModel> = mutableListOf()
+    private val presenter = UserListPresenter(userList)
+
+    fun addUser(newUser: UserModel) {
+      userList += newUser
+      presenter.refreshViews()
+    }
+  }
+  ```
+
+- 위 코드에서 userList는 UserListPresenter에게 중요한 정보지만, UserListPresenter 입장에선 어떤 클래스가 userList를 관리하는지 알 수 없다.
+- 위 문제를 해결하기 위해 userList 변경에 대한 책임을 UserListPresenter에게만 부여하자.
+
+  ```kotlin
+  class UserListPresenter {
+    private val userList: MutableListOf<UserModel> = mutableListOf()
+    fun addUsers(newUsers: List<UserModel>) {
+      userList += newUsers
+      // userList를 사용해 뷰를 업데이트
+    }
+  }
+  ```
+
+- 위 예제에서 userList는 UserListPresenter를 통해서만 변경이 가능하고 외부에서 변경하는 것을 허용하지 않는다.
+
+#### 전역 변수나 프로퍼티를 활용한 결합
+
+- 함수를 호출할 때 인자와 리턴값을 사용하지 않고 전역 변수를 사용한다면 연관성이 없어 가독성이 떨어지게 된다.
+- 마찬가지로 비공개 함수 간에 인자가 아닌 프로퍼티를 사용하면 동일한 결합이 생기게 된다.
+
+  ```js
+  class Example {
+    private readonly parameter: number = 0;
+
+    firstFunction() {
+      parameter = 42;
+      calculate();
+    }
+
+    private calculate() {
+      // parameter를 사용해 계산을 한 뒤 값을 할당
+    }
+  }
+  ```
+
+- 위와 같은 경우도 비공개 함수에 인자로 값을 전달하는 형태로 클래스 내부의 결합을 줄여야 한다.
