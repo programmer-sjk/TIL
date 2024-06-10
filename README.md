@@ -61,7 +61,7 @@
 
 - [내 코드가 그렇게 이상한가요?](books/code/my-code-problem.md)
 - [읽기 좋은 코드가 좋은 코드다](books/code/readable-code-is-good.md)
-- [읽기 쉽고 코드 리뷰하기 좋은 코드 작성 가이드](books/code/code-guide.md)
+- [코드 작성 가이드](books/code/code-guide.md)
 
 ### 설계
 
