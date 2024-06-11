@@ -673,3 +673,71 @@
   ```
 
 - 위와 같은 경우도 비공개 함수에 인자로 값을 전달하는 형태로 클래스 내부의 결합을 줄여야 한다.
+
+### 의존 방향
+
+- 의존 관계에는 방향이 존재하고, 순환 없이 가능한 한 쪽으로만 유지하는 것이 바람직하다.
+- 의존 관계가 순환하면 어떤점이 안 좋을까? 먼저 의존 관계가 순환하면 코드의 견고함을 해칠 수 있다.
+
+  ```kotlin
+    class A {
+      private val b = B(this)
+      val i = 1
+    }
+
+    class B(private val a: A) {
+      init {
+        println(a.i)
+      }
+    }
+  ```
+
+- 위 코드에서 클래스 A,B는 서로 참조하므로 의존 관계가 순환된다.
+- B에 생성자로 A 인스턴스가 전달되지만, A 인스턴스의 초기화가 완료되지 않았다면 a.i를 출력하는 코드에서 버그가 발생한다.
+- 또한 의존 관계가 순환되면 가독성이 떨어진다.
+  - 클래스 A 동작을 자세히 이해하려면 의존대상인 B의 동작도 살펴야 한다.
+  - 헌데 B의 동작을 이해하기 위해서는 다시 의존 대상인 A 코드로 되돌아가야 한다.
+- 결국 의존 관계가 순환하면 일부만 이해하고 싶어도 더 넓은 구조까지 알아야 하는 경우가 존재한다.
+
+#### 호출자 -> 호출 대상
+
+- Caller 클래스가 Callee 클래스를 호출하면 Caller가 Callee에게 의존한다고 볼 수 있다.
+- 만약 Callee도 Caller를 호출해 의존성이 순환하게 되면, 해결하기 위한 첫 번째 방법은 작은 클래스로 나누는 것이다.
+- 의존 대상을 쪼개서 다른 클래스로 추출하면 의존 관계의 순환을 제거할 수 있다.
+
+#### 구체적 -> 추상적
+
+- 클래스 두 개가 상속 관계에 있을 때, 부모 클래스가 자식 클래스를 사용하게 되면 의존 관계가 순환하게 된다.
+- 아래는 부모 클래스 내에서 자식 클래스로 다운 캐스팅을 하고 있기 때문에 의존 관계에 순환이 발생한다.
+
+  ```kotlin
+    class IntList {
+      fun addElement(element: Int) {
+        if (this is ArrayIntList) {
+          // ArrayIntList의 addElement 구현
+        } else {
+          ...
+        }
+      }
+    }
+
+    class ArrayIntList(vararg elements: Int): IntList() {
+
+    }
+  ```
+
+- ArrayIntList의 addElement 동작이 부모인 IntList에 구현되어 있다.
+  - 따라서 ArrayIntList 구현에 변경이 필요하면 IntList도 변경해야 한다.
+  - 자식 클래스의 구현이 늘어나면 IntList.addElement도 커지게 된다.
+- 이처럼 부모 클래스가 자식 클래스를 안다고 전제한 설계는 쉽게 무너질 수 있다.
+- 의존 관계의 순환을 피하려면 부모 클래스가 자식 클래스를 모르게 수정해야 한다.
+
+  ```kotlin
+    abstract class IntList {
+      abstract fun addElement(element: Int)
+    }
+
+    class ArrayIntList(vararg elements: Int): IntList() {
+      override fun addElement(element: Int) {...}
+    }
+  ```
