@@ -73,3 +73,67 @@ public static bool IsStringLong(string input)
 - 특정 커버리지 숫자를 부과하면 동기 부여가 잘못된 것이다. 시스템 핵심 부분에 높은 커버리지를 갖는게 좋지만 이를 목표로 하지 않는다.
 
 ## 단위 테스트란 무엇인가
+
+- 단위 테스트에 접근하는 방법이 고전파, 런던파 두 가지 견해로 나뉘었다.
+- 고전파는 테스트에 대해 원론적으로 접근하는 방식이기에 고전이라 하고, 런던파는 런던의 프로그래밍 커뮤니티에서 시작되었다.
+
+### 단위 테스트의 정의
+
+- 단위 테스트는 가장 중요한 세 가지 속성이 있다.
+  - 작은 코드 조각을 검증하고
+  - 빠르게 수행하고
+  - 격리된 방식으로 처리하는 자동화된 테스트다.
+- 여기서 고전파와 런던파의 의견이 다른 점은 세 번째 격리 문제이다.
+
+#### 격리 문제에 대한 런던파의 접근
+
+- 런던파에서는 하나의 클래스가 여러 클래스에 의존하면, 이 모든 의존성을 테스트 대역으로 대체해야 한다.
+- 이런식으로 동작을 외부 영향과 분리해서 테스트 대상 클래스에만 집중할 수 있다.
+- 이 방법의 한 가지 이점은 테스트가 실패하면 확실히 테스트 대상 시스템이 고장난 것이다.
+  - 클래스의 모든 의존성은 테스트 대역으로 대체됐기 때문에 의심할 여지가 없다.
+- 고전적인 스타일이 사람들에게 더 익숙하기 때문에, 고전적인 스타일로 작성된 테스트 코드를 보고, 런던 스타일로 다시 작성해보자.
+
+```c#
+// 고전적인 스타일로 작성된 테스트
+public void Purchase_succeeds_when_enough_inventory() {
+ // given
+ var store = new Store();
+ store.addInventory(Product.Shampoo, 10);
+ var customer = new Customer();
+
+ // when
+ bool success = customer.Purchase(store, Product.Shampoo, 5);
+
+ // then
+ Assert.True(success);
+ Assert.Equal(5, store.GetInventory(Product.Shampoo));
+}
+```
+
+- 위 예시에서 given 절은 의존성과 테스트 대상 시스템을 모두 준비하는 부분이다.
+  - 테스트 대상 시스템(SUT)과 협력자를 준비한다.
+  - 이 경우 customer이 SUT가 되고, store이 협력자가 된다.
+- 위 코드는 고전 스타일의 예시로, 테스트는 협력자를 대체하지 않고 운영용 인스턴스를 사용한다.
+- Customer, Store 모두 검증한다. 그러나 Customer가 올바르게 작동해도 Store 내부에 버그가 있으면 단위 테스트에 실패할 수 있다. 테스트에서 두 클래스는 서로 격리돼 있지 않다.
+- 이제 런던 스타일로 예제를 수정해보자.
+
+```c#
+// 런던 스타일로 작성된 테스트
+public void Purchase_succeeds_when_enough_inventory() {
+ // given
+ var storeMock = new Mock<IStore>();
+ storeMock.Setup(x => x.HasEnoughInventory(Product.Shampoo, 5)).Returns(true);
+ var customer = new Customer();
+
+ // when
+ bool success = customer.Purchase(storeMock.Object, Product.Shampoo, 5);
+
+ // then
+ Assert.True(success);
+ storeMock.Verify(x => x.RemoveInventory(Product.Shampoo, 5), Times.Once)
+}
+```
+
+- 런던 스타일에서는 given 절에서 Store의 실제 인스턴스 대신 Mock<T>를 사용해 대체한다.
+- 검증 단계에서 고전파는 상점의 상태를 검증했지만 런던파에서는 Customer <-> Store 간 상호 작용을 검사한다.
+  - 즉 고객이 상점으로 호출해야 할 메서드와 호출 횟수까지 검증할 수 있다.
