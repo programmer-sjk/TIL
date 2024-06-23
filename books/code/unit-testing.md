@@ -95,7 +95,8 @@ public static bool IsStringLong(string input)
 
 ```c#
 // 고전적인 스타일로 작성된 테스트
-public void Purchase_succeeds_when_enough_inventory() {
+public void Purchase_succeeds_when_enough_inventory()
+{
  // given
  var store = new Store();
  store.addInventory(Product.Shampoo, 10);
@@ -119,7 +120,8 @@ public void Purchase_succeeds_when_enough_inventory() {
 
 ```c#
 // 런던 스타일로 작성된 테스트
-public void Purchase_succeeds_when_enough_inventory() {
+public void Purchase_succeeds_when_enough_inventory()
+{
  // given
  var storeMock = new Mock<IStore>();
  storeMock.Setup(x => x.HasEnoughInventory(Product.Shampoo, 5)).Returns(true);
@@ -216,16 +218,16 @@ public class CalculatorTests // 응집도 있는 테스트 세트를 위한 클�
  [Fact] // 테스트를 나타내는 xUnit 속성
  public void Sum_of_two_numbers()
  {
- // 준비
- double first = 10;
- double second = 20;
- var calculator = new Calculator();
+  // 준비
+  double first = 10;
+  double second = 20;
+  var calculator = new Calculator();
 
- // 실행
- double result = calculator.Sum(first, second);
+  // 실행
+  double result = calculator.Sum(first, second);
 
- // 검증
- Assert.Equal(30, result);
+  // 검증
+  Assert.Equal(30, result);
  }
 }
 ```
@@ -253,3 +255,132 @@ public class CalculatorTests // 응집도 있는 테스트 세트를 위한 클�
 - 실행 구절을 한 줄로 하는 지침은 비지니스 로직을 포함하는 대부분의 코드에 적용되지만 유틸리티나 인프라 코드는 덜 적용되기에 절대라고 표현할 순 없다.
 
 #### 검증 구절에서 검증문이 얼마나 있어야 하는가
+
+- 단위 테스트에서 테스트하는 동작은 여러 결과를 낼 수 있으며, 하나의 테스트로 그 모든 결과를 평가하는 것이 좋다.
+- 일반적으로 검증 구절이 커지는 것을 경계해야 한다. 결과 객체의 모든 속성을 검증하는 대신 equal로 단일 검증을 할 수 있다.
+
+#### 테스트 대상 시스템 구별하기
+
+- SUT는 테스트에서 중요한 역할을 하는데, 어플리케이션에서 호출하고자 하는 동작에 대한 진입점을 제공한다.
+- SUT가 많은 경우, 테스트 대상을 쉽게 찾기 위해 테스트 코드에서 sut로 지정할 수 있다.
+
+```c#
+public class CalculatorTests
+{
+ [Fact]
+ public void Sum_of_two_numbers()
+ {
+  // 준비
+  double first = 10;
+  double second = 20;
+  var sut = new Calculator();
+
+  // 실행
+  double result = sut.Sum(first, second);
+
+  // 검증
+  Assert.Equal(30, result);
+ }
+}
+```
+
+### 테스트 간 테스트 픽스처 재사용
+
+- 테스트를 준비하기 위한 given 절에 너무 많은 코드를 작성해야 할 때가 있다.
+- 이런 경우 별도의 메서드나 클래스로 도출한 후 테스트 간에 재사용하는 것이 좋다.
+- 테스트 픽스처를 재사용하는 잘못된 방법은 테스트 생성자에서 픽스처를 초기화 하는 것이다.
+
+```c#
+public class CustomerTests
+{
+ private readonly Store _store; // 공통 테스트 픽스처
+ private readonly Customer _sut;
+
+ public CustomerTests()
+ {
+  // 클래스 내 각 테스트 이전에 호출
+  _store = new Store();
+  _store.AddInventory(Product.Shampoo, 10);
+  _sut = new Customer();
+ }
+
+ [Fact]
+ public void Purchase_succeeds_when_enough_inventory()
+ {
+  bool success = _sut.Purchase(_store, Product.Shampoo, 5);
+
+  Assert.True(success);
+  Assert.Equals(5, _store.GetInventory(Product.Shampoo));
+ }
+
+ [Fact]
+ public void Purchase_fails_when_not_enough_inventory()
+ {
+  bool success = _sut.Purchase(_store, Product.Shampoo, 15);
+
+  Assert.False(success);
+  Assert.Equals(10, _store.GetInventory(Product.Shampoo));
+ }
+}
+```
+
+- 위와 같이 생성자에서 데이터를 준비하면 두 가지 중요한 단점이 있다.
+- 테스트 간 결합도가 높아지고 가독성이 떨어진다.
+
+#### 테스트 간의 높은 결합도는 안티 패턴이다
+
+- 위 예시에선 모든 테스트가 서로 결합돼 있어서 테스트의 준비 로직을 수정하면 클래스의 모든 테스트에 영향을 미친다.
+- 테스트를 수정해도 다른 테스트에 영향을 주어서는 안 된다.
+
+#### 테스트 가독성을 떨어뜨리는 생성자 사용
+
+- 테스트 코드만 보고는 전체 그림을 볼 수 없다.
+- 테스트가 무엇을 하는지 이해하려면 클래스의 다른 부분도 봐야 한다.
+
+#### 더 나은 테스트 픽스처 재사용법
+
+- 생성자보다 더 나은 방법은 비공개 팩토리 메서드를 두는 것이다.
+
+```c#
+public class CustomerTests
+{
+ [Fact]
+ public void Purchase_succeeds_when_enough_inventory()
+ {
+  Store store = CreateStoreWithInventory(Product.Shampoo, 10);
+  Customer sut = CreateCustomer();
+
+  bool success = _sut.Purchase(_store, Product.Shampoo, 5);
+
+  Assert.True(success);
+  Assert.Equals(5, _store.GetInventory(Product.Shampoo));
+ }
+
+ [Fact]
+ public void Purchase_fails_when_not_enough_inventory()
+ {
+  Store store = CreateStoreWithInventory(Product.Shampoo, 10);
+  Customer sut = CreateCustomer();
+
+  bool success = _sut.Purchase(_store, Product.Shampoo, 15);
+
+  Assert.False(success);
+  Assert.Equals(10, _store.GetInventory(Product.Shampoo));
+ }
+
+ private Store CreateStoreWithInventory(Product product, int quantity)
+ {
+  Store store = new Store();
+  store.AddInventory(product, quantity);
+  return store;
+ }
+
+ private static Customer CreateCustomer()
+ {
+  return new Customer();
+ }
+}
+```
+
+- 공통 초기화 코드를 비공개 메서드로 추출해 테스트 코드를 짧게 하면서, 테스트 전체 맥락을 유지할 수 있다.
+- 비공개 메서드는 테스트간 서로 결합되지 않고, 읽기 쉬우며 재사용이 가능하다.
