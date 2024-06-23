@@ -384,3 +384,64 @@ public class CustomerTests
 
 - 공통 초기화 코드를 비공개 메서드로 추출해 테스트 코드를 짧게 하면서, 테스트 전체 맥락을 유지할 수 있다.
 - 비공개 메서드는 테스트간 서로 결합되지 않고, 읽기 쉬우며 재사용이 가능하다.
+
+### 단위 테스트 명명법
+
+- 테스트에 표현력이 있는 이름을 붙이는 것이 중요하다.
+- 표현력 있고 읽기 쉬운 테스트 이름을 지으려면 다음 지침을 따르자.
+  - 복잡한 동작에 대한 높은 수준의 설명은 엄격한 명명 정책에 넣기 힘들다. 표현의 자유를 허용하자.
+  - 비개발자들에게 시나리오를 설명하는 것처럼 테스트 이름을 짓자.
+- 하나의 예시로 `IsDelivery_InvalidDate_ReturnsFalse()` 테스트 이름이 있다면
+  - `Delivery_with_a_past_date_is_invalid()` 라는 테스트 이름이 훨씬 낫다.
+
+### 매개변수화된 테스트 리팩터링하기
+
+- 테스트 코드의 양을 줄이고자 테스트를 묶을 수 있다.
+
+```c#
+public class DeliveryServiceTests
+{
+ [InlineData(-1, false)]
+ [InlineData(0, false)]
+ [InlineData(1, false)]
+ [InlineData(2, true)]
+ [Theory]
+ public void Can_detect_an_invalid_delivery_date(
+  int daysFromNow,
+  bool expected
+ )
+ {
+  ...
+ }
+}
+```
+
+- 매개변수화된 테스트를 사용하면 테스트 코드의 양을 줄일 수 있지만 내용을 파악하기가 어려워졌다.
+- 절충안으로는 긍정적인 테스트 케이스는 고유한 테스트로 도출하고 좋은 이름을 짓는 것이다.
+
+```c#
+public class DeliveryServiceTests
+{
+ [InlineData(-1, false)]
+ [InlineData(0, false)]
+ [InlineData(1, false)]
+ [Theory]
+ public void Can_detect_an_invalid_delivery_date(
+  int daysFromNow,
+  bool expected
+ )
+ {
+  ...
+ }
+
+ [Fact]
+ public void The_soonest_delivery_date_is_two_days_from_now()
+ {
+  ...
+ }
+}
+```
+
+- 입력 매개변수만으로 테스트 케이스를 판단할 수 있다면 긍정과 부정 테스트 모두 하나의 메서드로 두는 것이 좋다.
+- 테스트 파악이 어렵다면 긍정적인 테스트 케이스를 도출하자.
+- 그럼에도 동작이 너무 복잡하다면 매개변수화된 테스트를 사용하지 말고, 각각의 테스트 메서드로 나누자.
