@@ -9,7 +9,7 @@
   - 하지만 **`단위 테스트의 주 목표는 아니다`**. 더 나은 설계는 단지 좋은 사이드 이펙트일 뿐이다.
 - 아래 그림은 테스트가 없는 프로젝트의 성장 추이를 보여준다. 처음에는 빨리 시작할 수 있지만 시간이 지나면서 진척도가 많이 떨어진다.
 
- <img src="https://github.com/programmer-sjk/TIL/blob/main/images/books/code/test-graph.png" width="500">
+ <img src="https://github.com/programmer-sjk/TIL/blob/main/images/books/code/test-graph.png" width="350">
 
 - 테스트 코드는 회귀에 대한 보험을 제공하기 때문에 기존 기능이 잘 동작하는지 확인하는데 도움이 된다.
 - 한 가지 단점은, 테스트는 초반에 노력이 필요하다는 것이다.
@@ -213,9 +213,9 @@ public void Purchase_succeeds_when_enough_inventory() {
 ```c#
 public class CalculatorTests // 응집도 있는 테스트 세트를 위한 클래스 컨테이너
 {
-[Fact] // 테스트를 나타내는 xUnit 속성
-public void Sum_of_two_numbers()
-{
+ [Fact] // 테스트를 나타내는 xUnit 속성
+ public void Sum_of_two_numbers()
+ {
  // 준비
  double first = 10;
  double second = 20;
@@ -226,7 +226,7 @@ public void Sum_of_two_numbers()
 
  // 검증
  Assert.Equal(30, result);
-}
+ }
 }
 ```
 
@@ -251,3 +251,5 @@ public void Sum_of_two_numbers()
 - 준비 구절에서 코드 재사용에 도움이 되는 패턴으로 **`오브젝트 마더와 테스트 데이터 빌더가 있다`**.
 - **`실행 구절은 보통 코드 한 줄이다`**. 두 줄 이상인 경우 공개 API의 캡슐화에 문제가 있을 수 있다.
 - 실행 구절을 한 줄로 하는 지침은 비지니스 로직을 포함하는 대부분의 코드에 적용되지만 유틸리티나 인프라 코드는 덜 적용되기에 절대라고 표현할 순 없다.
+
+#### 검증 구절에서 검증문이 얼마나 있어야 하는가
