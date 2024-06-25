@@ -513,7 +513,7 @@ public class DeliveryServiceTests
 
 - 테스트 피라미드는 테스트 유형 간의 일정한 비율을 일컫는 개념이다.
 
-  - ![](../../images/books/code/test-pyramid.png)
+ <img src="https://github.com/programmer-sjk/TIL/blob/main/images/books/code/test-pyramid.png" width="400">
 
 - 피라미드에서 넓을수록 테스트는 많아지며 위에 있을수록 사용자의 동작을 유사하게 흉내내는 테스트다.
 - 피라미드 상단의 테스트는 회귀 방지에 유리한 반면 하단은 실행 속도를 강조한다.
