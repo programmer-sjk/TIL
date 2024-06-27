@@ -564,3 +564,42 @@ public class DeliveryServiceTests
     - 더미는 단순히 하드코딩된 값이고, 스텁은 시나리오마다 다른 값을 반환하게끔 필요한 것을 다 갖춘 완전한 의존성이다.
     - 페이크는 대부분 스텁과 같으나 아직 존재하지 않는 의존성을 대체하고자 구현한다.
 - 목은 SUT와 관련 의존성 간의 상호 작용을 모방하고 검사하는 반면, 스텁은 모방만한다. 이는 중요한 차이점이다.
+
+#### 도구로서의 목과 테스트 대역으로서의 목
+
+- 목이라는 용어는 목 라이브러리에 있는 Mock 클래스와, 테스트 대역으로서의 목이 있다.
+
+```c#
+[Fact]
+public void Sending_a_greetings_email()
+{
+ var mock = new Mock<IEmailGateway>(); // Mock(도구)으로 mock(목) 생성
+ var sut = new Controller(mock.Object);
+
+ sut.GreetUser("user@email.com");
+
+ // 테스트 대역으로 SUT의 호출을 검사
+ mock.Verify(x => x.SendGreetingsEmail("user@email.com"), Times.Once);
+}
+```
+
+- 위 예제에서 Mock 클래스는 도구로서의 목에 비해, 인스턴스인 mock은 테스트 대역으로서의 목이다.
+- 도구로서의 목을 사용해 목과 스텁. 두 가지 유형의 테스트 대역을 생성할 수 있기 때문에 혼동하지 않는 것이 중요하다.
+- 아래 예제도 Mock 클래스를 사용하지만 해당 클래스의 인스턴스는 목이 아니라 스텁이다.
+
+```c#
+[Fact]
+public void Creating_a_report()
+{
+ var stub = new Mock<IDatabase>(); // Mock(도구)으로 stub(스텁) 생성
+ stub.Setup(x => x.GetNumberOfUsers()).Returns(10); // 준비한 응답 설정
+ var sut = new Controller(stub.Object);
+
+ Report report = sut.CreateReport();
+
+ Assert.Equal(10, report.NumberOfUsers);
+}
+```
+
+- 위 예제에서 테스트 대역은 내부로 들어오는 상호 작용(SUT에 입력 데이터를 제공하는 호출)을 모방한다.
+- 반면 이전 예제(SendGreetingsEmail)는 외부로 나가는 상호 작용이고 목적은 사이드 이펙트(이메일 발송)뿐이다.
