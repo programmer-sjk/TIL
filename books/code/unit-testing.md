@@ -603,3 +603,53 @@ public void Creating_a_report()
 
 - 위 예제에서 테스트 대역은 내부로 들어오는 상호 작용(SUT에 입력 데이터를 제공하는 호출)을 모방한다.
 - 반면 이전 예제(SendGreetingsEmail)는 외부로 나가는 상호 작용이고 목적은 사이드 이펙트(이메일 발송)뿐이다.
+
+#### 스텁으로 상호 작용을 검증하지 말라
+
+- 목은 SUT에서 의존성으로 나가는 상호 작용을 모방하고 검사한다.
+- 스텁은 내부로 들어오는 상호 작용만 모방하고 검사하지 않는다.
+- 스텁과의 상호 작용을 검증하는 것은 취약한 테스트를 야기하는 일반적인 안티 패턴이다.
+- 밖으로 나가는 의존성에 대해 아래 코드는 실제 결과에 부합하며, 도메인 전문가에게 의미가 있다.
+  - `mock.Verify(x => x.SendGreetingsEmail("user@email.com"), Times.Once);`
+  - 즉, 인사 메일을 보내는 것은 비지니스 담당자가 시스템에 하길 원하는 것이다.
+- 그리고 스텁에서 `GetNumberOfUsers`를 검증하는 것은 결과가 아니고, 입력을 위한 내부 구현 세부사항이다.
+
+#### 목과 스텁 함께 쓰기
+
+- 떄로는 목과 스텁을 모두 나타내는 테스트 대역을 만들 필요가 있다.
+
+```c#
+[Fact]
+public void Purchase_fails_when_not_enough_inventory()
+{
+ var storeMock = new Mock<IStore>();
+ storeMock.Setup(x => x.HasEnoughInventory(Product.Shampoo, 5)).Returns(false);
+ var sut = new Customer();
+
+ bool success = sut.Purchase(storeMock.Object, Product.Shampoo, 5);
+
+ Assert.False(success);
+ storeMock.Verify(x => x.RemoveInventory(Product.Shampoo, 5), Times.Never);
+}
+```
+
+- 목과 스텁이 각기 다른 메서드를 다룬다. 따라서 스텁과의 상호작용을 검증하지 말라는 규칙을 위배하지 않았다.
+
+#### 목과 스텁은 명령과 조회에 어떤 관련이 있는가?
+
+- 목과 스텁은 명령 조회 분리(CQS, Command Query Separation) 원칙과 관련이 있다.
+- CQS 원칙에서는 모든 메서드는 명령이거나 조회여야 한다.
+  - 명령은 사이드 이펙트를 일으키고 어떤 값도 반환하지 않는다.
+  - 조회는 사이드 이펙트를 일으키지 않고 값을 반환한다.
+- CQS 원칙에서 명령을 대체하는 테스트 대역은 목이다. 반대로 조회를 대체하는 테스트 대역은 스텁이다.
+
+```c#
+var mock = new Mock<IEmailGateway>();
+mock.Verify(x => x.SendGreetingsEmail("user@email.com"), Times.Once);
+
+var stub = new Mock<IDatabase>();
+stub.Setup(x => x.GetNumberOfUsers()).Returns(10);
+```
+
+- `SendGreetingsEmail`은 사이드 이펙트가 있는 명령으로 목이 대체한다.
+- `GetNumberOfUsers`은 값을 반환하고 DB 상태를 변경하지 않으므로, 해당 테스트의 대역은 스텁이다.
