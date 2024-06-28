@@ -551,12 +551,12 @@ public class DeliveryServiceTests
 - 테스트 대역의 주 용도는 테스트를 편리하게 하는 것이다.
 - 테스트 대역에는 더미, 스텁, 스파이, 목, 페이크 다섯가지가 있지만 실제로는 목과 스텁 두 유형으로 나눌 수 있다.
 
-  ![](../../images/books/code/test-double.png)
+ <img src="https://github.com/programmer-sjk/TIL/blob/main/images/books/code/test-double.png" width="500">
 
 - 목은 외부로 나가는 상호 작용을 모방하고 검사하는데 도움이 된다.
 - 반면 스텁은 내부로 들어오는 상호 작용을 모방하는데 도움이 된다.
 
-  ![](../../images/books/code/mock-vs-stub.png)
+ <img src="https://github.com/programmer-sjk/TIL/blob/main/images/books/code/mock-vs-stub.png" width="500">
 
 - 크게 목과 스텁으로 나뉘며 나머지는 미미한 구현 사항의 차이다.
   - 스파이는 목과 같은 역할을 하지만, 스파이는 수동으로 작성하는 반면, 목은 목 프레임워크의 도움을 받는다.
