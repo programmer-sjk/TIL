@@ -548,13 +548,13 @@ public class DeliveryServiceTests
 #### 테스트 대역 유형
 
 - 테스트 대역은 모든 가짜 의존성을 설명하는 포괄적인 용어다.
-- 테스트 대역의 주 용도는 테스트를 편리하게 하는 것이다.
-- 테스트 대역에는 더미, 스텁, 스파이, 목, 페이크 다섯가지가 있지만 실제로는 목과 스텁 두 유형으로 나눌 수 있다.
+- **`테스트 대역의 주 용도는 테스트를 편리하게 하는 것이다`**.
+- 테스트 대역에는 **`더미, 스텁, 스파이, 목, 페이크`** 다섯가지가 있지만 **`실제로는 목과 스텁 두 유형으로 나눌 수 있다`**.
 
  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/books/code/test-double.png" width="500">
 
-- 목은 외부로 나가는 상호 작용을 모방하고 검사하는데 도움이 된다.
-- 반면 스텁은 내부로 들어오는 상호 작용을 모방하는데 도움이 된다.
+- **`목은 외부로 나가는 상호 작용을 모방하고 검사하는데`** 도움이 된다.
+- 반면 **`스텁은 내부로 들어오는 상호 작용을 모방하는데`** 도움이 된다.
 
  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/books/code/mock-vs-stub.png" width="500">
 
