@@ -653,3 +653,74 @@ stub.Setup(x => x.GetNumberOfUsers()).Returns(10);
 
 - `SendGreetingsEmail`은 사이드 이펙트가 있는 명령으로 목이 대체한다.
 - `GetNumberOfUsers`은 값을 반환하고 DB 상태를 변경하지 않으므로, 해당 테스트의 대역은 스텁이다.
+
+### 식별할 수 있는 동작과 구현 세부 사항
+
+- 단위 테스트에 리팩터링 내성 지표가 있는지 여부는 이진 선택이므로, 리팩터링 내성 지표가 가장 중요하다.
+- 이를 위해 구현 세부 사항과 테스트를 떨어뜨려야 한다. 그렇다면 구현 세부 사항은 무엇이고 식별할 수 있는 동작은 뭘까?
+- 코드가 식별할 수 있는 동작이라면 다음 중 하나를 해야 한다.
+  - 클라이언트가 목표를 달성할 수 있는 연산(계산이나 사이드 이펙트) or 상태를 노출한다.
+- 이상적으로 공개 API는 식별할 수 있는 동작과 일치해야 하며, 모든 구현 세부 사항은 클라이언트 눈에 보이지 않아야 한다.
+
+```c#
+public class User
+{
+ public string Name { get; set; }
+ public string NormalizeName(string name)
+ {
+  string result = (name ?? "").Trim();
+  if (result.Length > 50)
+   return result.Substring(0, 50);
+
+  return result;
+ }
+}
+
+public class UserController
+{
+ public void RenameUser(int userId, string newName)
+ {
+  User user = GetUserFromDatabase(userId);
+  string normalizedName = user.NormalizeName(newName);
+  user.Name = normalizedName;
+
+ SaveUserToDatabase(user);
+ }
+}
+```
+
+- 위 코드에선 속성과 메서드 모두 공개되어 있다. 클라이언트 입장에선 Name 속성만 필요한 작업이다.
+- API를 잘 설계하기 위해 user 클래스는 NormalizeName 메서드를 숨기고 속성 세터를 내부적으로 호출해야 한다.
+
+```c#
+public class User
+{
+ private string _name;
+ public string Name
+ {
+  get => _name;
+ set => _name = NormalizeName(value);
+ }
+
+ private string NormalizeName(string name)
+ {
+  string result = (name ?? "").Trim();
+  if (result.Length > 50)
+   return result.Substring(0, 50);
+
+  return result;
+ }
+}
+
+public class UserController
+{
+ public void RenameUser(int userId, string newName)
+ {
+  User user = GetUserFromDatabase(userId);
+  user.Name = newName;
+  SaveUserToDatabase(user);
+ }
+}
+```
+
+- 위 예제는 식별할 수 있는 동작만 공개돼 있고, 구현 세부 사항은 비공개 API 뒤에 숨겨져있다.
