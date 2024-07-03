@@ -745,7 +745,7 @@ public class UserController
   - 예를 들어 SMTP, 서드파티 시스템, 메시지 버스 등이 될 수 있다.
 - 이렇게 육각형이 서로 소통하면서 육각형 아키텍처를 구성한다.
 
-![](../../images/books/code/hexagonal-architecture.png)
+<img src="https://github.com/programmer-sjk/TIL/blob/main/images/books/code/hexagonal-architecture.png" width="500">
 
 - 육각형 아키텍처라는 용어는 앨리스터 코오번이 세가지 중요한 지침을 강조하기 위해 처음 소개했다.
   - 도메인 계층과 어플리케이션 서비스 계층 간의 관심사 분리
