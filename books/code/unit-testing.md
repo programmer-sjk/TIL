@@ -738,8 +738,6 @@ public class UserController
 #### 육각형 아키텍처 정의
 
 - 전형적인 어플리케이션은 도메인과 어플리케이션 서비스라는 두 계층으로 구성된다.
-  - 비지니스 로직은 어플리케이션의 가장 중요한 부분으로 도메인 계층만 해당 책임을 진다.
-  - 외부와 통신하거나 DB에 대한 책임은 어플리케이션 서비스가 담당해야 한다.
 - 어플리케이션 서비스 계층과 도메인 계층의 조합은 육각형을 형성하며, 이 육각형은 어플리케이션을 나타낸다.
 - 어플리케이션은 다른 어플리케이션과 소통할 수 있고 다른 어플리케이션도 육각형으로 나타낸다.
   - 예를 들어 SMTP, 서드파티 시스템, 메시지 버스 등이 될 수 있다.
@@ -749,5 +747,56 @@ public class UserController
 
 - 육각형 아키텍처라는 용어는 앨리스터 코오번이 세가지 중요한 지침을 강조하기 위해 처음 소개했다.
   - 도메인 계층과 어플리케이션 서비스 계층 간의 관심사 분리
+    - 비지니스 로직은 어플리케이션의 가장 중요한 부분으로 도메인 계층만 해당 책임을 지고 이 외에 모든 책임에서는 제외 되어야 한다
+    - 외부와 통신하거나 DB에 대한 책임은 어플리케이션 서비스가 담당해야 한다.
   - 어플리케이션 내부 통신
+    - 육각형 아키텍처에서 어플리케이션 서비스 계층에서 도메인 계층으로 흐르는 단방향 의존성 흐름을 규정한다.
+    - 도메인 계층은 도메인 계층 내부 클래스끼리 의존하고 어플리케이션 서비스 계층에 의존하지 않는다.
+    - 도메인 계층은 외부 환경에서 완전히 격리돼야 한다.
   - 어플리케이션 간의 통신
+    - 외부 어플리케이션은 어플리케이션 서비스 계층을 통해 연결된다.
+
+#### 시스템 내부 통신과 시스템 간 통신
+
+- 시스템 내부 통신은 어플리케이션 내부의 클래스 간의 통신이고 시스템 간 통신은 다른 어플리케이션과 통신하는 것을 말한다.
+- 내부에서 도메인 클래스간 협력은 식별할 수 있는 동작이 아니라서 구현 세부 사항에 해당한다.
+- 시스템 외부와 통신하는 방식은 전체적으로 시스템의 식별할 수 있는 동작을 나타내기에 목을 사용해서 확인하면 좋다.
+
+```c#
+public class CustomerController
+{
+ public bool Purchase(int customerId, int productId, int quantity)
+ {
+  Customer customer = _customerRepository.GetById(customerId);
+  Product product = _productRepository.GetById(productId);
+
+  bool isSuccess = customer.Purchase(_mainStore, product, quantity);
+  if (isSuccess)
+  {
+    _emailGateway.SendReceipt(customer.email, product.Name, quantity);
+  }
+
+  return isSuccess;
+ }
+}
+```
+
+- 위 예제에서 이메일을 보내는 동작은 외부 환경에서 볼 수 있는 사이드 이펙트이므로 식별할 수 있는 동작을 나타낸다.
+- 이메일을 보내는 호출을 목으로 하는 이유는 타당하다. 리팩터링 후에도 이러한 통신 유형이 유지되기에 테스트 취약성을 야기하지 않는다.
+- 아래는 목을 사용하는 타당한 테스트를 보여준다.
+
+```c#
+[Fact]
+public void Successful_purchase()
+{
+  var mock = new Mock<IEmailGateway>();
+  var sut = new CustomerController(mock.Object);
+
+  bool isSuccess = sut.Purchase(customerId: 1, productId: 2, quantity: 5);
+
+  Assert.True(isSuccess);
+  mock.Verify(x => x.SendReceipt("customer@email.com", "Shampoo", 5), Times.Once);
+}
+```
+
+- 반대로 mock을 사용해 내부 클래스(Customer, Product)간의 상호작용을 검증하면 취약성을 야기한다.
