@@ -926,3 +926,145 @@ public int Increment(int x)
 - 가장 문제가 되는 코드는 지나치게 복잡한 코드다.
   - 단위 테스트가 어렵지만, 테스트 없이 내버려두는 것은 너무 위험하다.
   - 험블 객체 패턴을 이용해 테스트 하기 어려운 의존성을 분리할 수 있다.
+
+### 가치 있는 단위 테스트를 위한 리팩터링 하기
+
+- 리팩터링 할 CRM 예제 코드를 살펴보자
+
+```c#
+public class User
+{
+  public int UserId { get; private set;}
+  public string Email { get; private set; }
+  public UserType Type { get; private set; }
+
+  public void ChangeEmail(int userId, string newEmail)
+  {
+    // DB에서 사용자의 현재 이메일과 유형 검색
+    object[] data = Database.GetUserById(userId);
+    UserId = userId,
+    Email = (string)data[1];
+    Type = (UserType)data[2];
+
+    if (Email == newEmail)
+      return;
+
+    // DB에서 회사의 도메인 이름과 직원수 검색
+    object[] companyData = Database.GetCompany();
+    string companyDomainName = (string)companyData[0];
+    int numberOfEmployees = (int)companyData[1];
+
+    string emailDomain = newEmail.Split("@")[1];
+    bool isEmailCorporate = emailDomain == companyDomainName;
+    UserType newType = isEmailCorporate // 이메일 도메인 따라 사용자 유형 설정
+      ? UserType.Employee
+      : UserType.Customer;
+
+    if (Type != newType) {
+      int delta = newType == UserType.Employee ? 1 : -1;
+      int newNumber = numberOfEmployees + delta;
+      Database.SaveCompany(newNumber); // 필요한 경우 조직의 직원 수 업데이트
+    }
+
+    Email = newEmail;
+    Type = newType;
+
+    Database.SaveUser(this);
+    MessageBus.SendEmailChangedMessage(userId, newEmail); // 메시지 버스에 알림 전송
+  }
+}
+
+public enum UserType
+{
+  Customer = 1,
+  Employee = 2
+}
+```
+
+- 위 코드를 어플리케이션 서비스를 도입해 외부 시스템과 통신하는 책임을 옮겨보자.
+- ORM 대신 객체를 생성하는 역할을 Factory 클래스로 제공한다면 코드는 아래와 같다.
+
+```c#
+public class UserController
+{
+  private readonly Database _database = new Database();
+  private readonly MessageBus _messageBus = new MessageBus();
+
+  public void ChangeEmail(int userId, string newEmail)
+  {
+    object[] userData = _database.GetUserById(userId);
+    User user = UserFactory.Create(userData);
+
+    object[] companyData = _database.GetCompany();
+    Company company = CompanyFactory.Create(companyData);
+
+    user.ChangeEmail(newEmail, company);
+
+    _database.SaveCompany(company);
+    _database.SaveUser(user);
+
+    _messageBus.SendEmailChangedMessage(userId, newEmail);
+  }
+}
+
+public class User
+{
+  public int UserId { get; private set;}
+  public string Email { get; private set; }
+  public UserType Type { get; private set; }
+
+  public void ChangeEmail(string newEmail, Company company)
+  {
+    if (Email == newEmail)
+      return;
+
+    UserType newType = isEmailCorporate
+      ? UserType.Employee
+      : UserType.Customer;
+
+    if (Type != newType) {
+      int delta = newType == UserType.Employee ? 1 : -1;
+      company.ChangeNumberOfEmployees(delta);
+    }
+
+    Email = newEmail;
+    Type = newType;
+  }
+}
+
+public class UserFactory
+{
+  public static User Create(object[] data)
+  {
+    Precondition.Requires(data.Length >= 3);
+
+    int id = (int)data[0];
+    string email = (string)data[1];
+    UserType type = (UserType)data[2];
+
+    return new User(id, email, type);
+  }
+}
+
+public class Company
+{
+  public string DomainName { get; private set; }
+  public int NumberOfEmployees { get; private set; }
+
+  public void ChangeNumberOfEmployees(int delta)
+  {
+    Precondition.Requires(NumberOfEmployees + delta >= 0);
+    NumberOfEmployees += delta;
+  }
+
+  public bool IsEmailCorporate(string email)
+  {
+    string emailDomain = email.Split('@')[1];
+    return emailDomain == DomainName;
+  }
+}
+```
+
+- 변경된 코드를 살펴보면 도메인 계층(User, Company)은 더 이상 프로세스 외부 의존성과 통신하지 않는다.
+- 어플리케이션인 UserController에서 객체를 DB에 저장할 때만 사이드 이펙트가 도메인 모델의 경계를 넘는다.
+- 처음 예시랑 비교해서 User에 대한 테스트는 더 이상 프로세스 외부 의존성을 검사할 필요가 없어서 테스트 용이성이 크게 향상된다.
