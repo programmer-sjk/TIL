@@ -1068,3 +1068,20 @@ public class Company
 - 변경된 코드를 살펴보면 도메인 계층(User, Company)은 더 이상 프로세스 외부 의존성과 통신하지 않는다.
 - 어플리케이션인 UserController에서 객체를 DB에 저장할 때만 사이드 이펙트가 도메인 모델의 경계를 넘는다.
 - 처음 예시랑 비교해서 User에 대한 테스트는 더 이상 프로세스 외부 의존성을 검사할 필요가 없어서 테스트 용이성이 크게 향상된다.
+
+### 최적의 단위 테스트 커버리지 분석
+
+- 험블 객체 패턴을 사용해 리팩터링을 마쳤으니, 아래와 같이 그룹핑 할 수 있다.
+  - 복잡도와 도메인 유의성이 높음
+    - User.ChangeEmail
+    - Company.ChangeNumberOfEmployees, Company.IsEmailCorporate
+  - 복잡도와 도메인 유의성이 낮음
+    - User, Company 생성자
+  - 복잡도와 도메인 유의성이 낮음 + 협력자가 많음
+    - UserController.ChangeEmail
+- 복잡도와 도메인 유의성이 높은 테스트 코드는 비용 측면에서 최상의 결과를 가져다준다.
+- 복잡도가 낮고 협력자가 거의 없는 코드. 생성자의 경우는 테스트 회귀 방지가 떨어져 테스트 할 필요없다.
+- 전제 조건을 테스트 해야 할까?
+  - 도메인에서 validation을 위한 전제 조건을 테스트 해야 할까?
+    - `ex) Precondition.Requires(NumberOfEmployees + delta >= 0);`
+  - 일반적으로 권장하는 지침은 도메인 유의성이 있는 모든 전제 조건을 테스트하라는 것이다.
