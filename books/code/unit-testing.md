@@ -1085,3 +1085,157 @@ public class Company
   - 도메인에서 validation을 위한 전제 조건을 테스트 해야 할까?
     - `ex) Precondition.Requires(NumberOfEmployees + delta >= 0);`
   - 일반적으로 권장하는 지침은 도메인 유의성이 있는 모든 전제 조건을 테스트하라는 것이다.
+
+### 컨트롤러에서 조건부 로직 처리
+
+- 컨트롤러에서 도메인과 관련된 조건부 로직이 있는 경우를 살펴보자
+
+#### CanExecute / Execute 패턴 사용
+
+- 컨트롤러 복잡도가 커지는 것을 완화하는 패턴 중 하나이다.
+- 비지니스 로직이 도메인 모델에서 컨트롤러로 유출되는 것을 방지할 수 있다.
+- 새로운 요구사항이 추가된 User 클래스를 살펴보자
+
+```c#
+public class User
+{
+  public int UserId { get; private set;}
+  public string Email { get; private set; }
+  public UserType Type { get; private set; }
+  public bool IsEmailConfirmed { get; private set; } // 새 속성
+
+  public void ChangeEmail(string newEmail, Company company)
+  {
+    ...
+  }
+}
+```
+
+- 이때 조건문을 컨트롤러에 위치시킬 수 있다.
+
+```c#
+public class UserController
+{
+  public void ChangeEmail(int userId, string newEmail)
+  {
+    object[] userData = _database.GetUserById(userId);
+    User user = UserFactory.Create(userData);
+
+    if (user.IsEmailConfirmed) // 분기 추가
+    {
+      return "Can't change a confirmed email";
+    }
+
+    // 기존 로직 수행 //
+  }
+}
+```
+
+- 여기서 문제는 도메인 모델의 캡슐화가 떨어진다.
+- 이런 파편화를 방지하기 위해 CanExecute / Execute 패턴을 사용할 수 있다.
+
+```c#
+public class User
+{
+  public string CanChangeEmail()
+  {
+    if (IsEmailConfirmed)
+      return "Can't change a confirmed email";
+    return null;
+  }
+
+  public void ChangeEmail(string newEmail, Company company)
+  {
+    Precondition.Requires(CanChangeEmail() == null);
+
+    ...
+  }
+}
+```
+
+- 위 코드에선 두 가지 이점이 있다.
+  - 컨트롤러는 더 이상 이메일 변경 프로세스에 대해 알 필요가 없다.
+  - ChangeEmail에 전제 조건들이 추가되어도 먼저 확인하지 않으면 이메일을 변경할 수 없도록 보장한다.
+- 위 패턴을 사용해 도메인 계층의 모든 결정을 통합할 수 있다.
+  - 컨트롤러에서 이메일을 확인할 일이 없기 때문에 더 이상 의사 결정 지점은 없다.
+
+#### 도메인 이벤트를 사용해 도메인 모델 변경 사항 추적
+
+- 어플리케이션에서 외부 시스템에 알려야 하는 상황에서 컨트롤러에 이런 책임이 있으면 복잡해질 수 있다.
+- 도메인 모델에서 중요한 변경 사항을 추적하고, 도메인 이벤트를 통해 외부 의존성을 호출할 수 있다.
+- 도메인 이벤트는 도메인 전문가에게 중요한 이벤트를 말한다.
+  - 도메인 이벤트는 시스템에서 발생하는 중요한 변경을 외부 어플리케이션에 알리는데 사용된다.
+- CRM 예제에서 메시지 버스로 외부 시스템에 변경된 사용자 이메일을 알려주는 코드가 있었다.
+
+```c#
+public class UserController
+{
+  public void ChangeEmail(int userId, string newEmail)
+  {
+    ...
+    _messageBus.SendEmailChangedMessage(userId, newEmail);
+  }
+}
+```
+
+- 위 코드에선 사실 이메일이 변경되지 않아도 알림을 보내는 버그가 있었다.
+- 이메일이 같은지 검사하는 부분을 컨트롤러로 옮겨서 버그를 해결할 수 있지만 비지니스 로직이 파편화 되는 문제가 있다.
+- 이때 복잡하지 않게 해결할 수 있는 방법은 도메인 이벤트를 사용하는 방법이다.
+
+```c#
+public class EmailChangedEvent
+{
+  public int UserId { get; }
+  public string NewEmail { get; }
+}
+
+public class User
+{
+  public void ChangeEmail(string newEmail, Company company)
+  {
+    Precondition.Requires(CanChangeEmail() == null);
+
+    ...
+
+    Email = newEmail;
+    Type = newType;
+    EmailChangedEvents.Add(new EmailChangedEvent(UserId, newEmail));
+  }
+}
+```
+
+- User는 이메일이 변경될때 추가할 수 있는 이벤트 컬렉션을 갖게 된다.
+- 그 후 컨트롤러는 이벤트 컬렉션에 이벤트가 있을 때 메시지 버스를 호출한다.
+
+```c#
+public class UserController
+{
+  public void ChangeEmail(int userId, string newEmail)
+  {
+    ...
+
+    foreach (var ev in user.EmailChangedEvents)
+    {
+      _messageBus.SendEmailChangedMessage(ev.UserId, ev.NewEmail);
+    }
+  }
+}
+```
+
+- 도메인 이벤트를 사용해 컨트롤러에서 의사 결정 책임을 제거하고, 해당 책임을 도메인 모델에 적용했다.
+- 따라서 테스트 코드를 작성 시, 의존성을 목으로 대체하는 대신 직접 이벤트 생성을 테스트 할 수 있다.
+
+```c#
+[Fact]
+public void Changing_email_from_corporate_to_non_corporate()
+{
+  // 테스트 준비 코드들
+
+  sut.ChangeEmail("new@gmail.com", company);
+
+  company.NumberOfEmployees.Should().Be(0);
+  sut.Email.Should.Be("new@gmail.com");
+  // 컬렉션 크기와 요소를 같이 검증
+  sut.EmailChangedEvents.Should().Equal(new EmailChangedEvent(1, "new@gmail.com"))
+}
+```
