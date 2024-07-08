@@ -1260,7 +1260,7 @@ public void Changing_email_from_corporate_to_non_corporate()
   - 단위 테스트로 가능한 많은 시나리오의 예외 상황을 확인한다.
   - 통합 테스트는 성공 흐름과 단위 테스트가 다루지 못하는 기타 예외 상황을 다룬다.
 
-![](../../images/books/code/test-pyramid2.png)
+<img src="https://github.com/programmer-sjk/TIL/blob/main/images/books/code/test-pyramid2.png" width="400">
 
 #### 통합 테스트와 빠른 실패
 
