@@ -1292,3 +1292,89 @@ public void Changing_email_from_corporate_to_non_corporate()
   - DB가 유일한 프로세스 외부 의존성이라고 가정하면, 통합 테스트는 회귀 방지에 있어 단위 테스트와 다를게 없다.
 - DB를 그대로 테스트 할 수 없으면 통합 테스트를 아예 작성하지 말고 도메인 모델의 단위 테스트에만 집중해라.
 - 항상 모든 테스트를 철저히 검토해야 한다. 가치가 충분하지 않은 테스트는 테스트 스위트에 있어서는 안 된다.
+
+### 통합 테스트: 예제
+
+- 실제 통합 테스트 예시를 보기 위해 컨트롤러 코드를 다시 보자.
+
+```c#
+public class UserController
+{
+  private readonly Database _database = new Database();
+  private readonly MessageBus _messageBus = new MessageBus();
+
+  public void ChangeEmail(int userId, string newEmail)
+  {
+    object[] userData = _database.GetUserById(userId);
+    User user = UserFactory.Create(userData);
+
+    string error = user.CanChangeEmail();
+    if (error != null)
+      return error;
+
+    object[] companyData = _database.GetCompany();
+    Company company = CompanyFactory.Create(companyData);
+
+    user.ChangeEmail(newEmail, company);
+
+    _database.SaveCompany(company);
+    _database.SaveUser(user);
+
+    foreach (var ev in user.EmailChangedEvents)
+    {
+      _messageBus.SendEmailChangedMessage(ev.UserId, ev.NewEmail);
+    }
+  }
+}
+```
+
+#### 어떤 시나리오를 테스트할까?
+
+- 통합 테스트는 가장 긴 주요 흐름과 단위 테스트로 수행할 수 없는 예외 상황을 다루는 것이다.
+- 위 코드에서 가장 긴 주요 흐름은 이메일을 변경해서 메시지 버스로 메시지를 보내는 것 까지의 흐름이다.
+- DB는 관리 의존성이므로 실제 인스턴스를 사용하고 메시지 버스는 비관리 의존성이므로 목으로 대체한다.
+
+#### 엔드 투 엔드 테스트는 어떤가?
+
+- 관리 의존성을 실제로 포함시키고 비관리 의존성만 목으로 대체하면, 통합 테스트의 보호 수준이 엔드 투 엔드 테스트랑 비슷하기에 생략할 수 있다.
+- 외부 클라이언트의 동작을 모방하려면 테스트에 포함된 모든 프로세스 외부 의존성을 가진 어플리케이션을 테스트한다.
+  - 즉 비관리 의존성도 테스트 대역을 사용하지 않는다.
+
+#### 통합 테스트
+
+- 다음은 통합 테스트의 첫 번째 버전이다.
+
+```c#
+[Fact]
+public void Changing_email_from_corporate_to_non_corporate()
+{
+  // given
+  var db = new Database(ConnectionString);
+  User user = CreateUser("user@corp.com", UserType.Employee, db);
+  CreateCompany("corp.com", 1, db);
+
+  var messageBusMock = new Mock<IMessageBus>();
+  var sut = new UserController(db, messageBusMock.Object);
+
+  // when
+  string result = sut.ChangeEmail(user.UserId, "new@gmail.com");
+
+  // then
+  Assert.Equal("OK", result);
+
+  object[] userData = db.GetUserById(user.UserId);
+  User user = UserFactory.Create(userData);
+  Assert.Equal("new@gmail.com", user.Email);
+  Assert.Equal(UserType.Customer, user.Type);
+
+  object[] companyData = db.GetCompany();
+  Company company = CompanyFactory.Create(companyData);
+  Assert.Equal(0, company.NumberOfEmployees);
+
+  messageBusMock.Verify(
+    x => x.SendEmailChangedMessage(user.UserId, "new@gmail.com"), Times.Once);
+}
+```
+
+- 테스트 검증 부분에서 사용자와 회사 데이터를 각각 조회해서 상태를 검증한다.
+  - 테스트가 DB에 대해 읽기, 쓰기를 모두 수행하므로 회귀 방지를 최대로 얻을 수 있다.
