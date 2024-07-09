@@ -1419,3 +1419,85 @@ public void Changing_email_from_corporate_to_non_corporate()
 - 불필요한 작업처럼 보일 수 있지만 동작 단위로 초점을 맞춰 테스트를 나누는 것이 장기적으로 좋다.
 - 단위 테스트와 통합 테스트에서 이 지침은 항상 유효하며, 예외로 만들기 어려운 외부 의존성으로 작성하는 테스트가 있다.
   - 프로세스 외부 의존성에 대한 통신이 너무 느린 경우, 여러 동작을 하나의 테스트로 묶어서 통신 횟수를 줄이는 것이 유리하다.
+
+### 로깅 기능을 테스트하는 방법
+
+#### 로깅을 테스트해야 할까?
+
+- 로깅은 횡단 기능으로 코드베이스 어느 부분에서나 필요할 수 있다.
+- 이런 로깅을 테스트 해야 할까?
+- 결국 로깅도 프로세스 외부 의존성에 사이드 이펙트를 초래한다.
+  - 만약 사이드 이펙트를 고객이나 개발자 이외의 사람이 본다면 로깅은 식별할 수 있는 동작이므로 테스트해야 한다.
+  - 반대로 보는 사람이 개발자 뿐이라면 구현 세부 사항이므로 테스트해서는 안 된다.
+- 로깅은 아래 두 가지 유형으로 나눌 수 있으며 테스트해야 하는 로깅은 지원 로깅이다.
+  - 지원 로깅: 지원 담당자나 시스템 관리자가 추적할 수 있는 메시지
+  - 진단 로깅: 개발자가 어플리케이션 내부 상황을 파악할 수 있도록 돕는 메시지
+
+#### 로깅을 어떻게 테스트해야 하는가?
+
+- 어플리케이션과 로그 저장소 간의 상호 작용을 검증하려면 목을 사용해야 한다.
+- 지원 로깅은 비니지스 요구 사항이므로 비지니스에 필요한 로깅을 명시적으로 나타내는 DomainLogger 클래스를 만들어 상호 작용을 확인하라.
+
+```c#
+public class User
+{
+  public void ChangeEmail(string newEmail, Company company)
+  {
+    _logger.Info(...) // 진단 로그
+    Precondition.Requires(CanChangeEmail() == null);
+
+    ...
+    if (Type != newType) {
+      int delta = newType == UserType.Employee ? 1 : -1;
+      company.ChangeNumberOfEmployees(delta);
+      _domainLogger.UserTypeHasChanged(UserId, Type, newType); // 지원 로그
+    }
+
+    _logger.Info(...) // 진단 로그
+  }
+}
+
+public class DomainLogger : IDomainLogger
+{
+  private readonly ILogger _logger;
+
+  public DomainLogger(ILogger logger)
+  {
+    _logger = logger;
+  }
+
+  public void UserTypeHasChanged(int userId, UserType oldType, UserType newType)
+  {
+    _logger.Info($"User {userId} changed type from {oldType} to {newType}")
+  }
+}
+```
+
+- DomainLogger는 ILogger 위에서 동작한다.
+- 도메인 언어를 사용해 비지니스에 필요한 특정 로그를 제공하므로 더 쉽게 이해하고 유지보수 할 수 있다.
+
+#### 로거 인스턴스를 어떻게 전달하는가?
+
+- 한 가지 방법은 다음과 같이 정적 메서드를 사용하는 것이다.
+
+```c#
+public class User
+{
+  private static readonly ILogger _logger = LogManager.GetLogger(typeof(User));
+}
+```
+
+- 이러한 유형의 의존성 획득을 앰비언트 컨텍스트(ambient context)라고 부른다.
+- 이는 안티 패턴이며 다음 두 가지 단점이 있다.
+  - 의존성이 숨어있고 변경하기가 어렵다.
+  - 테스트가 더 어려워진다.
+- 앰비언스 컨텍스트보다 생성자나 메서드를 통해 주입받는 것이 추천하는 방법이다.
+
+### 8장 요약
+
+- 통합테스트는 시스템이 프로세스 외부 의존성과 통합해 동작하는 방식을 검증한다.
+- 관리 의존성은 어플리케이션을 통해서만 접근할 수 있는 프로세스 외부 의존성으로 대표적으로 DB가 있다.
+- 비관리 의존성은 다른 어플리케이션이 접근할 수 있는 프로세스 외부 의존성으로 SMTP나 메시지 버스 등이 있다.
+- 관리 의존성과의 통신은 구현 세부 사항이고 비관리 의존성과의 통신은 식별할 수 있는 동작이다.
+  - 따라서 관리 의존성은 실제 인스턴스를 비관리 의존성은 목으로 대체하라.
+- 모든 의존성은 생성자나 메서드 인수를 통해 명시적으로 주입해라.
