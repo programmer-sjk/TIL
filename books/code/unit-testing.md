@@ -1501,3 +1501,107 @@ public class User
 - 관리 의존성과의 통신은 구현 세부 사항이고 비관리 의존성과의 통신은 식별할 수 있는 동작이다.
   - 따라서 관리 의존성은 실제 인스턴스를 비관리 의존성은 목으로 대체하라.
 - 모든 의존성은 생성자나 메서드 인수를 통해 명시적으로 주입해라.
+
+## 목 처리에 대한 모범 사례
+
+### 목의 가치를 극대화하기
+
+#### 시스템 끝에서 상호 작용을 검증하라
+
+```c#
+public interface IMessageBus
+{
+  void SendEmailChangedMessage(int userId, string newEmail);
+}
+
+public class MessageBus : IMessageBus
+{
+  private readonly IBus _bus;
+
+  public void SendEmailChangedMessage(int userId, string newEmail)
+  {
+    _bus.Send("Type: USER EMAIL CHANGED; Id: {userId}; NewEmail: {newEmail}");
+  }
+}
+
+public interface IBus
+{
+  void Send(string message);
+}
+```
+
+- 위 코드에서 IBus는 컨트롤러와 메시지 버스 사이에서 가장 마지막 고리이며, IMessageBus는 중간이다.
+- 시스템 가장 끝에서 상호 작용을 확인하면 회귀 방지가 좋아지고 리팩터링 내성도 향상된다.
+
+```c#
+[Fact]
+public void Changing_email_from_corporate_to_non_corporate()
+{
+  // 기존 IMessageBus를 이용한 Mock
+  var messageBusMock = new Mock<IMessageBus>();
+  messageBusMock.Verify(
+    x => x.SendEmailChangedMessage(user.UserId, "new@gmail.com"), Times.Once);
+
+  // 가장 끝인 IBus를 활용한 Mock
+  var busMock = new Mock<IBus>();
+  var messageBusMock = new MessageBus(busMock.Object) // 인터페이스 대신 구체 클래스 사용
+  busMock.verify(x => x.Send(
+    $"Type: USER EMAIL CHANGED; Id: {user.UserId}; NewEmail: new@gmail.com"),
+    Times.Once);
+}
+```
+
+#### 목을 스파이로 대체하기
+
+- 스파이는 목과 같은 목적을 수행하는 테스트 대역이다.
+- 스파이는 수동으로 작성하는 반면, 목은 목 프레임워크의 도움을 받아 생성하는 것이 유일한 차이다.
+
+```c#
+public interface IBus
+{
+  void Send(string message);
+}
+
+public class BusSpy : IBus
+{
+  private List<string> _sentMessages = new List<string>();
+
+  public void Send(string message)
+  {
+    _sentMessages.Add(message);
+  }
+
+  public BusSpy ShouldSendNumberOfMessages(int number)
+  {
+    Assert.Equal(number, _sentMessages.Count);
+    return this;
+  }
+
+  public BusSpy WithEmailChangedMessage(int userId, string newEmail)
+  {
+    string message = $"Type: USER EMAIL CHANGED; Id: {userId}; NewEmail: {newEmail}";
+    Assert.Contains(_sentMessages, x => x == message);
+
+    return this;
+  }
+}
+
+[Fact]
+public void Changing_email_from_corporate_to_non_corporate()
+{
+  var busSpy = new BusSpy();
+  var messageBus = new MessageBus(busSpy);
+  var loggerMock = new Mock<IDomainLogger>();
+  var sut = new UserController(db, messageBus, loggerMock.Object);
+
+  /* ... */
+
+  busSpy
+    .ShouldSendNumberOfMessages(1)
+    .WithEmailChangedMessage(user.UserId, "new@gmail.com");
+}
+```
+
+- 스파이는 검증 단계에서 코드를 재사용해 테스트 크기를 줄이고 가독성을 향상시킨다.
+- BusSpy가 제공하는 플루언트 인터페이스 덕분에 검증이 간결해지고 표현력도 생겼다.
+  - 플루언트 인터페이스 덕분에 응집도가 높고 쉬운 영어 문장을 형성할 수 있다.
