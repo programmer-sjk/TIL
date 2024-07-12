@@ -1862,3 +1862,173 @@ public class Inquiry {
 
 - ORM에 의해 비공개 생성자로 잘 작동하는 객체의 경우, 어떻게 Approve 메서드를 테스트할까?
 - 이 경우 생성자를 공개한다고 해서 테스트가 쉽게 깨지지는 않는다.
+
+### 비공개 상태 노출
+
+- 또 다른 안티 패턴으로 단위 테스트를 목적으로 비공개 상태를 노출하는 것이 있다.
+- 아래 예제에서 Promote 메서드를 어떻게 테스트할까?
+
+```c#
+public class Customer {
+  private CustomerStatus _status = CustomerStatus.Regular;
+
+  public void Promote() {
+    _status = CustomerStatus.Preferred;
+  }
+
+  public decimal GetDiscount() {
+    return _status == CustomerStatus.Preferred ? 0.05m : 0m;
+  }
+}
+
+public enum CustomerStatus {
+  Regular,
+  Preferred
+}
+```
+
+- `_status` 필드는 제품 코드에 숨어있으므로 SUT의 식별할 수 있는 동작이 아니다.
+- 해당 필드를 공개하면 테스트가 구현 세부 사항에 결합된다. 그렇다면 Promote를 어떻게 테스트할까?
+- 방법은 제품 코드가 이 메서드를 어떻게 사용하는지 살펴보는 것이다.
+  - 예제에서 제품 코드는 고객의 상태를 신경쓰지 않는다.
+  - 제품 코드가 관심을 갖는 정보는 승격 후 고객이 받는 할인 뿐이다.
+- 따라서 다음 사항을 확인해야 한다
+  - 새로 생성된 고객은 할인이 없음
+  - 업그레이드 시 5% 할인율 적용
+
+### 테스트로 유출된 도메인 지식
+
+- 도메인 지식을 테스트로 유출하는 것은 안티 패턴이다.
+
+```c#
+public static class Calculator {
+  public static int Add(int value1, int value2) {
+    return value1 + value2;
+  }
+}
+
+public class CalculatorTests {
+  [Fact]
+  public void Adding_two_numbers() {
+    int value1 = 1;
+    int value2 = 3;
+    int expected = value1 + value2; // 도메인 지식 유출
+
+    int actual = Calculator.Add(value1, value2);
+
+    Assert.Equal(expected, actual);
+  }
+}
+```
+
+- 위 예시는 간단하기 때문에 문제 없어 보이지만, 복잡한 알고리즘의 경우 구현 세부사항에 결합된다.
+- 테스트를 작성할 때 특정 구현을 암시하지 말고, 결과를 테스트에 하드 코딩한다.
+
+```c#
+public class CalculatorTests {
+  [Theory]
+  [InlineData(1, 3, 4)]
+  [InlineData(11, 33, 44)]
+  [InlineData(100, 500, 600)]
+  public void Adding_two_numbers(int value1, int value2, int expected) {
+    int actual = Calculator.Add(value1, value2);
+    Assert.Equal(expected, actual);
+  }
+}
+```
+
+- 알고리즘이 복잡한 경우, 단위 테스트에서는 예상 결과를 하드코딩 하는 것이 좋다.
+
+### 코드 오염
+
+- 코드 오염이란 테스트에 필요한 코드를 제품 코드에 추가하는 것이다.
+
+```c#
+public class Logger {
+  private readonly bool _isTestEnvironment;
+
+  // 테스트 환경 여부를 제품 코드에 대입
+  public Logger(bool isTestEnvironment) {
+    _isTestEnvironment = isTestEnvironment;
+  }
+
+  public void Log(string text) {
+    if (_isTestEnvironment) // 테스트 환경에서 로깅하지 않도록 리턴
+      return;
+
+    /* text 로깅 */
+  }
+}
+```
+
+- 코드 오염은 테스트 코드와 제품 코드가 혼재돼 유지비가 증가하는 것이다.
+- 이런 안티 패턴을 방지하려면 테스트 코드와 제품 코드를 분리해야 한다.
+- 운영을 위한 진짜 구현체와 테스트를 목적으로 한 가짜 구현체로 분리하자.
+
+```c#
+public interface ILogger {
+    void Log(string text);
+}
+
+public class Logger : ILogger {
+  public void Log(string text) {
+    /* text 로깅 */
+  }
+}
+
+public class FakeLogger : ILogger {
+  public void Log(string text) {
+    /* 암것도 안함 */
+  }
+}
+
+public class Controller {
+  public void SomeMethod(ILogger logger) {
+    logger.Log("로깅 내용");
+  }
+}
+```
+
+### 시간 처리하기
+
+- 많은 어플리케이션에서 현재 날짜와 시간에 대한 접근이 필요하다.
+- 좋은 방법으로는 서비스 또는 일반 값으로 시간 의존성을 명시적으로 주입하는 것이 있다.
+
+```c#
+public interface IDateTimeServer {
+  DateTime Now { get; }
+}
+
+public class DateTimeServer : IDateTimeServer {
+  public DateTime Now => DateTime.Now;
+}
+
+public class InquiryController {
+  private readonly DateTimeServer _dateTimeServer;
+
+  // 시간을 서비스로 주입
+  public InquiryController(DateTimeServer dateTimeServer) {
+    _dateTimeServer = dateTimeServer;
+  }
+
+  public void ApproveInquiry(int id) {
+    Inquiry inquiry = GetById(id);
+
+    // 시간을 값으로 주입
+    inquiry.Approve(_dateTimeServer.Now);
+    SaveInquiry(inquiry);
+  }
+}
+```
+
+- 시간을 서비스로 주입하기 보다는 값으로 주입하는 것이 제품 코드의 간결함과 테스트 측면에서 낫다.
+- 하지만 시간을 항상 값으로 주입할 수 없는 경우엔 서비스로 받고 도메인 클래스에 값을 전달한다.
+
+### 11장 요약
+
+- 단위 테스트를 위해 비공개 메서드를 노출하면 테스트가 구현에 결합된다.
+  - 비공개 메서드를 직접 테스트하는 대신, 식별할 수 있는 동작으로 간접적으로 테스트하라.
+- 비공개 메서드가 너무 복잡해서 공개 API로 테스트 할 수 없다면, 추상화를 별도 클래스로 추출하라.
+- 비공개 상태를 단위 테스트만을 위해 노출하지 말자.
+- 테스트를 작성할 때 특정 구현을 암시하지 말자. 도메인 지식을 테스트에 유출하지 않도록 해라.
+- 서비스나 일반 값으로 시간을 주입하자. 가능하면 항상 일반 값이 좋다.
