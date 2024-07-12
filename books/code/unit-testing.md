@@ -1703,3 +1703,48 @@ messageBusMock.Verify(
 - 인메모리 DB는 공유 의존성이 아니기 때문에 병렬로 테스트할 수 있는 환경을 제공할 수 있다.
 - 이런 장점에도 불구하고, 인메모리 DB는 일반 DB와 기능적으로 다르기 때문에 사용하지 않는 것이 좋다.
 - 운영 환경과 테스트 환경이 일치하지 않게 되며, 테스트로 높은 보호 수준을 기대하기 어렵게 된다.
+
+### 테스트 구절에서 코드 재사용하기
+
+- 통합 테스트 코드가 너무 길어지면 유지 보수 지표가 나빠질 수 있다.
+- 통합 테스트는 가능한 짧게 하되 서로 결합하거나 가독성에 영향을 주지 않는 것이 중요하다.
+- 통합 테스트를 짧게 하기에 좋은 방법은 비공개 메서드나 헬퍼 클래스로 추출하여 재사용하는 것이다.
+
+#### 준비 구절에서 코드 재사용하기
+
+- 테스트 준비에서 코드를 재사용하기 좋은 방법은 비공개 팩토리 메서드를 도입하는 것이다.
+
+```c#
+private User CreateUser(string email, UserType type, bool isEmailConfirmed)
+{
+  ...
+}
+```
+
+- 다음과 같이 메서드 인수에 대한 기본 값을 정의할 수도 있다.
+
+```c#
+private User CreateUser(
+  string email = "user@mycorp.com",
+  UserType type = UserType.Employee,
+  bool isEmailConfirmed = false)
+{
+  ...
+}
+```
+
+- 인수의 기본값을 사용하면 테스트를 단축할 수 있고, 선택적 인수를 사용하여 어떤 인수가 테스트 시나리오와 관련있는지 강조할 수 있다.
+- 비공개 팩터리 메서드는 기본적으로 동일한 클래스에 배치하고, 다른 곳에서도 쓰이면 별도의 헬퍼 클래스에 배치하자.
+
+#### 검증 구절에서 코드 재사용하기
+
+- 검증 구절도 코드를 줄일 수 있는데, 다음과 같이 헬퍼 메서드를 두는 것이다.
+
+```c#
+User user = QueryUser(user.UserId);
+Assert.Equal("new@gmail.com", user.Email);
+Assert.Equal(UserType.Customer, user.Type);
+
+Company company = QueryCompany();
+Assert.Equal(0, company.NumberOfEmployees);
+```
