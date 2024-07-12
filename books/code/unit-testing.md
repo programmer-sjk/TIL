@@ -1776,3 +1776,89 @@ Assert.Equal(0, company.NumberOfEmployees);
 - 테스트 시작 시점에 남은 데이터를 정리하라. 빠르고 일관성 있는 동작을 제공한다.
 - 필수가 아닌 부분은 비공개 메서드 or 헬퍼 클래스로 추츨해 읽는 테스트 코드의 양을 줄여라
 - 리포지터리는 직접 테스트하지 말고 포괄적인 통합 테스트 스위트로 취급하라.
+
+## 단위 테스트 안티 패턴
+
+### 비공개 메서드 단위 테스트
+
+- 비공개 메서드를 어떻게 테스트하냐는 질문에 짧게 대답하면 전혀 하지 말아야 한다라고 답한다.
+- 하지만 저자는 약간의 뉘앙스를 전달하고 있다.
+- 비공개 메서드를 직접 테스트하는 대신, 포괄적인 식별할 수 있는 동작으로 간접적으로 테스트하는 것이 좋다.
+- 때론 비공개 메서드가 너무 복잡해서 테스트하기 어렵다면 추상화가 누락돼 있을 가능성이 있다.
+
+```c#
+public class Order {
+  private Customer _customer;
+  private List<Product> _products;
+
+  public string GenerateDescription() {
+    return $"Customer name: {_customer.Name}, " +
+      $"total number of products: {_products.Count}, " +
+      $"total price: {GetPrice()}";
+  }
+
+  // Complex private method
+  private decimal GetPrice() {
+    decimal basePrice = /* _products에 기반한 계산 */;
+    decimal discounts = /* _customer에 기반한 계산 */;
+    decimal taxes = /* _products에 기반한 계산 */;
+    return basePrice - discounts + taxes;
+  }
+}
+```
+
+- GenerateDescription 메서드는 매우 간단하지만 더 복잡한 GetPrice 비공개 메서드를 사용한다.
+- 중요한 비지니스 로직이기 때문에 테스트를 철처히해야 하는데, 이 로직은 추상화가 누락됐다.
+- GetPrice 메서드를 노출하기 보다, 별도의 클래스로 도출해서 명시적으로 작성하는게 좋다.
+
+```c#
+public class Order {
+  private Customer _customer;
+  private List<Product> _products;
+
+  public string GenerateDescription() {
+    var calc = new PriceCalculator();
+
+    return $"Customer name: {_customer.Name}, " +
+      $"total number of products: {_products.Count}, " +
+      $"total price: {calc.Calculate(_customer, _products)}";
+  }
+}
+
+public class PriceCalculator {
+  public decimal Calculate(Customer customer, List<Product> products) {
+    decimal basePrice = /* _products에 기반한 계산 */;
+    decimal discounts = /* _customer에 기반한 계산 */;
+    decimal taxes = /* _products에 기반한 계산 */;
+    return basePrice - discounts + taxes;
+  }
+}
+```
+
+#### 비공개 메서드 테스트가 타당한 경우
+
+- 비공개 메서드를 절대 테스트하지 말라는 규칙에도 예외가 있다.
+- 비공개 메서드를 테스트 하는 것 자체는 나쁘지 않다. 비공개 메서드가 보통 구현 세부사항에 해당하기에 나쁜 것이다.
+- 아래 예제에서 비공개 생성자를 보자.
+
+```c#
+public class Inquiry {
+  public bool IsApproved { get; private set; }
+  public DateTime? TimeApproved { get; private set; }
+
+  private Inquiry(bool isApproved, DateTime? timeApproved) {
+    if (isApproved && !timeApproved.HasValue)
+      throw new Exception();
+    IsApproved = isApproved;
+    TimeApproved = timeApproved;
+  }
+
+  public void Approve()
+  {
+    ...
+  }
+}
+```
+
+- ORM에 의해 비공개 생성자로 잘 작동하는 객체의 경우, 어떻게 Approve 메서드를 테스트할까?
+- 이 경우 생성자를 공개한다고 해서 테스트가 쉽게 깨지지는 않는다.
