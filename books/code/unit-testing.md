@@ -29,15 +29,13 @@
 - `테스트 커버리지 = 실행 코드 라인 수 / 전체 라인 수`
 
 ```c#
-public static bool IsStringLong(string input)
-{
+public static bool IsStringLong(string input) {
   if (input.length > 5)
     return true;
   return false;
 }
 
-public void Test()
-{
+public void Test() {
   bool result = IsStringLong("abc");
   Assert.Equal(false, result);
 }
@@ -49,8 +47,7 @@ public void Test()
 - 이제 메서드를 리팩토링 해서 아래와 같이 수정해보자.
 
 ```c#
-public static bool IsStringLong(string input)
-{
+public static bool IsStringLong(string input) {
   return input.length > 5;
 }
 ```
@@ -95,8 +92,7 @@ public static bool IsStringLong(string input)
 
 ```c#
 // 고전적인 스타일로 작성된 테스트
-public void Purchase_succeeds_when_enough_inventory()
-{
+public void Purchase_succeeds_when_enough_inventory() {
  // given
  var store = new Store();
  store.addInventory(Product.Shampoo, 10);
@@ -120,8 +116,7 @@ public void Purchase_succeeds_when_enough_inventory()
 
 ```c#
 // 런던 스타일로 작성된 테스트
-public void Purchase_succeeds_when_enough_inventory()
-{
+public void Purchase_succeeds_when_enough_inventory() {
  // given
  var storeMock = new Mock<IStore>();
  storeMock.Setup(x => x.HasEnoughInventory(Product.Shampoo, 5)).Returns(true);
@@ -213,11 +208,9 @@ public void Purchase_succeeds_when_enough_inventory()
 - **`AAA 패턴은`** `Given-When-Then` 패턴과 같이 테스트를 준비, 실행, 검증이라는 세 부분으로 나눌 수 있다.
 
 ```c#
-public class CalculatorTests // 응집도 있는 테스트 세트를 위한 클래스 컨테이너
-{
+public class CalculatorTests { // 응집도 있는 테스트 세트를 위한 클래스 컨테이너
  [Fact] // 테스트를 나타내는 xUnit 속성
- public void Sum_of_two_numbers()
- {
+ public void Sum_of_two_numbers() {
   // 준비
   double first = 10;
   double second = 20;
@@ -265,11 +258,9 @@ public class CalculatorTests // 응집도 있는 테스트 세트를 위한 클�
 - SUT가 많은 경우, 테스트 대상을 쉽게 찾기 위해 테스트 코드에서 sut로 지정할 수 있다.
 
 ```c#
-public class CalculatorTests
-{
+public class CalculatorTests {
  [Fact]
- public void Sum_of_two_numbers()
- {
+ public void Sum_of_two_numbers() {
   // 준비
   double first = 10;
   double second = 20;
@@ -291,13 +282,11 @@ public class CalculatorTests
 - 테스트 픽스처를 재사용하는 잘못된 방법은 테스트 생성자에서 픽스처를 초기화 하는 것이다.
 
 ```c#
-public class CustomerTests
-{
+public class CustomerTests {
  private readonly Store _store; // 공통 테스트 픽스처
  private readonly Customer _sut;
 
- public CustomerTests()
- {
+ public CustomerTests() {
   // 클래스 내 각 테스트 이전에 호출
   _store = new Store();
   _store.AddInventory(Product.Shampoo, 10);
@@ -305,8 +294,7 @@ public class CustomerTests
  }
 
  [Fact]
- public void Purchase_succeeds_when_enough_inventory()
- {
+ public void Purchase_succeeds_when_enough_inventory() {
   bool success = _sut.Purchase(_store, Product.Shampoo, 5);
 
   Assert.True(success);
@@ -314,8 +302,7 @@ public class CustomerTests
  }
 
  [Fact]
- public void Purchase_fails_when_not_enough_inventory()
- {
+ public void Purchase_fails_when_not_enough_inventory() {
   bool success = _sut.Purchase(_store, Product.Shampoo, 15);
 
   Assert.False(success);
@@ -342,11 +329,9 @@ public class CustomerTests
 - 생성자보다 더 나은 방법은 **`비공개 팩토리 메서드를 두는 것이다`**.
 
 ```c#
-public class CustomerTests
-{
+public class CustomerTests {
  [Fact]
- public void Purchase_succeeds_when_enough_inventory()
- {
+ public void Purchase_succeeds_when_enough_inventory() {
   Store store = CreateStoreWithInventory(Product.Shampoo, 10);
   Customer sut = CreateCustomer();
 
@@ -357,8 +342,7 @@ public class CustomerTests
  }
 
  [Fact]
- public void Purchase_fails_when_not_enough_inventory()
- {
+ public void Purchase_fails_when_not_enough_inventory() {
   Store store = CreateStoreWithInventory(Product.Shampoo, 10);
   Customer sut = CreateCustomer();
 
@@ -368,15 +352,13 @@ public class CustomerTests
   Assert.Equals(10, _store.GetInventory(Product.Shampoo));
  }
 
- private Store CreateStoreWithInventory(Product product, int quantity)
- {
+ private Store CreateStoreWithInventory(Product product, int quantity) {
   Store store = new Store();
   store.AddInventory(product, quantity);
   return store;
  }
 
- private static Customer CreateCustomer()
- {
+ private static Customer CreateCustomer() {
   return new Customer();
  }
 }
@@ -399,8 +381,7 @@ public class CustomerTests
 - 테스트 코드의 양을 줄이고자 테스트를 묶을 수 있다.
 
 ```c#
-public class DeliveryServiceTests
-{
+public class DeliveryServiceTests {
  [InlineData(-1, false)]
  [InlineData(0, false)]
  [InlineData(1, false)]
@@ -409,8 +390,7 @@ public class DeliveryServiceTests
  public void Can_detect_an_invalid_delivery_date(
   int daysFromNow,
   bool expected
- )
- {
+ ) {
   ...
  }
 }
@@ -420,8 +400,7 @@ public class DeliveryServiceTests
 - 절충안으로는 긍정적인 테스트 케이스는 고유한 테스트로 도출하고 좋은 이름을 짓는 것이다.
 
 ```c#
-public class DeliveryServiceTests
-{
+public class DeliveryServiceTests {
  [InlineData(-1, false)]
  [InlineData(0, false)]
  [InlineData(1, false)]
@@ -429,14 +408,12 @@ public class DeliveryServiceTests
  public void Can_detect_an_invalid_delivery_date(
   int daysFromNow,
   bool expected
- )
- {
+ ) {
   ...
  }
 
  [Fact]
- public void The_soonest_delivery_date_is_two_days_from_now()
- {
+ public void The_soonest_delivery_date_is_two_days_from_now() {
   ...
  }
 }
@@ -571,8 +548,7 @@ public class DeliveryServiceTests
 
 ```c#
 [Fact]
-public void Sending_a_greetings_email()
-{
+public void Sending_a_greetings_email() {
  var mock = new Mock<IEmailGateway>(); // Mock(도구)으로 mock(목) 생성
  var sut = new Controller(mock.Object);
 
@@ -589,8 +565,7 @@ public void Sending_a_greetings_email()
 
 ```c#
 [Fact]
-public void Creating_a_report()
-{
+public void Creating_a_report() {
  var stub = new Mock<IDatabase>(); // Mock(도구)으로 stub(스텁) 생성
  stub.Setup(x => x.GetNumberOfUsers()).Returns(10); // 준비한 응답 설정
  var sut = new Controller(stub.Object);
@@ -620,8 +595,7 @@ public void Creating_a_report()
 
 ```c#
 [Fact]
-public void Purchase_fails_when_not_enough_inventory()
-{
+public void Purchase_fails_when_not_enough_inventory() {
  var storeMock = new Mock<IStore>();
  storeMock.Setup(x => x.HasEnoughInventory(Product.Shampoo, 5)).Returns(false);
  var sut = new Customer();
@@ -663,11 +637,9 @@ stub.Setup(x => x.GetNumberOfUsers()).Returns(10);
 - 이상적으로 공개 API는 식별할 수 있는 동작과 일치해야 하며, 모든 구현 세부 사항은 클라이언트 눈에 보이지 않아야 한다.
 
 ```c#
-public class User
-{
+public class User {
  public string Name { get; set; }
- public string NormalizeName(string name)
- {
+ public string NormalizeName(string name) {
   string result = (name ?? "").Trim();
   if (result.Length > 50)
    return result.Substring(0, 50);
@@ -676,10 +648,8 @@ public class User
  }
 }
 
-public class UserController
-{
- public void RenameUser(int userId, string newName)
- {
+public class UserController {
+ public void RenameUser(int userId, string newName) {
   User user = GetUserFromDatabase(userId);
   string normalizedName = user.NormalizeName(newName);
   user.Name = normalizedName;
@@ -693,17 +663,14 @@ public class UserController
 - API를 잘 설계하기 위해 user 클래스는 `NormalizeName` 메서드를 숨기고 속성 세터를 내부적으로 호출해야 한다.
 
 ```c#
-public class User
-{
+public class User {
  private string _name;
- public string Name
- {
+ public string Name {
   get => _name;
- set => _name = NormalizeName(value);
+  set => _name = NormalizeName(value);
  }
 
- private string NormalizeName(string name)
- {
+ private string NormalizeName(string name) {
   string result = (name ?? "").Trim();
   if (result.Length > 50)
    return result.Substring(0, 50);
@@ -712,10 +679,8 @@ public class User
  }
 }
 
-public class UserController
-{
- public void RenameUser(int userId, string newName)
- {
+public class UserController {
+ public void RenameUser(int userId, string newName) {
   User user = GetUserFromDatabase(userId);
   user.Name = newName;
   SaveUserToDatabase(user);
@@ -763,16 +728,13 @@ public class UserController
 - **`시스템 외부와 통신하는 방식은`** 시스템의 식별할 수 있는 동작을 나타내기에 **`목을 사용해서 확인하면 좋다`**.
 
 ```c#
-public class CustomerController
-{
- public bool Purchase(int customerId, int productId, int quantity)
- {
+public class CustomerController {
+ public bool Purchase(int customerId, int productId, int quantity) {
   Customer customer = _customerRepository.GetById(customerId);
   Product product = _productRepository.GetById(productId);
 
   bool isSuccess = customer.Purchase(_mainStore, product, quantity);
-  if (isSuccess)
-  {
+  if (isSuccess) {
     _emailGateway.SendReceipt(customer.email, product.Name, quantity);
   }
 
@@ -787,8 +749,7 @@ public class CustomerController
 
 ```c#
 [Fact]
-public void Successful_purchase()
-{
+public void Successful_purchase() {
   var mock = new Mock<IEmailGateway>();
   var sut = new CustomerController(mock.Object);
 
@@ -877,8 +838,7 @@ public void Successful_purchase()
 - 아래 메서드는 수학적 함수다. 아래 두 구문은 서로 동일하다.
 
 ```c#
-public int Increment(int x)
-{
+public int Increment(int x) {
   return x + 1;
 }
 
@@ -890,8 +850,7 @@ int y = 5;
 - 반대로 아래 메서드는 수학적 함수가 아니다. x에 대한 사이드 이펙트가 있어서 대체할 수 없다.
 
 ```c#
-public int Increment(int x)
-{
+public int Increment(int x) {
   x++;
   return x;
 }
@@ -932,14 +891,12 @@ public int Increment(int x)
 - 리팩터링 할 CRM 예제 코드를 살펴보자
 
 ```c#
-public class User
-{
+public class User {
   public int UserId { get; private set;}
   public string Email { get; private set; }
   public UserType Type { get; private set; }
 
-  public void ChangeEmail(int userId, string newEmail)
-  {
+  public void ChangeEmail(int userId, string newEmail) {
     // DB에서 사용자의 현재 이메일과 유형 검색
     object[] data = Database.GetUserById(userId);
     UserId = userId,
@@ -974,8 +931,7 @@ public class User
   }
 }
 
-public enum UserType
-{
+public enum UserType {
   Customer = 1,
   Employee = 2
 }
@@ -985,13 +941,11 @@ public enum UserType
 - ORM 대신 객체를 생성하는 역할을 Factory 클래스로 제공한다면 코드는 아래와 같다.
 
 ```c#
-public class UserController
-{
+public class UserController {
   private readonly Database _database = new Database();
   private readonly MessageBus _messageBus = new MessageBus();
 
-  public void ChangeEmail(int userId, string newEmail)
-  {
+  public void ChangeEmail(int userId, string newEmail) {
     object[] userData = _database.GetUserById(userId);
     User user = UserFactory.Create(userData);
 
@@ -1007,14 +961,12 @@ public class UserController
   }
 }
 
-public class User
-{
+public class User {
   public int UserId { get; private set;}
   public string Email { get; private set; }
   public UserType Type { get; private set; }
 
-  public void ChangeEmail(string newEmail, Company company)
-  {
+  public void ChangeEmail(string newEmail, Company company) {
     if (Email == newEmail)
       return;
 
@@ -1032,10 +984,8 @@ public class User
   }
 }
 
-public class UserFactory
-{
-  public static User Create(object[] data)
-  {
+public class UserFactory {
+  public static User Create(object[] data) {
     Precondition.Requires(data.Length >= 3);
 
     int id = (int)data[0];
@@ -1046,19 +996,16 @@ public class UserFactory
   }
 }
 
-public class Company
-{
+public class Company {
   public string DomainName { get; private set; }
   public int NumberOfEmployees { get; private set; }
 
-  public void ChangeNumberOfEmployees(int delta)
-  {
+  public void ChangeNumberOfEmployees(int delta) {
     Precondition.Requires(NumberOfEmployees + delta >= 0);
     NumberOfEmployees += delta;
   }
 
-  public bool IsEmailCorporate(string email)
-  {
+  public bool IsEmailCorporate(string email) {
     string emailDomain = email.Split('@')[1];
     return emailDomain == DomainName;
   }
@@ -1097,15 +1044,13 @@ public class Company
 - 새로운 요구사항이 추가된 User 클래스를 살펴보자
 
 ```c#
-public class User
-{
+public class User {
   public int UserId { get; private set;}
   public string Email { get; private set; }
   public UserType Type { get; private set; }
   public bool IsEmailConfirmed { get; private set; } // 새 속성
 
-  public void ChangeEmail(string newEmail, Company company)
-  {
+  public void ChangeEmail(string newEmail, Company company) {
     ...
   }
 }
@@ -1114,15 +1059,12 @@ public class User
 - 이때 조건문을 컨트롤러에 위치시킬 수 있다.
 
 ```c#
-public class UserController
-{
-  public void ChangeEmail(int userId, string newEmail)
-  {
+public class UserController {
+  public void ChangeEmail(int userId, string newEmail) {
     object[] userData = _database.GetUserById(userId);
     User user = UserFactory.Create(userData);
 
-    if (user.IsEmailConfirmed) // 분기 추가
-    {
+    if (user.IsEmailConfirmed) { // 분기 추가
       return "Can't change a confirmed email";
     }
 
@@ -1135,17 +1077,14 @@ public class UserController
 - 이런 파편화를 방지하기 위해 **`CanExecute / Execute`** 패턴을 사용할 수 있다.
 
 ```c#
-public class User
-{
-  public string CanChangeEmail()
-  {
+public class User {
+  public string CanChangeEmail() {
     if (IsEmailConfirmed)
       return "Can't change a confirmed email";
     return null;
   }
 
-  public void ChangeEmail(string newEmail, Company company)
-  {
+  public void ChangeEmail(string newEmail, Company company) {
     Precondition.Requires(CanChangeEmail() == null);
 
     ...
@@ -1168,10 +1107,8 @@ public class User
 - CRM 예제에서 메시지 버스로 외부 시스템에 변경된 사용자 이메일을 알려주는 코드가 있었다.
 
 ```c#
-public class UserController
-{
-  public void ChangeEmail(int userId, string newEmail)
-  {
+public class UserController {
+  public void ChangeEmail(int userId, string newEmail) {
     ...
     _messageBus.SendEmailChangedMessage(userId, newEmail);
   }
@@ -1183,16 +1120,13 @@ public class UserController
 - 이때 **`복잡하지 않게 해결할 수 있는 방법은 도메인 이벤트를 사용하는 방법이다`**.
 
 ```c#
-public class EmailChangedEvent
-{
+public class EmailChangedEvent {
   public int UserId { get; }
   public string NewEmail { get; }
 }
 
-public class User
-{
-  public void ChangeEmail(string newEmail, Company company)
-  {
+public class User {
+  public void ChangeEmail(string newEmail, Company company) {
     Precondition.Requires(CanChangeEmail() == null);
 
     ...
@@ -1208,14 +1142,11 @@ public class User
 - 그 후 컨트롤러는 이벤트 컬렉션에 이벤트가 있을 때 메시지 버스를 호출한다.
 
 ```c#
-public class UserController
-{
-  public void ChangeEmail(int userId, string newEmail)
-  {
+public class UserController {
+  public void ChangeEmail(int userId, string newEmail) {
     ...
 
-    foreach (var ev in user.EmailChangedEvents)
-    {
+    foreach (var ev in user.EmailChangedEvents) {
       _messageBus.SendEmailChangedMessage(ev.UserId, ev.NewEmail);
     }
   }
@@ -1227,8 +1158,7 @@ public class UserController
 
 ```c#
 [Fact]
-public void Changing_email_from_corporate_to_non_corporate()
-{
+public void Changing_email_from_corporate_to_non_corporate() {
   // 테스트 준비 코드들
 
   sut.ChangeEmail("new@gmail.com", company);
@@ -1298,13 +1228,11 @@ public void Changing_email_from_corporate_to_non_corporate()
 - 실제 통합 테스트 예시를 보기 위해 컨트롤러 코드를 다시 보자.
 
 ```c#
-public class UserController
-{
+public class UserController {
   private readonly Database _database = new Database();
   private readonly MessageBus _messageBus = new MessageBus();
 
-  public void ChangeEmail(int userId, string newEmail)
-  {
+  public void ChangeEmail(int userId, string newEmail) {
     object[] userData = _database.GetUserById(userId);
     User user = UserFactory.Create(userData);
 
@@ -1320,8 +1248,7 @@ public class UserController
     _database.SaveCompany(company);
     _database.SaveUser(user);
 
-    foreach (var ev in user.EmailChangedEvents)
-    {
+    foreach (var ev in user.EmailChangedEvents) {
       _messageBus.SendEmailChangedMessage(ev.UserId, ev.NewEmail);
     }
   }
@@ -1346,8 +1273,7 @@ public class UserController
 
 ```c#
 [Fact]
-public void Changing_email_from_corporate_to_non_corporate()
-{
+public void Changing_email_from_corporate_to_non_corporate() {
   // given
   var db = new Database(ConnectionString);
   User user = CreateUser("user@corp.com", UserType.Employee, db);
@@ -1439,10 +1365,8 @@ public void Changing_email_from_corporate_to_non_corporate()
 - 지원 로깅은 비니지스 요구 사항이므로 비지니스에 필요한 로깅을 명시적으로 나타내는 `DomainLogger` 클래스를 만들어 상호 작용을 확인하라.
 
 ```c#
-public class User
-{
-  public void ChangeEmail(string newEmail, Company company)
-  {
+public class User {
+  public void ChangeEmail(string newEmail, Company company) {
     _logger.Info(...) // 진단 로그
     Precondition.Requires(CanChangeEmail() == null);
 
@@ -1457,17 +1381,14 @@ public class User
   }
 }
 
-public class DomainLogger : IDomainLogger
-{
+public class DomainLogger : IDomainLogger {
   private readonly ILogger _logger;
 
-  public DomainLogger(ILogger logger)
-  {
+  public DomainLogger(ILogger logger) {
     _logger = logger;
   }
 
-  public void UserTypeHasChanged(int userId, UserType oldType, UserType newType)
-  {
+  public void UserTypeHasChanged(int userId, UserType oldType, UserType newType) {
     _logger.Info($"User {userId} changed type from {oldType} to {newType}")
   }
 }
@@ -1481,8 +1402,7 @@ public class DomainLogger : IDomainLogger
 - 한 가지 방법은 다음과 같이 정적 메서드를 사용하는 것이다.
 
 ```c#
-public class User
-{
+public class User {
   private static readonly ILogger _logger = LogManager.GetLogger(typeof(User));
 }
 ```
@@ -1509,23 +1429,19 @@ public class User
 #### 시스템 끝에서 상호 작용을 검증하라
 
 ```c#
-public interface IMessageBus
-{
+public interface IMessageBus {
   void SendEmailChangedMessage(int userId, string newEmail);
 }
 
-public class MessageBus : IMessageBus
-{
+public class MessageBus : IMessageBus {
   private readonly IBus _bus;
 
-  public void SendEmailChangedMessage(int userId, string newEmail)
-  {
+  public void SendEmailChangedMessage(int userId, string newEmail) {
     _bus.Send("Type: USER EMAIL CHANGED; Id: {userId}; NewEmail: {newEmail}");
   }
 }
 
-public interface IBus
-{
+public interface IBus {
   void Send(string message);
 }
 ```
@@ -1535,8 +1451,7 @@ public interface IBus
 
 ```c#
 [Fact]
-public void Changing_email_from_corporate_to_non_corporate()
-{
+public void Changing_email_from_corporate_to_non_corporate() {
   // 기존 IMessageBus를 이용한 Mock
   var messageBusMock = new Mock<IMessageBus>();
   messageBusMock.Verify(
@@ -1557,28 +1472,23 @@ public void Changing_email_from_corporate_to_non_corporate()
 - **`스파이는 수동으로 작성하는 반면, 목은 목 프레임워크의 도움을 받아 생성하는 것이 유일한 차이다`**.
 
 ```c#
-public interface IBus
-{
+public interface IBus {
   void Send(string message);
 }
 
-public class BusSpy : IBus
-{
+public class BusSpy : IBus {
   private List<string> _sentMessages = new List<string>();
 
-  public void Send(string message)
-  {
+  public void Send(string message) {
     _sentMessages.Add(message);
   }
 
-  public BusSpy ShouldSendNumberOfMessages(int number)
-  {
+  public BusSpy ShouldSendNumberOfMessages(int number) {
     Assert.Equal(number, _sentMessages.Count);
     return this;
   }
 
-  public BusSpy WithEmailChangedMessage(int userId, string newEmail)
-  {
+  public BusSpy WithEmailChangedMessage(int userId, string newEmail) {
     string message = $"Type: USER EMAIL CHANGED; Id: {userId}; NewEmail: {newEmail}";
     Assert.Contains(_sentMessages, x => x == message);
 
@@ -1587,8 +1497,7 @@ public class BusSpy : IBus
 }
 
 [Fact]
-public void Changing_email_from_corporate_to_non_corporate()
-{
+public void Changing_email_from_corporate_to_non_corporate() {
   var busSpy = new BusSpy();
   var messageBus = new MessageBus(busSpy);
   var loggerMock = new Mock<IDomainLogger>();
@@ -1715,8 +1624,7 @@ messageBusMock.Verify(
 - 테스트 준비에서 코드를 재사용하기 좋은 방법은 비공개 팩토리 메서드를 도입하는 것이다.
 
 ```c#
-private User CreateUser(string email, UserType type, bool isEmailConfirmed)
-{
+private User CreateUser(string email, UserType type, bool isEmailConfirmed) {
   ...
 }
 ```
@@ -1727,8 +1635,7 @@ private User CreateUser(string email, UserType type, bool isEmailConfirmed)
 private User CreateUser(
   string email = "user@mycorp.com",
   UserType type = UserType.Employee,
-  bool isEmailConfirmed = false)
-{
+  bool isEmailConfirmed = false) {
   ...
 }
 ```
