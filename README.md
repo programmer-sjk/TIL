@@ -55,6 +55,7 @@
 - [구글 엔지니어는 이렇게 일한다](books/culture/google-work-culture.md)
 - [개발자 원칙](books/culture/engineer-principle.md)
 - [육각형 개발자](books/culture/hexagon-developer.md)
+- [상자 밖에 있는 사람](books/culture/getting-out-of-the-box.md)
 - [함께 자라기](books/culture/grow-togather.md)
 
 ### 코드
