@@ -55,8 +55,6 @@
 - [구글 엔지니어는 이렇게 일한다](books/culture/google-work-culture.md)
 - [개발자 원칙](books/culture/engineer-principle.md)
 - [육각형 개발자](books/culture/hexagon-developer.md)
-- [상자 밖에 있는 사람](books/culture/getting-out-of-the-box.md)
-- [드라이브](books/culture/drive.md)
 - [함께 자라기](books/culture/grow-togather.md)
 
 ### 코드
@@ -65,6 +63,11 @@
 - [읽기 좋은 코드가 좋은 코드다](books/code/readable-code-is-good.md)
 - [코드 작성 가이드](books/code/code-guide.md)
 - [Unit Testing](books/code/unit-testing.md)
+
+### 자기 관리 & 자기 계발
+
+- [상자 밖에 있는 사람](books/culture/getting-out-of-the-box.md)
+- [드라이브](books/culture/drive.md)
 
 ### 설계
 
