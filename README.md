@@ -68,8 +68,9 @@
 
 - [프로페셔널의 조건](books/culture/professional.md)
 - [상자 밖에 있는 사람](books/culture/getting-out-of-the-box.md)
-- [데일카네기 자기관리론](books/culture/self-care.md)
 - [드라이브](books/culture/drive.md)
+- [데일카네기 자기관리론](books/culture/self-care.md)
+- [데일카네기 인간관계론](books/culture/human-relationship.md)
 
 ### 설계
 
