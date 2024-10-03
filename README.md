@@ -10,18 +10,18 @@
 
 ### MySQL
 
-- [READ_COMMITED 격리수준과 SELECT 성능](db/isolation-level-select-performance.md)
-- [MySQL Query Cache는 왜 사용되지 않을까](db/query-cache.md)
-- [MySQL Table Cache](db/table-cache.md)
-- [MySQL InnoDB Buffer Pool](db/innodb-buffer-pool.md)
-- [Nested Loop vs Block Nested Loop vs Hash Join](./db/nested-loop-compare.md)
+- [READ_COMMITED 격리수준과 SELECT 성능](db/sql/isolation-level-select-performance.md)
+- [MySQL Query Cache는 왜 사용되지 않을까](db/sql/query-cache.md)
+- [MySQL Table Cache](db/sql/table-cache.md)
+- [MySQL InnoDB Buffer Pool](db/sql/innodb-buffer-pool.md)
+- [Nested Loop vs Block Nested Loop vs Hash Join](/db/sql/nested-loop-compare.md)
 
 ### Redis
 
-- [Redis Sorted Set을 이용한 랭킹 정보 관리](db/redis-sorted-set.md)
-- [Red Lock](db/redis-red-lock.md)
-- [Redis를 활용한 동시성 문제 해결](db/redis-red-lock-concurrency.md)
-- [(인프런) 실전 Redis 활용](db/%EC%8B%A4%EC%A0%84-redis-%ED%99%9C%EC%9A%A9.md)
+- [Redis Sorted Set을 이용한 랭킹 정보 관리](db/redis/redis-sorted-set.md)
+- [Red Lock](db/redis/redis-red-lock.md)
+- [Redis를 활용한 동시성 문제 해결](db/redis/redis-red-lock-concurrency.md)
+- [(인프런) 실전 Redis 활용](db/redis/%EC%8B%A4%EC%A0%84-redis-%ED%99%9C%EC%9A%A9.md)
 
 ## Message Queue
 
