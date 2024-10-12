@@ -10,8 +10,8 @@
 - AWS는 **`CloudFront라는`** CDN 서비스를 제공한다.
 - CloudFront에는 `Edge location과 Regional edge caches`가 있다. Edge location은 사용자와 지역적으로 가까이 위치하여 빠른 데이터를 제공한다. 캐시된 데이터가 빈번히 요청되지 않아 cache에서 제거되면 Edge location은 Regional edge caches로 데이터를 요청한다. Regional edge caches은 훨씬 더 큰 용량을 가지고 있어 오래동안 캐시에 남게 된다.
 
-  ![](../images/cloud/cdn-edge-location.png)
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/cloud/cdn-edge-location.png" width="600">
 
 - 2023년 7월을 기준으로 450개가 넘는 Edge location 서버가 있으며 13개의 Regional edge caches 서버를 두고 있다.
 
-  ![](../images/cloud/world-cloudfront.png)
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/cloud/world-cloudfront.png" width="600">
