@@ -7,7 +7,7 @@
 - 색인은 ID에 해당하는 내용을 매핑한다. 일반적으로 책의 목차를 생각하면 된다.
 - 역 색인이란, 단어에 해당하는 ID를 매핑해 놓은 것으로 특정 단어가 포함된 문서를 빠르게 검색할 수 있다.
 
-![](../../images/db/nosql/invert-index.png)
+ <img src="https://github.com/programmer-sjk/TIL/blob/main/images/db/nosql/invert-index.png" width="500">
 
 ## ES 특징
 
