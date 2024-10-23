@@ -47,7 +47,7 @@
 
 ## Repository 관점에서 본 아키텍처 구조
 
-![](../images/architecture/mono-turbo-repo.png)
+<img src="https://github.com/programmer-sjk/TIL/blob/main/images/architecture/mono-turbo-repo.png" width="500">
 
 ### 모놀리식
 
