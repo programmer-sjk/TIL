@@ -23,3 +23,22 @@
 ### 메시지 수신 후 실패
 
 ### 메시지 중복
+
+## AWS SQS
+
+- AWS가 제공하는 메시지 큐로 standard와 fifo 형태의 큐를 제공한다.
+- fifo Queue를 사용하지 않는다면 메시지가 중복으로 들어올 수 있기 때문에 컨슈머에서 멱등성있게 처리해야 한다.
+
+## 만약 consumer가 죽으면 어떻게 동작하는가?
+
+- SQS에 메시지가 들어가고 consumer가 죽으면 어떻게 될까
+- SQS는 retention period(최대 14일) 기간 동안 메시지를 삭제하지 않고 보존한다.
+- 따라서 consumer 서비스가 살아서 SQS에 붙게 되면 메시지를 수신할 수 있다.
+
+## FIFO Queue
+
+- SQS의 FIFO Queue는 정확한 순서 전달과 정확히 한 번 전송을 제공한다.
+- 순서가 중요한 전자상거래나 티켓팅 시스템에 활용될 수 있다.
+- 300 TPS의 메시지 처리량을 지원하며 비용은 standard에 비해 조금 더 비싸다.
+
+  ![](../images/message-queue/sqs-fifo-vs-standard.png)
