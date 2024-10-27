@@ -41,4 +41,4 @@
 - 순서가 중요한 전자상거래나 티켓팅 시스템에 활용될 수 있다.
 - 300 TPS의 메시지 처리량을 지원하며 비용은 standard에 비해 조금 더 비싸다.
 
-  ![](../images/message-queue/sqs-fifo-vs-standard.png)
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/message-queue/sqs-fifo-vs-standard.png" width="400">
