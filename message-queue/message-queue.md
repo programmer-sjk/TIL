@@ -40,3 +40,11 @@
 - 300 TPS의 메시지 처리량을 지원하며 비용은 standard에 비해 조금 더 비싸다.
 
   <img src="https://github.com/programmer-sjk/TIL/blob/main/images/message-queue/sqs-fifo-vs-standard.png" width="400">
+
+## Kafka
+
+### kafka 에서 순서 보장
+
+- 카프카에서는 하나의 파티션에 대해서는 메시지 순서를 보장할 수 있다.
+- 하지만 토픽에 파티션이 하나 뿐이라면 카프카 성능의 이점을 볼 수 없기 때문에 보통 토픽에는 여러 파티션이 존재한다.
+- 여러 파티션이 존재할 때 키를 지정할 경우 동일한 파티션에 메시지가 적재되어 메시지의 순서를 보장할 수 있다.
