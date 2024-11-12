@@ -136,3 +136,47 @@
 - 우리는 코딩하며 언제나 리소스를 사용한다. 메모리, 트랜잭션, 스레드 등 무한히 사용할 수 없는 모든 종류의 것을 관리한다.
 - 많은 개발자가 리소스 할당과 해제를 다루는 일관된 방침을 갖고 있진 않다. **`하나의 팁은 자신이 시작한 것은 자신이 끝내라는 방침이다`**.
 - 하나의 함수에서 파일 객체를 열고 다른 함수에서 파일 객체를 닫는다면 이 둘은 긴밀히 결합되고 파일 객체가 닫히지 않는 문제가 발생할 수도 있다.
+
+## 구부러지거나 부러지거나
+
+- 가역성을 설명하며 되돌릴 수 없는 결정이 얼마나 위험한지 이야기했다. 이번 장에서는 되돌릴 수 있는 의사 결정을 내리는 구체적인 방법을 설명한다.
+- 코드 간 의존도를 나타내는 결합도를 살펴볼 것이며 유연하고 바꾸기 쉬운 코드를 만들 수 있는 대안을 살펴본다.
+- 유연함을 유지하는 한 가지 좋은 방법은 코드를 적게 작성하는 것이다. 코드 수정은 새로운 버그를 만드는 계기이기도 하다.
+
+### 결합도 줄이기
+
+- 높은 결합도는 변경의 적이다.
+
+#### 열차사고
+
+- 아래 코드를 보자.
+
+  ```java
+    public void applyDiscount(customer, order_id, discount) {
+      totals = customer.orders.find(order_id).getTotals();
+      totals.grandTotal = totasl.grandTotal - discount;
+      totals.discount = discount;
+    }
+  ```
+
+- 고객 객체에서 주문 컬렉션을 얻고, 특정 주문을 찾아 합계를 얻는다. 이 코드를 쓰거나 이해하기 위해 알아야 하는 것이 맘ㄶ다.
+- 기차의 모든 객차가 서로 연결되어 있듯이 메서드나 속성들이 모두 연결되어 있다. 이런 코드를 열차 사고라고 부른다.
+- 이를 고치기 위해 묻지 말고 말하라는 원칙을 적용할 수 있다. 이 원칙은 다른 객체의 내부 상태에 따라 판단을 내리고 객체를 갱신해서는 안 된다는 것이다. 객체의 내부 상태를 묻는 것으로 캡슐화의 장점은 사라지고 구현에 대한 지식이 여기저기 퍼지게 된다. 열차 사고를 고쳐보자.
+
+  ```java
+    // 먼저 할인 처리를 totals 객체에 위임한다.
+    public void applyDiscount(customer, order_id, discount) {
+      customer.orders.find(order_id).getTotals().applyDoiscount(discount);
+    }
+
+    // 주문 컬렉션을 가져와서 주문을 찾지 말고 고객 객체에서 바로 주문 객체를 얻어와야 한다.
+    public void applyDiscount(customer, order_id, discount) {
+      customer.findOrder(order_id).getTotals().applyDoiscount(discount);
+    }
+
+    // 주문 객체가 합계를 계산하도록 수정한다.
+    // 먼저 할인 처리를 totals 객체에 위임한다.
+    public void applyDiscount(customer, order_id, discount) {
+      customer.findOrder(order_id).applyDoiscount(discount);
+    }
+  ```
