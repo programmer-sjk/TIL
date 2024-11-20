@@ -22,7 +22,7 @@
     },
   ```
 
-## import시 절대 경로로 바꾸고 싶을 때
+## import시 상대 경로로 바꾸고 싶을 때
 
 - import module 검색 -> shortest 에서 relative로 수정
 
