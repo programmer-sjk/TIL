@@ -22,6 +22,12 @@
     },
   ```
 
+## import시 절대 경로로 바꾸고 싶을 때
+
+- import module 검색 -> shortest 에서 relative로 수정
+
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/ide/import-module.png" width="500">
+
 ## 파일의 마지막에 빈줄 추가
 
 - 필요한 이유
