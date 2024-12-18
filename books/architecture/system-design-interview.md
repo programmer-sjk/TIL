@@ -436,7 +436,7 @@
 
 - 아래 그림은 개선된 버전이다. DB와 캐시를 분리하고 알림 서버를 증설해 수평적 규모 확장이 이루어지도록 한다. 메시지 큐를 이용해 시스템 컴포넌트 사이의 강한 결합을 끊는다.
 
-  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/books/architecture/alarm-improved.png" width="500">
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/books/architecture/alarm-improved.png" width="600">
 
 - 위 구성 중 메시지 큐와 작업 서버에 대해서만 좀 더 알아보자.
   - 메시지 큐: 시스템 간 의존성을 제거하기 위해 사용하고 대량의 알림이 전송될 때를 대비해 버퍼 역할도 한다.
@@ -664,7 +664,7 @@
   - 각 트리 노드는 하나의 단어, 또는 접두어 문자열을 나타낸다.
 - 기본 트라이 자료구조는 노드에 문자들을 저장한다. 빈도에 따라 정렬된 결과를 내놓기 위해 빈도 정보까지 저장할 필요가 있다.
 
-  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/books/architecture/trie.png" width="500">
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/books/architecture/trie.png" width="600">
 
 - 그렇다면 **`트라이로 검색어 자동완성은 어떻게 구현할 수 있을까?`** 우선 용어를 몇 가지 정의해보자.
   - p: 접두어의 길이
@@ -688,7 +688,7 @@
   - 일단 트라이가 만들어지면 검색어가 자주 바뀌진 않을 것이다. 그러니 트라이를 자주 갱신할 필요가 없다.
 - 아래는 데이터 분석 서비스의 수정된 설계안이다.
 
-  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/books/architecture/trie-collect.png" width="500">
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/books/architecture/trie-collect.png" width="600">
 
 - 데이터 분석 서비스 로그
   - 검색창에 입력된 질의에 관한 원본 데이터가 보관된다.
