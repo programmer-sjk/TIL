@@ -7,7 +7,7 @@
 - 천리길도 한 걸음부터라는 말이 있듯, 서버가 한 대인 간단한 시스템부터 설계해보자.
 - 클라이언트는 웹과 앱이고 서버 한대와 DB 한 대가 있다.
 
-  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/books/architecture/system-design-interview/simple.png" width="500">
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/books/system-design/architecture/system-design-interview/simple.png" width="500">
 
 ### 어떤 데이터베이스를 사용할 것인가?
 
@@ -68,7 +68,7 @@
   - 원본 서버가 파일을 CDN 서버에 반환하며 HTTP 헤더에 TTL 값이 들어있다. CDN 서버는 파일을 캐시하고 사용자에게 반환한다.
   - 다른 사용자의 접속이 들어오면 만료되지 않은 캐시된 파일의 경우 CDN 서버가 제공한다.
 
-<img src="https://github.com/programmer-sjk/TIL/blob/main/images/books/architecture/system-design-interview/cdn.png" width="500">
+<img src="https://github.com/programmer-sjk/TIL/blob/main/images/books/system-design/architecture/system-design-interview/cdn.png" width="500">
 
 - CDN 사용시 고려할 점
   - CDN은 비용이 나가므로 자주 사용되지 않는 컨텐츠는 캐싱에서 빼는것이 좋다.
@@ -218,7 +218,7 @@
 
 #### CAP 정리
 
-  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/books/architecture/cap.png" width="300">
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/books/system-design/architecture/cap.png" width="300">
 
 - CAP 정리는 **`데이터 일관성, 가용성, 파티션 감내라는 세 가지 요구사항을 동시에 만족하는 분산 시스템을 설계하는 것은 불가능하단 정리이다`**.
   - 데이터 일관성: 분산 시스템에 접속하는 모든 클라이언트는 어떤 노드에 접속했냐에 관계없이 같은 데이터를 봐야 한다.
@@ -427,7 +427,7 @@
 
 - 아래 그림은 개략적 설계의 초안이다. MSA 환경에서 N대의 서비스가 알림 서비스를 사용하고 있다.
 
-  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/books/architecture/alarm-init.png" width="500">
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/books/system-design/architecture/alarm-init.png" width="500">
 
 - 위 설계에는 몇 가지 문제가 있다.
   - 알림 서비스에 서버가 하나뿐이라 SPOF가 될 수 있고, DB나 캐시등의 저장소를 늘릴 방법이 없다. 또한 알림을 보내는 것은 자원을 많이 필요로 하는 자원일 수 있다. 모든 것을 한 서버에서 처리하면 사용자 트래픽이 몰리는 시간에 시스템이 과부하 상태에 빠질 수 있다.
@@ -436,7 +436,7 @@
 
 - 아래 그림은 개선된 버전이다. DB와 캐시를 분리하고 알림 서버를 증설해 수평적 규모 확장이 이루어지도록 한다. 메시지 큐를 이용해 시스템 컴포넌트 사이의 강한 결합을 끊는다.
 
-  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/books/architecture/alarm-improved.png" width="600">
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/books/system-design/architecture/alarm-improved.png" width="600">
 
 - 위 구성 중 메시지 큐와 작업 서버에 대해서만 좀 더 알아보자.
   - 메시지 큐: 시스템 간 의존성을 제거하기 위해 사용하고 대량의 알림이 전송될 때를 대비해 버퍼 역할도 한다.
@@ -664,7 +664,7 @@
   - 각 트리 노드는 하나의 단어, 또는 접두어 문자열을 나타낸다.
 - 기본 트라이 자료구조는 노드에 문자들을 저장한다. 빈도에 따라 정렬된 결과를 내놓기 위해 빈도 정보까지 저장할 필요가 있다.
 
-  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/books/architecture/trie.png" width="600">
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/books/system-design/architecture/trie.png" width="600">
 
 - 그렇다면 **`트라이로 검색어 자동완성은 어떻게 구현할 수 있을까?`** 우선 용어를 몇 가지 정의해보자.
   - p: 접두어의 길이
@@ -688,7 +688,7 @@
   - 일단 트라이가 만들어지면 검색어가 자주 바뀌진 않을 것이다. 그러니 트라이를 자주 갱신할 필요가 없다.
 - 아래는 데이터 분석 서비스의 수정된 설계안이다.
 
-  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/books/architecture/trie-collect.png" width="600">
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/books/system-design/architecture/trie-collect.png" width="600">
 
 - 데이터 분석 서비스 로그
   - 검색창에 입력된 질의에 관한 원본 데이터가 보관된다.
