@@ -218,7 +218,7 @@
 
 #### CAP 정리
 
-  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/books/architecture/cap.png" width="400">
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/books/architecture/cap.png" width="300">
 
 - CAP 정리는 **`데이터 일관성, 가용성, 파티션 감내라는 세 가지 요구사항을 동시에 만족하는 분산 시스템을 설계하는 것은 불가능하단 정리이다`**.
   - 데이터 일관성: 분산 시스템에 접속하는 모든 클라이언트는 어떤 노드에 접속했냐에 관계없이 같은 데이터를 봐야 한다.
