@@ -7,7 +7,7 @@
 - 천리길도 한 걸음부터라는 말이 있듯, 서버가 한 대인 간단한 시스템부터 설계해보자.
 - 클라이언트는 웹과 앱이고 서버 한대와 DB 한 대가 있다.
 
-  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/books/architecture/system-design/system-design-interview/simple.png" width="500">
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/books/architecture/system-design/simple.png" width="500">
 
 ### 어떤 데이터베이스를 사용할 것인가?
 
@@ -68,7 +68,7 @@
   - 원본 서버가 파일을 CDN 서버에 반환하며 HTTP 헤더에 TTL 값이 들어있다. CDN 서버는 파일을 캐시하고 사용자에게 반환한다.
   - 다른 사용자의 접속이 들어오면 만료되지 않은 캐시된 파일의 경우 CDN 서버가 제공한다.
 
-<img src="https://github.com/programmer-sjk/TIL/blob/main/images/books/architecture/system-design/system-design-interview/cdn.png" width="500">
+<img src="https://github.com/programmer-sjk/TIL/blob/main/images/books/architecture/system-design/cdn.png" width="500">
 
 - CDN 사용시 고려할 점
   - CDN은 비용이 나가므로 자주 사용되지 않는 컨텐츠는 캐싱에서 빼는것이 좋다.
