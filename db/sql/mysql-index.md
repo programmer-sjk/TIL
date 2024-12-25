@@ -10,7 +10,7 @@
 - MySQL은 인덱스로 **`B-Tree(Balanced Tree)를`** 사용한다.
 - B-Tree는 최상위에 루트 노드, 중간 노드들을 브랜치 노드, 최하위 노드를 리프 노드라고 부른다.
 
-  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/db/btree.png" width="400">
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/db/btree.png" width="800">
 
 - B-Tree는 N개의 노드를 가질 수 있으며 정렬되어 있다. 좌우 자식간에 균형이 맞지 않으면 비 효율적인데 **`B-Tree는 노드가 추가/삭제 될 때 자동으로 균형을 잡아준다`**.
 
