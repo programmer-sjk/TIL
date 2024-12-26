@@ -10,6 +10,7 @@
 
 ### MySQL
 
+- [Index](db/sql/mysql-index.md)
 - [READ_COMMITED 격리수준과 SELECT 성능](db/sql/isolation-level-select-performance.md)
 - [MySQL Query Cache는 왜 사용되지 않을까](db/sql/query-cache.md)
 - [MySQL Table Cache](db/sql/table-cache.md)
