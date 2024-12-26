@@ -22,6 +22,26 @@
 
 ## 공유 락 vs 배타 락
 
+### 공유 락
+
+- 공유 락은 읽기를 위해 잡는 락으로 다른 트랜잭션에서 공유 락을 잡을 순 있지만 수정을 위한 배타 락을 잡을 순 없다. 이를 달리 표현하면 공유 락을 잡는 순간 해당 데이터는 락이 해제되기 전까지 수정이 불가능하다.
+- 아래와 같이 두 개의 DB 커넥션에서 작업을 수행해보면 어떻게 동작하는지 이해할 수 있을 것이다.
+
+  ```sql
+    // 트랜잭션 A
+    begin;
+    SELECT * FROM users WHERE id = 1 FOR SHARE;
+
+    // 트랜잭션 B
+    SELECT * FROM users WHERE id = 1; -- 가능
+    SELECT * FROM users WHERE id = 1 FOR SHARE; -- 가능
+
+    UPDATE user SET name = 'aaa' WHERE id = 1; -- 대기
+    SELECT * FROM users WHERE id = 1 FOR UPDATE; -- 대기
+  ```
+
+- 배타 락을 잡거나 데이터의 수정은 트랜잭션 A에서 commit이나 rollback을 하게 되면 수행된다.
+
 ## AUTO INCREMENT 락
 
 ## InnoDB 락
