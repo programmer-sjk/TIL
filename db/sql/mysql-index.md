@@ -22,7 +22,7 @@
 
   <img src="https://github.com/programmer-sjk/TIL/blob/main/images/db/covering-index.png" width="400">
 
-### clustered index vs non-clustered index
+## clustered index vs non-clustered index
 
 - innoDB는 **`clustered index라고`** 불리는 특별한 인덱스가 있는데 PK가 있다면 PK가 clustered index가 된다.
   - **만약 PK를 지정하지 않았다면** Not NULL인 유니크 인덱스를 찾아 clustered index로 지정한다.
