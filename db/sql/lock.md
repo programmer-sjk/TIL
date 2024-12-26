@@ -61,6 +61,32 @@
 
 ## AUTO INCREMENT 락
 
+- 테이블 레벨의 락으로, 테이블에 AUTO_INCREMENT 컬럼이 있다면 데이터를 추가할 때 자동으로 잡게 되는 락이다.
+- innodb_autoinc_lock_mode 변수로 아래와 같은 설정이 가능하다.
+  - traditional(0)
+  - consecutive(1)
+  - interleaved(2)
+
+### innodb_autoinc_lock_mode = traditional(0)
+
+- 모든 INSERT 구문들(insert, insert...select, replace, load data)에 대해 auto-increment 락이 테이블 레벨로 동작
+- 트랜잭션이 끝날때까지 적용되는 것이 아닌 해당 구문의 실행시까지만 유지되는 lock
+
+### innodb_autoinc_lock_mode = consecutive(1)
+
+- MySQL 버전 5.7까지 디폴트 값이다.
+- bulk insert(insert...select, replace...select, load data)의 경우 테이블 수준에서 auto-increment 락을 잡는다.
+- 간단한 insert 구문에 대해서는 테이블 레벨의 락을 잡지 않고 mutex를 활용하므로 동시성을 높일 수 있다.
+
+### innodb_autoinc_lock_mode = interleaved(2)
+
+- MySQL 버전 8부터 디폴트 값이다.
+- 모든 insert 구문에서 테이블 수준에서 락을 잡지 않는다.
+- 단순한 insert 구문에서는 증가 값에 gap이 존재하지 않지만 bulk insert의 경우 gap이 존재할 수 있다.
+- 성능상 가장 빠르고 동시성이 좋지만, SQL 바이너리 로그 replay를 사용한 복구가 힘들다.
+
+### AUTO_INCREMENT 컬럼이라고 항상 동일한 값으로 증가하지 않는다
+
 ## InnoDB 락
 
 - 레코드 락
