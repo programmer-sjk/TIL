@@ -81,3 +81,68 @@
 - 이처럼 한 트랜잭션에서 읽기를 반복할 경우 결과가 다를 수 있다는 부정합 문제를 Non Repeatable Read라고 한다.
 - 일반적인 경우 문제가 되지 않을 수 있지만, 하나의 트랜잭션 내에서 동일한 데이터를 여러번 처리하는 로직이 민감한 금융과 관련된 문제라면 조심해야 한다.
 - READ_COMMITED 격리 수준은 트랜잭션 내에서 실행되는 SELECT와 그냥 실행되는 SELECT가 차이가 없다는 특징이 있다.
+
+## REPEATABLE READ
+
+- REPEATABLE READ는 언두 로그를 참조해 한 트랜잭션 내에서 동일한 결과를 보장한다.
+- READ_COMMITED 격리 수준에선 언두 로그를 참고해 commit 된 데이터가 보여졌다면, REPEATABLE READ 격리 수준에선 언두 로그를 참조해 트랜잭션이 시작된 시점의 데이터를 참조한다.
+
+  ```sql
+    -- 트랜잭션 A
+    SELECT * FROM users where id = 1; -- 광수로 조회 됨
+
+    -- 트랜잭션 B
+    begin;
+    UPDATE users SET name = '옥순' where id = 1;
+    commit;
+
+    -- 트랜잭션 A
+    SELECT * FROM users where id = 1; -- 광수로 조회 됨
+  ```
+
+- 위에서 트랜잭션 B가 커밋했지만 REPEATABLE READ 격리 수준에선 언두 로그에 기록된 트랜잭션 번호까지 참고한다. 트랜잭션 번호는 순차적으로 증가하는 고유한 트랜잭션 번호이다. 즉 트랜잭션 A가 먼저 시작되었기 때문에 이후 트랜잭션 B에서 반영되기 전의 데이터를 참조한다.
+- 아래와 같이 범위에 대한 쿼리도 언두 로그에서 트랜잭션 번호를 참고하기 때문에 트랜잭션 A가 시작한 시점의 데이터를 조회할 수 있다.
+
+  ```sql
+    -- 트랜잭션 A (번호: 10)
+    begin;
+    SELECT * FROM users where id > 10; -- 1건
+
+    -- 트랜잭션 B (번호: 11)
+    begin;
+    INSERT INTO users(name) VALUES('옥순');
+    commit;
+
+    -- 트랜잭션 A (번호 11은 자신보다 크므로 참조하지 않음)
+    SELECT * FROM users where id > 10; -- 1건
+  ```
+
+- MySQL에서는 발생하지 않지만 이론적으로 REPEATABLE READ 격리 수준은 새로운 데이터 추가에 대해서는 PHANTOM READ(유령 읽기) 현상이 발생한다.
+- 하지만 위에서 트랜잭션 번호를 참고하면 발생하지 않는다고 했는데 언제 발생할까? 잠금을 사용하는 경우다. 배타락이나 공유락을 거는 경우, 언두 로그에는 잠금 시스템이 없기에 실제 테이블의 데이터를 잠그게 된다. 이 상태에서 다른 트랜잭션에서 데이터를 추가하면 PHANTOM READ가 발생한다.
+
+  ```sql
+    -- 트랜잭션 A
+    begin;
+    SELECT * FROM users where id > 10 FOR SHARE; -- 1건
+
+    -- 트랜잭션 B
+    begin;
+    INSERT INTO users(name) VALUES('옥순');
+    commit;
+
+    -- 트랜잭션 A
+    SELECT * FROM users where id > 10; -- 2건
+  ```
+
+- 위에서 트랜잭션 A는 공유 락을 사용했기에 언두 로그가 아닌 실제 테이블의 데이터를 가져오게 된다. 트랜잭션 B가 커밋하고, 트랜잭션 A가 다시 조회를 할 때는 2건의 데이터를 가져오게 된다. 이처럼 동일한 트랜잭션에서 새로운 데이터가 보였다 안보였다 하는 현상을 PHANTOM READ라고 부른다
+- MySQL에서는 gap lock을 사용해 팬텀 리드가 발생하지 않는다. 즉 id가 10보다 큰 쿼리를 조회하게 되면 10보다 큰 공간에 gap lock을 걸어 다른 트랜잭션은 대기하게 된다.
+
+  ```sql
+    -- 트랜잭션 A
+    begin;
+    SELECT * FROM users where id > 10 FOR SHARE; -- 1건
+
+    -- 트랜잭션 B
+    begin;
+    INSERT INTO users(name) VALUES('옥순'); -- gap lock에 의해 대기
+  ```
