@@ -20,7 +20,7 @@
   ```sql
     SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
     SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
-    SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ
+    SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
     SET SESSION TRANSACTION ISOLATION LEVEL SERIALIZABLE;
   ```
 
@@ -47,9 +47,6 @@
 - 다른 트랜잭션에서 커밋된 데이터를 보여주는 격리 수준이다.
 
   ```sql
-    -- 트랜잭션 A, B 공통적으로 READ COMMITTED 사용
-    SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
-
     -- 트랜잭션 A
     begin;
     INSERT INTO users(name) values('하하');
@@ -66,4 +63,21 @@
   ```
 
 - 만약 트랜잭션 A에서 데이터를 수정했다면 테이블의 데이터는 변경되고 원래 데이터는 언두 로그로 백업된다. 아직 커밋하지 않은 시점에서 다른 트랜잭션이 해당 데이터를 조회하게 되면 언두 로그의 데이터를 참조한다.
-- READ_COMMITED 격리 수준에선 Non-Repeatable Read(반복 읽기 불가능) 문제가 발생할 수 있다. 아래 예시를 보자.
+- READ_COMMITED 격리 수준에선 Non Repeatable Read(반복 읽기 불가능) 문제가 발생할 수 있다. 아래 예시를 보자.
+
+  ```sql
+    -- 트랜잭션 A
+    begin;
+    SELECT * FROM users where name = '광수'; -- 조회된 데이터 X
+
+    -- 트랜잭션 B
+    begin;
+    UPDATE users set name = '광수' where name = '광ㅅ'; -- 이름이 잘못 기입되서 수정함
+
+    -- 트랜잭션 A
+    SELECT * FROM users where name = '광수'; -- 조회된 데이터 O
+  ```
+
+- 이처럼 한 트랜잭션에서 읽기를 반복할 경우 결과가 다를 수 있다는 부정합 문제를 Non Repeatable Read라고 한다.
+- 일반적인 경우 문제가 되지 않을 수 있지만, 하나의 트랜잭션 내에서 동일한 데이터를 여러번 처리하는 로직이 민감한 금융과 관련된 문제라면 조심해야 한다.
+- READ_COMMITED 격리 수준은 트랜잭션 내에서 실행되는 SELECT와 그냥 실행되는 SELECT가 차이가 없다는 특징이 있다.
