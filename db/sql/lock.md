@@ -62,32 +62,32 @@
 ## AUTO INCREMENT 락
 
 - 테이블 레벨의 락으로, 테이블에 AUTO_INCREMENT 컬럼이 있다면 데이터를 추가할 때 자동으로 잡게 되는 락이다.
-- innodb_autoinc_lock_mode 변수로 아래와 같은 설정이 가능하다.
+- **`innodb_autoinc_lock_mode`** 변수로 아래와 같은 설정이 가능하다.
   - traditional(0)
   - consecutive(1)
   - interleaved(2)
 
 ### innodb_autoinc_lock_mode = traditional(0)
 
-- 모든 INSERT 구문들(insert, insert...select, replace, load data)에 대해 auto-increment 락이 테이블 레벨로 동작
+- 모든 INSERT 구문들`(insert, insert...select, replace, load data)`에 대해 **`auto-increment 락이 테이블 레벨로 동작`**
 - 트랜잭션이 끝날때까지 적용되는 것이 아닌 해당 구문의 실행시까지만 유지되는 lock
 
 ### innodb_autoinc_lock_mode = consecutive(1)
 
 - MySQL 버전 5.7까지 디폴트 값이다.
-- bulk insert(insert...select, replace...select, load data)의 경우 테이블 수준에서 auto-increment 락을 잡는다.
+- bulk insert`(insert...select, replace...select, load data)`의 경우 **`테이블 수준에서 auto-increment 락을 잡는다`**.
 - 간단한 insert 구문에 대해서는 테이블 레벨의 락을 잡지 않고 mutex를 활용하므로 동시성을 높일 수 있다.
 
 ### innodb_autoinc_lock_mode = interleaved(2)
 
 - MySQL 버전 8부터 디폴트 값이다.
-- 모든 insert 구문에서 테이블 수준에서 락을 잡지 않는다.
+- **`모든 insert 구문에서 테이블 수준에서 락을 잡지 않는다`**.
 - 단순한 insert 구문에서는 증가 값에 gap이 존재하지 않지만 bulk insert의 경우 gap이 존재할 수 있다.
 - 성능상 가장 빠르고 동시성이 좋지만, SQL 바이너리 로그 replay를 사용한 복구가 힘들다.
 
 ### AUTO_INCREMENT 컬럼이라고 항상 동일한 값으로 증가하지 않는다
 
-- 테이블 수준에서 AUTO_INCREMENT 락을 잡는다고 해도 항상 동일한 값으로 증가하진 않는다.
+- 테이블 수준에서 **`AUTO_INCREMENT 락을 잡는다고 해도 항상 동일한 값으로 증가하진 않는다`**.
 - 트랜잭션에서 insert를 하고 auto increment 키를 할당받은 후 rollback 하는 경우가 그렇다.
 
   ```sql
@@ -110,7 +110,7 @@
 
 ## InnoDB 락
 
-- InnoDB에는 아래와 같이 3개의 락이 있는데 모두 인덱스를 잠근다는 특징을 가지고 있다.
+- InnoDB에는 아래와 같이 3개의 락이 있는데 **`모두 인덱스를 잠근다는 특징을 가지고 있다`**.
 
   <img src="https://github.com/programmer-sjk/TIL/blob/main/images/db/innodb_lock_%EC%A2%85%EB%A5%98.png" width="500">
 
@@ -119,10 +119,10 @@
   - 갭락은 다른 트랜잭션들이 gap에 insert하는 것을 막기 위한 용도로, 인덱스의 레코드와 레코드 사이, 첫번째 레코드의 앞과 마지막 레코드의 뒤를 잠글 수 있다.
   - 예를 들어 `SELECT name FROM users WHERE age BETWEEN 10 and 20 FOR UPDATE` 쿼리가 있다고 가정하자.
     - gap lock은 10과 20 사이에 15와 같은 데이터가 삽입되지 않도록 잠근다.
-  - gap lock은 유니크 인덱스에서 특정 값을 찾는 쿼리에는 나타나지 않는다. 유니크 제약조건에 의해 중복으로 추가될 일이 없기 때문이다.
+  - **`gap lock은 유니크 인덱스에서 특정 값을 찾는 쿼리에는 나타나지 않는다`**. 유니크 제약조건에 의해 중복으로 추가될 일이 없기 때문이다.
     - ex) `SELECT * FROM child WHERE id = 100`;
     - 쿼리에서 id가 유니크 인덱스가 아니라면 트랜잭션이 완료되기 전 다른 트랜잭션에서 id=100인 데이터를 추가할 수 있기에 gap lock을 건다.
-  - gap lock은 격리 수준을 READ_COMMITED로 바꾸면 인덱스 검색과 스캔에서 비활성화 되며 오직 외래키와 중복키 체크에만 사용된다.
+  - **`gap lock은 격리 수준을 READ_COMMITED로 바꾸면 인덱스 검색과 스캔에서 비활성화 되며 오직 외래키와 중복키 체크에만 사용된다`**.
 - 넥스트 키 락
   - 넥스트 키락은 레코드 락과 갭락을 합친 개념이다.
   - MySQL의 기본 격리 수준은 REPEATABLE_READ로 phantom read를 막기 위해 넥스트 키 락을 사용한다.
