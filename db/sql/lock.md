@@ -107,3 +107,22 @@
   ```
 
 - users 테이블에 id가 10까지 순차적으로 저장되었다고 가정하면 트랜잭션 A는 롤백이 발생했으므로 트랜잭션 B의 커밋은 id 12로 저장된다.
+
+## InnoDB 락
+
+- InnoDB에는 아래와 같이 3개의 락이 있는데 모두 인덱스를 잠근다는 특징을 가지고 있다.
+
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/db/innodb_lock_%EC%A2%85%EB%A5%98.png" width="500">
+
+- 레코드 락은 인덱스의 레코드를 잠그는 락으로, 만약 인덱스가 없다면 InnoDB에서 내부적으로 만드는 clustered index를 이용해 잠근다.
+- 갭락
+  - 갭락은 다른 트랜잭션들이 gap에 insert하는 것을 막기 위한 용도로, 인덱스의 레코드와 레코드 사이, 첫번째 레코드의 앞과 마지막 레코드의 뒤를 잠글 수 있다.
+  - 예를 들어 `SELECT name FROM users WHERE age BETWEEN 10 and 20 FOR UPDATE` 쿼리가 있다고 가정하자.
+    - gap lock은 10과 20 사이에 15와 같은 데이터가 삽입되지 않도록 잠근다.
+  - gap lock은 유니크 인덱스에서 특정 값을 찾는 쿼리에는 나타나지 않는다. 유니크 제약조건에 의해 중복으로 추가될 일이 없기 때문이다.
+    - ex) `SELECT * FROM child WHERE id = 100`;
+    - 쿼리에서 id가 유니크 인덱스가 아니라면 트랜잭션이 완료되기 전 다른 트랜잭션에서 id=100인 데이터를 추가할 수 있기에 gap lock을 건다.
+  - gap lock은 격리 수준을 READ_COMMITED로 바꾸면 인덱스 검색과 스캔에서 비활성화 되며 오직 외래키와 중복키 체크에만 사용된다.
+- 넥스트 키 락
+  - 넥스트 키락은 레코드 락과 갭락을 합친 개념이다.
+  - MySQL의 기본 격리 수준은 REPEATABLE_READ로 phantom read를 막기 위해 넥스트 키 락을 사용한다.
