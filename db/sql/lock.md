@@ -87,8 +87,23 @@
 
 ### AUTO_INCREMENT 컬럼이라고 항상 동일한 값으로 증가하지 않는다
 
-## InnoDB 락
+- 테이블 수준에서 AUTO_INCREMENT 락을 잡는다고 해도 항상 동일한 값으로 증가하진 않는다.
+- 트랜잭션에서 insert를 하고 auto increment 키를 할당받은 후 rollback 하는 경우가 그렇다.
 
-- 레코드 락
-- 갭락
-- 넥스트 키 락
+  ```sql
+    -- 트랜잭션 A
+    begin;
+    INSERT INTO users(name) values('하하');
+
+    -- 트랜잭션 B
+    begin;
+    INSERT INTO users(name) values('유재석');
+
+    -- 트랜잭션 A
+    rollback;
+
+    -- 트랜잭션 B
+    commit;
+  ```
+
+- users 테이블에 id가 10까지 순차적으로 저장되었다고 가정하면 트랜잭션 A는 롤백이 발생했으므로 트랜잭션 B의 커밋은 id 12로 저장된다.
