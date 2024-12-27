@@ -151,3 +151,15 @@
 
 - 가장 엄격한 격리 수준으로 여러 트랜잭션이 동일한 레코드에 동시 접근할 수 없어, 어떠한 데이터 부정합 문제도 발생하지 않는다. 하지만 트랜잭션이 순차적으로 처리되어야 하므로 동시 처리 성능이 매우 떨어진다.
 - 일반적으로 SELECT 문은 레코드 잠금이 없이 실행되는데 SERIALIZABLE 격리 수준에선 모든 SELECT 문이 읽기 잠금을 건다. 따라서 성능이 가장 떨어지므로 실무에서 활용할 일은 드물 것이다.
+
+## 마무리
+
+- 격리 수준에 따라 발생하는 문제는 다음과 같다.
+
+  ```text
+                    Dirty Read | Non-Repeatable Read | Phantom Read
+  READ_UNCOMMITED   O            O                     O
+  READ_COMMITED     X            O                     O
+  REPEATABLE_READ   X            X                     O (MySQL은 X)
+  SERIALIZABLE      X            X                     X
+  ```
