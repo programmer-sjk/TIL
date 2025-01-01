@@ -100,3 +100,67 @@
 
 - 고급 휘발유 충전소(Gas Station Deluxe)라는 어플리케이션을 만든다고 가정하자. 모든 클래스 이름을 GSD로 시작하겠다는 생각은 전혀 바람직하지 못하다.
 - **`일반적으로 짧은 이름이 긴 이름보다 좋다. 단, 의미가 분명한 경우에 한해서다`**. 이름에 불필요한 맥락을 추가하지 않도록 주의한다.
+
+## 함수
+
+- 함수를 잘 만드는 방법을 소개한다.
+
+### 작게 만들어라
+
+- 함수를 만드는 첫째 규칙은 작게다. 저자는 지난 40년 동안 온갖 크기로 함수를 구현해봤다. 지금까지 경험을 바탕으로 그리고 오랜 시행착오를 바탕으로 작은 함수가 좋다고 확신한다.
+- 다르게 말하면 if문 while문 등에 들어가는 블록은 한 줄이어야 한다는 의미이다. 대개 거기서 함수를 호출한다. 그러면 바깥을 감싸는 함수가 작아질 뿐더러 블록안에서 호출하는 함수 이름을 적절히 짓는다면 코드를 이해하기도 쉬워진다. 이 말은 중첩 구조가 생길만큼 함수가 커저서는 안 된다는 의미이다.
+
+### 한 가지만 해라
+
+- 함수는 한 가지를 잘 해야 한다. 그 한 가지만을 해야 한다. 여기서 문제라면 그 한가지가 무엇인지 알기 어렵다는 점이다. 지정된 함수 이름 아래에서 추상화 수준이 하나인 단계만 수행한다면 그 함수는 한 가지 작업만 한다. 어쨌거나 우리가 함수를 만드는 이유는 큰 개념을 다음 추상화 수준에서 여러 단계로 나눠 수행하기 위해서이다.
+- 함수가 한 가지 작업만 하려면 함수 내 모든 문장의 추상화 수준이 동일해야 한다. 한 함수 내에 추상화 수준이 섞이면 코드를 읽는 사람이 헷갈린다. 특정 표현이 근본 개념인지 세부 사항인지 구분하기 어려운 탓이다.
+- 코드는 위에서 아래로 이야기처럼 읽혀야 한다. 한 함수 다음에는 추상화 수준이 한 단계 낮은 함수가 온다. 즉 위에서 아래로 프로그램을 읽으면 함수 추상화 수준이 한 번에 한 단계씩 낮아진다. 저자는 이를 내려가기 규칙이라 부른다.
+
+### Switch 문
+
+- switch 문은 작게 만들기 어렵다. case 분기가 두개인 switch 문도 저자 취향에는 너무 길며, 한 가지 작업만 하는 switch 문도 만들기 어렵다. 본질적으로 switch 문은 N가지를 처리한다. 불행하게도 switch 문을 완전히 피할 방법은 없지만 switch 문을 저차원 클래스에 숨기고 다형성을 이용할 수 있다.
+
+  ```java
+    public Money calculatePay(Employee e) {
+      switch (e.type) {
+        case COMMISSIONED:
+          return calculateCommissionedPay(e);
+        case HOURLY:
+          return calculateHourlyPay(e);
+        case SALARIED:
+          return calculateSalariedPay(e);
+        default:
+          throw new InvalidEmployeeType(e.type);
+      }
+    }
+  ```
+
+- 위 함수에는 몇 가지 문제가 있다. 먼저 함수가 길다. 또한 한 가지 작업만 수행하지 않는다. 코드를 변경할 이유가 여럿이기 때문에 SRP(Single Responsibility Principle)를 위반한다. 이 문제를 해결한 코드가 아래 코드다.
+
+  ```java
+    public abstract class Employee {
+      public abstract boolean isPayDay();
+      public abstract Money calculatePay();
+    }
+
+    public interface EmployeeFactory {
+      public Employee makeEmployee(EmployRecord r);
+    }
+
+    public class EmployeeFactoryImpl implements EmployeeFactory {
+      public Employee makeEmployee(EmployRecord r) {
+        switch (r.type) {
+          case COMMISSIONED:
+            return new CommissionedEmployee();
+          case HOURLY:
+            return new HourlyEmployee();
+          case SALARIED:
+            return new SalariedEmployee();
+          default:
+            throw new InvalidEmployeeType(r.type);
+        }
+      }
+    }
+  ```
+
+- 저자는 switch 문을 단 한번만 참아준다. 다형적 객체를 생성하는 코드 안에서다. 이렇게 상속 관계로 숨긴 후에는 절대로 다른 코드에 노출하지 않는다.
