@@ -164,3 +164,78 @@
   ```
 
 - 저자는 switch 문을 단 한번만 참아준다. 다형적 객체를 생성하는 코드 안에서다. 이렇게 상속 관계로 숨긴 후에는 절대로 다른 코드에 노출하지 않는다.
+
+### 서술적인 이름을 사용하라
+
+- 함수가 작고 단순할수록 서술적인 이름을 고르기 쉬워진다. 이름이 길어도 괜찮다. 길고 서술적인 이름이 짧고 어려운 이름보다 좋다. 길고 서술적인 이름이 길고 서술적인 주석보다 좋다.
+
+### 함수 인수
+
+- 함수의 인자가 3개 이상은 가능한 피하는 편이 좋다.
+- 플래그 인수는 추하다.왜냐면 함수가 여러가지를 처리한다고 대놓고 공표하기 때문이다. render 라는 함수에 플래그 변수를 넘기기 보다는 renderForSuite()와 renderForSingleTest()라는 함수로 나눠야 마땅하다.
+
+### 부수 효과를 일으키지 마라
+
+- 부수 효과는 거짓말이다. 함수에서 한 가지를 하겠다고 약속해놓고선 남몰래 다른 짓을 하는 것이다.
+
+  ```java
+    public boolean checkPassword(String userName, String password) {
+      User user = userRepository.findByName(userName);
+      if (user) {
+        String codedPhrase = user.getPhraseEncodedByPassword();
+        String phrase = cryptographer.decrypt(codedPhrase, password);
+        if ("Valid Password".equlas(phrase)) {
+          Session.initialize();
+          return true;
+        }
+      }
+
+      return false;
+    }
+  ```
+
+- 위에서 부수 효과는 Session.initialize() 호출이다. 함수의 이름은 암호를 확인하는데 이름만 봐서는 세션을 초기화하는 사실이 드러나지 않는다. 만약 꼭 이런 코드가 필요하다면 함수 이름에 분명히 명시한다. checkPasswordAndInitializeSession 이라는 이름이 훨씬 좋다. 물론 함수가 한 가지만 한다는 규칙을 위반하긴 하지만.
+
+### 명령과 조회를 분리하라
+
+- 함수는 객체 상태를 변경하거나 조회하거나 둘 중 하나만 해야 한다. 다음 함수를 살펴보자.
+
+  ```java
+    public boolean set(String attribute, String value);
+  ```
+
+- 이 함수는 값을 value로 설정하고 성공하면 true를 반환한다. 따라서 다음과 같은 괴상한 코드가 나온다.
+
+  ```java
+    if (set("username", "unclebob")) ...
+  ```
+
+- 이 코드를 읽는 입장에선 username 속성이 unclebob으로 설정되어 있다면으로 읽힌다. username이 unclebob으로 설정하는데 성공하면 이라고 읽히지 않는다. 이에 대한 해결책은 명령과 조회르 분리해 혼란을 애초에 뿌리뽑는 방법이다.
+
+### 오류 코드보다 예외를 사용하라
+
+- 명령 함수에서 오류 코드를 반환하는 방식은 명령/조회 분리 규칙을 미묘하게 위반한다. 오류 코드 대신 예외를 사용하면 오류를 받아 비교하는 처리가 없어져 코드가 깔끔해진다.
+
+  ```java
+    // 오류 코드를 처리하는 패턴
+    if (deletePage(page) === E_OK) {
+      if (registry.deleteReference(page.name) === E_OK) {
+        if (configKeys.deleteKey(page.name.makeKey()) === E_OK) {
+          ...
+        }
+      }
+    }
+
+    // 예외를 뱉는 패턴
+    try {
+      deletePage(page);
+      registry.deleteReference(page.name);
+      configKeys.deleteKey(page.name.makeKey())
+    } catch (Exception e) {
+      logger.log(e.getMessage());
+    }
+  ```
+
+### 함수를 어떻게 짜죠?
+
+- SW를 개발하는 행위는 여느 글짓기와 비슷하다. 초안을 서투르게 작성하고 문장을 고치고 문단을 정리한다. 저자가 함수를 만들 때도 마찬가지이다. 처음에는 길고 복잡하다. 기능을 완성하면 코드를 빠짐없이 테스트 하는 단위 테스트 케이스를 만든다. 그런 다음 저자는 코드를 다듬고 함수를 만들고 이름을 바꾸고 중복을 제거한다. 때로는 전체 클래스를 쪼개기도 한다. 이 와중에도 코드는 항상 단위 테스트를 통과한다.
