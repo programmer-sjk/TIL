@@ -255,3 +255,43 @@
   - 있으나 마나 한 주석: 생성자에 기본 생성자라고 주석을 다는 경우로 정보를 전달하지 못하는 주석이다.
   - 너무 많은 정보: 주석에 흥미없는 역사나 정보를 장황하게 늘어놓지 않는다.
   - 비공개 코드에서 Javadocs: 시스템내부에 속한 클래스나 함수에 Javadocs를 생성할 필요는 없다.
+
+## 형식 맞추기
+
+- 프로그래머라면 형식을 깔끔하게 맞춰 코드를 짜야 한다. 코드 형식을 맞추기 위한 간단한 규칙을 정하고 그 규칙을 착실히 따라야 한다. 필요하다면 규칙을 자동으로 적용하는 도구를 활용한다.
+- 개념은 빈 행으로 분리하자. 모든 코드는 왼쪽에서 오른쪽으로 그리고 위에서 아래로 읽힌다. 일련의 행 묶음은 완결된 생각 하나를 표현한다. 생각 사이는 빈 행을 넣어 분리해야 마땅하다. 빈 행은 새로운 개념을 시작한다는 시각적 단서다.
+
+  ```java
+    // 빈 행 적용
+    package fitnesses.wikitext.widgets;
+
+    import java.util.regex.*;
+
+    public class BoldWidget extends ParentWidget {
+      public static final String REGEXP = "'''.+?'''";
+
+      public BoldWidget(ParentWidget parent, String text) {
+        super(parent);
+        Matcher match = pattern.matcher(text);
+        match.find();
+        addChildWidget(match.group(1));
+      }
+    }
+
+    // 빈행이 없는 경우
+    package fitnesses.wikitext.widgets;
+    import java.util.regex.*;
+    public class BoldWidget extends ParentWidget {
+      public static final String REGEXP = "'''.+?'''";
+      public BoldWidget(ParentWidget parent, String text) {
+        super(parent);
+        Matcher match = pattern.matcher(text);
+        match.find();
+        addChildWidget(match.group(1));
+      }
+    }
+  ```
+
+- 위에서 두번째 코드는 빈행을 빼버린 코드로 코드 가독성이 현저하게 떨어진다.
+- 줄 바꿈이 개념을 분리한다면 세로 밀집도는 연관성을 의미한다. 즉 서로 밀접한 코드 행은 세로로 가까이 놓아야 한다는 뜻이다. 변수는 실제로 사용하는 위치에 최대한 가까이 선언한다. 한 함수가 다른 함수를 호출한다면 두 함수는 세로로 가까이 배치한다. 또한 가능하다면 호출되는 함수를 뒤에 배치한다. 그러면 프로그램이 자연스럽게 읽힌다.
+- 프로그래머라면 각자 선호하는 규칙이 있지만 팀에 속한다면 자신이 선호해야 할 규칙은 팀 규칙이다. 팀은 한 가지 규치겡 합의해야 하고 모든 팀원은 그 규칙을 따라야 한다. 그래야 SW가 일관적인 스타일을 보인다. 개개인이 따로국밥처럼 맘대로 짜는 코드는 피해야 한다. 좋은 SW는 읽기 쉬운 문서로 이뤄진다는 사실을 기억해야 한다. 스타일은 일관적이고 한 소스에서 봤던 형식이 다른 소스 파일에도 쓰이리라느 신뢰감을 독자에게 줘야 한다.
