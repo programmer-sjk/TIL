@@ -449,3 +449,58 @@
   - Self-Validating: 테스트는 bool 값으로 결과를 내야 한다. 성공 아니면 실패다.
   - Timely: 테스트는 적시에 작성해야 한다. 실제 코드를 구현 후 테스트 코드를 만들면 테스트하기 어렵다는 사실을 발견할지도 모른다.
 - 테스트 코드는 실제 코드만큼이나 중요하고 실제 코드의 유연성, 유지보수성, 재사용성을 지원한다. 테스트 코드를 깨끗하게 유지하자.
+
+## 클래스
+
+- 클래스를 정의하는 자바 관례에 따르면 가장 먼저 변수 목록이 나온다.
+  - static public 변수
+  - static private 변수
+  - private instance 변수
+- 변수 다음에는 공개 함수가 나온다. 비공개 함수는 자신을 호출하는 공개 함수 직후에 넣는다. 그래서 프로그램은 신문 기사처럼 읽힌다.
+- 변수와 함수는 가능한 숨겨야 하지만 때로는 변수나 함수를 protected로 선언해 테스트 코드에 접근을 허용하기도 한다. 테스트는 아주 중요하다. 비공개 상태로 유지할 온갖 방법을 강구해보고 필요하다면 테스트 코드가 함수를 호출하거나 변수를 사용하기 위해 protected로 선언하는 것도 고려해볼 수 있다. 그럼에도 캡슐화를 풀어주는 결정은 언제나 최후의 수단이다.
+- 클래스를 만들 때 첫번째 규칙은 크기다. 클래스는 작아야 한다. 클래스 이름은 해당 클래스 책임을 기술해야 한다. 실제로 클래스의 이름은 클래스 크기를 줄이는 첫 번째 관문이다. 간결한 클래스 이름이 떠오르지 않는다면 대부분 클래스 크기가 너무 커서 그렇다.
+- 단일 책임 원칙은 클래스를 변경할 이유가 단 하나뿐이라는 원칙이다. SRP는 책임이라는 개념을 정의하며 적절한 클래스 크기를 제시한다. SRP는 OOP에서 더욱 중요한 개념이고 지키기 수월한 개념이기도 하다. 하지만 이상하게도 SRP는 클래스 설계자가 가장 무시하는 규칙 중 하나다. 왤까? 우리들은 대다수 깨끗한 SW보다 돌아가는 SW에 초점을 둔다. 올바른 태도다. 문제는 대다수가 프로그램이 돌아가면 일이 끝났다고 여기는데 있다. 깨끗한 SW라는 다음 관심사로 전환하지 않는다. 큰 클래스 몇개 보다 작은 클래스 여럿으로 이뤄진 시스템이 바람직하다. 작은 클래스는 각자 맡은 책임이 하나며, 변경할 이유도 하나이다.
+- 클래스는 인스턴스 변수 수가 작아야 한다. 클래스의 각 메서드는 클래스 인스턴스 변수를 하나 이상 사용해야 한다. 일반적으로 메서드가 변수를 더 많이 사용할수록 메서드와 클래스는 응집도가 높다. 몇몇 메서드에서만 인스턴스 변수를 사용하는 경우가 늘어날수록 새로운 클래스로 쪼개야 한다는 신호다. 응집도가 높아지도록 변수와 메서드를 적절히 분리해 새로운 클래스로 쪼개준다.
+- 구체적인 클래스는 상세한 구현을 포함하며 추상 클래스는 개념만 포함한다고 배웠다. 상세한 구현에 의존하는 클라이언트 클래스는 구현이 바뀌면 위험에 처한다. 그래서 우리는 인터페이스와 추상 클래스를 사용해 구현이 미치는 영향을 격리한다.
+- Portfolio 클래스를 만든다고 가정하자. 이 클래스는 외부 TokyoStockExchange API를 사용해 포트폴리오 값을 계산한다. 5분마다 결과가 다를 수 있기에 이를 테스트하는 것은 쉽지 않다. Portfolio 클래스에서 TokyoStockExchange API를 직접 호출하는 대신 StockExchange라는 인터페이스를 생성한 후 메서드 하나를 선언한다.
+
+  ```java
+    public interface StockExchange {
+      Money currentPrice(String symbol);
+    }
+  ```
+
+- 다음으로 StockExchange 인터페이스를 구현하는 TokyoStockExchange 클래스를 구현한다. 또한 Portfolio 생성자를 수정해 StockExchange 참조자를 인수로 받는다.
+
+  ```java
+    public Portfolio {
+      private StockExchage exchange;
+      public Portfolio(StockExchange exchange) {
+        this.exchange = exchange;
+      }
+    }
+  ```
+
+- 이제 TokyoStockExchange 클래스를 흉내내는 테스트용 클래스를 만들 수 있다.
+
+  ```java
+  public class PortfolioTest {
+    private FixedStockExchangeStub exchange;
+    private PortFolio portfolio;
+
+    @Before
+    protected void setUp() {
+      exchange = new FixedStockExchangeStub();
+      exchange.fix('Microsoft', 100);
+      portfolio = new Portfolio(exchange);
+    }
+
+    @Test
+    public void GivenFiveMicrosoftTotalShourBe500() {
+      portfolio.add(5, 'Microsoft');
+      Assert.assertEquals(500, portfolio.value());
+    }
+  }
+  ```
+
+- 위와 같이 테스트가 가능할 정도로 시스템 결합을 낮추면 유연성과 재사용성도 더욱 높아진다. 이렇게 결합도를 줄이면 또 다른 클래스 설계원칙은 DIP를 따르는 클래스가 나온다. 본질적으로 DIP는 클래스가 상세한 구현이 아니라 추상화에 의존해야 한다는 원칙이다. 우리가 위에서 개선한 Portfolio 클래스는 TokyoStockExchange라는 상세한 클래스가 아니라 StockExchange 인터페이스에 의존한다. StockExchange 인터페이스는 현재 주식 가격을 반환한다는 추상적인 개념을 표현한다. 이 같은 추상화로 실제 주가를 얻어오는 출처나 방식같은 구체적인 사실은 모두 숨긴다.
