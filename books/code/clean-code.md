@@ -294,4 +294,101 @@
 
 - 위에서 두번째 코드는 빈행을 빼버린 코드로 코드 가독성이 현저하게 떨어진다.
 - 줄 바꿈이 개념을 분리한다면 **`세로 밀집도는 연관성을 의미한다. 즉 서로 밀접한 코드 행은 세로로 가까이 놓아야 한다는 뜻이다`**. 변수는 실제로 사용하는 위치에 최대한 가까이 선언한다. 한 함수가 다른 함수를 호출한다면 두 함수는 세로로 가까이 배치한다. 또한 가능하다면 호출되는 함수를 뒤에 배치한다. 그러면 프로그램이 자연스럽게 읽힌다.
-- **`프로그래머라면 각자 선호하는 규칙이 있지만 팀에 속한다면 자신이 선호해야 할 규칙은 팀 규칙이다`**. 팀은 한 가지 규치겡 합의해야 하고 모든 팀원은 그 규칙을 따라야 한다. 그래야 SW가 일관적인 스타일을 보인다. 개개인이 따로국밥처럼 맘대로 짜는 코드는 피해야 한다. 좋은 SW는 읽기 쉬운 문서로 이뤄진다는 사실을 기억해야 한다. 스타일은 일관적이고 한 소스에서 봤던 형식이 다른 소스 파일에도 쓰이리라느 신뢰감을 독자에게 줘야 한다.
+- **`프로그래머라면 각자 선호하는 규칙이 있지만 팀에 속한다면 자신이 선호해야 할 규칙은 팀 규칙이다`**. 팀은 한 가지 규칙에 합의해야 하고 모든 팀원은 그 규칙을 따라야 한다. 그래야 SW가 일관적인 스타일을 보인다. 개개인이 따로국밥처럼 맘대로 짜는 코드는 피해야 한다. 좋은 SW는 읽기 쉬운 문서로 이뤄진다는 사실을 기억해야 한다. 스타일은 일관적이고 한 소스에서 봤던 형식이 다른 소스 파일에도 쓰이리라느 신뢰감을 독자에게 줘야 한다.
+
+## 객체와 자료구조
+
+- 변수를 private로 정의하는 이유는 남들이 변수에 의존하지 않게 만들고 싶어서다. 그렇다면 어째서 수 많은 개발자가 get, set 함수를 당연하게 공개해 비공개 변수를 외부에 노출할까?
+- 아래 두 클래스는 모두 2차원점을 표현한다. 한 클래스는 구현을 외부로 노출하고 다른 클래스는 구현을 완전히 숨긴다.
+
+  ```java
+    public class Point {
+      public double x;
+      public double y;
+    }
+
+    public interface Point {
+      double getX();
+      double getY();
+      void setCartesian(double x, double y);
+      double getR();
+    }
+  ```
+
+- 두 번째 예시는 구현을 숨김에도 불구하고 자료 구조를 명백하게 표현한다. 또 클래스 메서드가 접근 정책을 강제한다. 좌표를 읽을 때는 개별적으로 읽어야 하지만 좌표를 설정할 때는 두 값을 한꺼번에 설정해야 한다. 반면 첫번째 코드는 개별적으로 좌표 값을 읽고 설정하게 한다. 변수를 private로 선언하더라도 각 값마다 get, set 함수가 공개된다면 구현을 외부로 노출하는 셈이다.
+- 변수 사이에 함수라는 계층을 넣는다고 구현이 저절로 감춰지지는 않는다. 구현을 감추려면 추상화가 필요하다. 그저 get, set 함수로 변수를 다룬다고 클래스가 되지는 않는다. 그보다는 추상 인터페이스를 제공해 사용자가 구현을 모른채 자료의 핵심을 조작할 수 있어야 진정한 클래스다. 자료를 세세하게 공개하기 보다는 추상적인 개념으로 표현하는 편이 좋다.
+
+### 자료/객체 비대칭
+
+- 위에서 설명한 두 Point는 객체와 자료구조를 보여준다. 객체는 추상화 뒤로 자료를 숨긴채 자료를 다루는 함수만 공개한다. 자료구조는 자료를 그대로 제공하며 별다른 함수를 제공하지 않는다. 아래 코드는 절차적인 도형 클래스다. 각 도형 클래스는 아무 메서드도 제공하지 않고 Geometry 클래스가 세 가지 도형 클래스를 다룬다.
+
+  ```java
+    public class Square {
+      public Point topLeft;
+      public double side;
+    }
+
+    public class Rectangle {
+      public Point topLeft;
+      public double height;
+      public double width;
+    }
+
+    public class Circle {
+      public Point center;
+      public double radius;
+    }
+
+    public class Geometry {
+      public final double PI = 3.14;
+
+      public double area(Object shape) {
+        if (shape instanceof Square) {
+          Square s = (Square)shape;
+          return s.side * s.side;
+        } else if (shape instanceof Rectangle) {
+          Rectangle r = (Rectangle)shape;
+          return r.height * r.width;
+        } else if (shape instanceof Circle) {
+          Circle c = (Circle)shape;
+          return PI * c.radius * c.radius;
+        }
+      }
+    }
+  ```
+
+- 위 코드는 나름의 장단점이 있다. 만약 Geometry 클래스에 둘레 길이를 구하는 함수를 추가하고 싶다면 도형 클래스는 아무런 영향을 받지 않는다. 반대로 새 도형을 추가하고 싶다면 Geometry 클래스에 속한 함수를 고쳐야 한다.
+- 이번에는 객체 지향적인 도형 클래스를 살펴보자. 여기서 area는 다형 메서드이다.
+
+  ```java
+    public class Square implements Shape {
+      public Point topLeft;
+      public double side;
+
+      public double area() {
+        return side * side;
+      }
+    }
+
+    public class Rectangle implements Shape {
+      public Point topLeft;
+      public double height;
+      public double width;
+
+      public double area() {
+        return height * width;
+      }
+    }
+
+    public class Circle implements Shape {
+      public Point center;
+      public double radius;
+
+      public double area() {
+        return PI * radius * radius;
+      }
+    }
+  ```
+
+- 절차적인 코드는 기존 자료구조를 변경하지 않으면서 새 함수를 추가하기 쉽다. 반면 객체지향 코드는 기존 함수를 변경하지 않으면서 새 클래스를 추가하기 쉽다. 반대로 절차적인 코드는 새로운 자료구조를 추가하기 어렵다. 모든 함수를 고쳐야 한다. 객체지향 코드는 새로운 함수를 추가하기 어렵다. 모든 클래스를 고쳐야 한다.
+- 정리하면 객체지향 코드에서 어려운 변경이 절차적인 코드에선 쉽고, 절차적인 코드에서 어려운 변경이 객체지향 코드에선 쉽다. 분별 있는 프로그래머라면 모든 것이 객체라는 생각이 미신임을 안다. 때로는 단순한 자료구조와 절차적인 코드가 적합한 상황도 있다.
