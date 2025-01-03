@@ -664,3 +664,74 @@
       e.deliverPay(pay);
     }
   ```
+
+- 때로 시간적인 결합이 필요하다. 하지만 시간적인 결합을 숨겨서는 안 된다. 함수를 짤때 함수 인자를 배치해 함수가 호출되는 순서를 명백히 드러낸다.
+
+  ```java
+    public class MoogDiver {
+      public void dive(String reason) {
+        saturatedGradient();
+        reticulateSplines();
+        diveForMoong(reason);
+      }
+    }
+  ```
+
+- 위 코드에 드러나진 않지만 실행되는 순서는 저 함수에 드러난대로 호출이 되어야 한다. 불행히도 이 코드는 시간적인 결합을 강제하지 않는다. 다른 프로그래머가 모르고 순서를 바꿔서 오류가 발생해도 막을 도리가 없다. 위 코드보다 아래 코드가 일종의 연결 소자를 통해 시간적인 결합을 노출한다. 각 함수의 결과가 다음 함수에 필요하다. 그러므로 순서를 바꿔서 호출할 수가 없으므로 더 좋다.
+
+  ```java
+    public class MoogDiver {
+      public void dive(String reason) {
+        Gradient gradient = saturatedGradient();
+        List<Spline> splines = reticulateSplines(gradient);
+        diveForMoong(splines, reason);
+      }
+    }
+  ```
+
+- 경계 조건을 캡슐화하라. 경계 조건을 처리하기 위해 +1, -1 을 흝어놓지 않는다.
+
+  ```java
+    if (level + 1 < tags.length) {
+      parts = new Parse(body, tags, level + 1, offset + endTag);
+    }
+
+    // 아래가 더 좋다.
+    int nextLevel = level + 1;
+    if (nextLevel < tags.length) {
+      parts = new Parse(body, tags, nextLevel, offset + endTag);
+    }
+  ```
+
+- 추이적 탐색을 피하라. 한 모듈은 주변 모듈을 모를수록 좋다. A가 B를 사용하고 B가 C를 사용한더 하더라도 A가 C를 알아서는 안 된다. 이를 디미터 법칙이라 부르고 부끄럼 타는 코드 작성이라고 부르기도 한다. 핵심은 자신이 직접 사용하는 모듈만 알아야 한다는 뜻이다.
+
+  ```java
+    // 피해야 하는 코드
+    a.getB().getC().doSomething();
+
+    // 자신이 직접 사용하는 모듈로 충분해야 한다.
+    getB().doSomething();
+  ```
+
+### 이름
+
+- 이름은 성급히 고르지 않고 서술적인 이름을 신중하게 고른다. SW 가독성의 90%는 이름이 결정한다. 그러므로 시간을 들여 현명한 이름을 선택하고 유효한 상태로 유지한다.
+- 구현을 드러내는 이름을 피하고 적절한 추상화 수준에서 이름을 선택하라.
+- 긴 범위는 긴 이름을 사용해라. 범위가 작으면 짧은 이름도 괜찮다.
+- 이름으로 부수 효과를 설명해라. 함수가 하는 일을 모두 기술하는 이름을 사용한다. 아래 코드에서 이름은 createOrReturnOos가 더 명확하다.
+
+  ```java
+    public ObjectOutputStream getOos() {
+      if (m_oos === null) {
+        m_oos = new ObjectOutputStream();
+      }
+      return m_oos;
+    }
+  ```
+
+### 테스트
+
+- 테스트 케이스는 몇 개가 적당할까? 프로그래머들은 가끔 이 정도면 충분하지 않을까? 생각하지만 테스트케이스가 확인하지 않는 조건이나 검증하지 않는 계산이 있다면 그 테스트는 불완전하다.
+- 커버리지 도구는 테스트가 빠뜨리는 공백을 알려주기에 커버리지 도구를 활용하자.
+- 경계 조건은 각별히 신경써서 테스트 한다. 알고리즘의 중앙 조건은 올바로 짜놓고 경계 조건에서 실수하는 경우가 흔하다.
+- 테스트는 빨라야 한다. 느린 테스트는 실행하지 않게 될 것이다.
