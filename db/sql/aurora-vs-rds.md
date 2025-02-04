@@ -1,11 +1,11 @@
-# AWS Aurora RDS vs AWS RDS
+# AWS Aurora MySQL vs AWS MySQL
 
-- Aurora RDS와 RDS의 차이점을 비교해본다.
+- Aurora MYSQL와 MYSQL의 차이점을 비교해본다.
 
-## Aurora RDS
+## Aurora MYSQL
 
-- Aurora RDS는 기존 RDS를 성능과 간편성, 가용성 관점에서 AWS에 의해 한 번 디자인된 RDBMS
-- Aurora와 RDS의 가장 큰 차이점은 스토리지이다.
+- Aurora MYSQL는 기존 MYSQL를 성능과 간편성, 가용성 관점에서 AWS에 의해 한 번 디자인된 RDBMS
+- Aurora와 MYSQL의 가장 큰 차이점은 스토리지이다.
 
   <img src="https://github.com/programmer-sjk/TIL/blob/main/images/db/aurora-storage.png" width="400">
 
@@ -16,7 +16,7 @@
 
 ### 스토리지에 데이터를 바로 저장하면 어떤 이점이 있을까?
 
-- RDS의 경우 마스터 DB는 자신의 EBS에 데이터를 저장하고 Slave나 복제본에 데이터를 전송한다.
+- MYSQL의 경우 마스터 DB는 자신의 EBS에 데이터를 저장하고 Slave나 복제본에 데이터를 전송한다.
   - Slave나 복제본은 받은 데이터를 자신의 EBS에 저장한다.
 - 여기서 중요한 점은 Slave와 복제본도 받은 데이터를 자신의 EBS에 저장하기 위한 쓰기 연산이 발생한다는 점이다.
 - 반면에 Aurora는 스토리지에 바로 데이터를 저장해서 쓰기 연산없이 100% 읽는 작업으로만 활용될 수 있다.
@@ -24,5 +24,9 @@
 
 ### 클러스터 엔드 포인트
 
-- RDS의 경우 Master에 대한 엔드포인트가 있으며 이를 DNS가 가리키고 있다. 만약 Master에 대한 장애 조치 시, 간단한 DNS 작업으로 엔드포인트를 새로운 Master를 가리킬 수 있다. 그러나 읽기 복제본의 경우 인스턴스 엔드 포인트를 사용해 부하를 분산해야 한다. RDS는 읽기 복제본에 대한 로드 밸런서를 제공하지 않는다.
+- MYSQL의 경우 Master에 대한 엔드포인트가 있으며 이를 DNS가 가리키고 있다. 만약 Master에 대한 장애 조치 시, 간단한 DNS 작업으로 엔드포인트를 새로운 Master를 가리킬 수 있다. 그러나 읽기 복제본의 경우 인스턴스 엔드 포인트를 사용해 부하를 분산해야 한다. MYSQL는 읽기 복제본에 대한 로드 밸런서를 제공하지 않는다.
 - Aurora의 경우 쓰기와 읽기 각각에 대한 엔드 포인트를 제공한다. Master에 장애가 발생하면 읽기 복제본 중 하나가 바로 마스터로 승격되며 읽기 세트에서 제거된다.
+
+## 정리
+
+- Aurora는 MYSQL
