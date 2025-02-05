@@ -7,7 +7,7 @@
 - Aurora MYSQL는 기존 MYSQL를 성능과 간편성, 가용성 관점에서 AWS에 의해 한 번 디자인된 RDBMS
 - **`Aurora와 MYSQL의 가장 큰 차이점은 스토리지이다`**.
 
-  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/db/aurora-storage.png" width="400">
+  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/db/aurora-storage.png" width="800">
 
 - 위 그림에서 알 수 있는 몇 가지 특징을 정리해보자.
   - 한 대의 aurora 서버를 운영하더라도 3개의 AZ 영역에 총 6개의 스토리지에 데이터가 저장된다.
