@@ -72,6 +72,7 @@ const coffeShop = new CoffeeShop(new Americano());
 console.log(coffeShop.showPrice);
 ```
 
+- 위 코드에서는 새로운 커피를 판매하더라도 CoffeeShop을 호출하는 클라이언트 쪽에서 추가되는 커피만 넣으면 되고 고수준 모듈인 CoffeeShop은 변경되지 않는다.
 - 결과적으로 상위 모듈이 **`구체적인 하위 모듈이 아닌 인터페이스에 의존함으로써 결합도를 낮출 수 있었다`**.
 - 또한 DIP 원칙에 맞게 의존성이 상위에서 하위 모듈로 가는게 아닌, 하위 모듈과 상위 모듈이 모두 인터페이스에 의존하도록 의존성의 방향이 바뀜을 확인할 수 있다.
 
