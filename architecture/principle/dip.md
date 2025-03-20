@@ -116,12 +116,27 @@ export class UserRepositoryAdaptor implements IUserRepository {
 ```
 
 - 어댑터 클래스는 생성자로 userRepository를 주입받아 기능을 사용한다. 이제 서비스가 이 어댑터를 사용하면 어댑터 클래스가 제공하는 메서드만 사용할 수 있지 userRepository가 제공하는 수 많은 API는 숨겨지게 된다.
-- 서비스에는 생성자로 userRepository 대신 IUserRepository 인터페이스를 주입받는다.
+- 서비스에는 생성자로 IUserRepository 인터페이스를 주입해야한다. Spring과 달리 NestJS는 인터페이스를 Provider로 제공하려면 user 모듈에 아래와 같이 provide 설정을 추가해야 한다.
+
+```ts
+@Module({
+  providers: [
+    UserService,
+    UserRepository,
+    { provide: "IUserRepository", useClass: UserRepositoryAdaptor },
+  ],
+})
+export class UserModule {}
+```
+
+- 이제 아래와 같이 service에 Inject 데코레이터를 통해 인터페이스를 주입받아 사용한다.
 
 ```ts
 @Injectable()
 export class UserService {
-  constructor(private readonly userRepository: UserRepositoryAdaptor) {}
+  constructor(
+    @Inject("IUserRepository") private readonly userRepository: IUserRepository
+  ) {}
 
   async find(id: number) {
     return this.userRepository.findOneBy(id);
