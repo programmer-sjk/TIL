@@ -80,5 +80,51 @@ console.log(coffeShop.showPrice);
 
 - Layer 아키텍처에서 서비스와 레포지터리를 비교해보면 서비스는 고수준 모듈에 속하고 레포지터리는 DB와 통신하는 저수준 모듈에 해당한다.
 - 보통 NestJS에서 서비스 생성자에서 레포지터리를 받아 사용하고는 한다. 이때 서비스에서는 주입받은 레포지터리가 제공하는 수 많은 API들을 사용할 수 있다. 만약 ORM이 바뀌거나 DB가 바뀌게 되면 비지니스 로직들이 저수준 모듈인 레포지터리 변경에 의해 모두 영향받게 된다. 여기에 DIP를 적용해보자.
+- 아래는 Nestjs에서 볼 수 있는 서비스에 레포지터리를 생성자로 주입받는 코드이다.
 
+```ts
+@Injectable()
+export class UserService {
+  constructor(private readonly userRepository: UserRepository) {}
 
+  async find(id: number) {
+    return this.userRepository.findOneBy({ id });
+  }
+}
+```
+
+- findOneBy 메서드는 TypeOrm 레포지터리가 제공하는 메서드로 만약 ORM을 변경한다면 service 코드가 수정된다.
+- DIP 적용을 위해 인터페이스를 선언한다.
+
+```ts
+export interface IUserRepository {
+  findOneBy(id: number): Promise<User>;
+}
+```
+
+- 그리고 IUserRepository 인터페이스를 구현하는 어댑터 클래스를 추가한다.
+
+```ts
+@Injectable()
+export class UserRepositoryAdaptor implements IUserRepository {
+  constructor(private readonly userRepository: UserRepository) {}
+
+  async findOneBy(id: number) {
+    return this.userRepository.findOneBy({ id });
+  }
+}
+```
+
+- 어댑터 클래스는 생성자로 userRepository를 주입받아 기능을 사용한다. 이제 서비스가 이 어댑터를 사용하면 어댑터 클래스가 제공하는 메서드만 사용할 수 있지 userRepository가 제공하는 수 많은 API는 숨겨지게 된다.
+- 서비스에는 생성자로 userRepository 대신 IUserRepository 인터페이스를 주입받는다.
+
+```ts
+@Injectable()
+export class UserService {
+  constructor(private readonly userRepository: UserRepositoryAdaptor) {}
+
+  async find(id: number) {
+    return this.userRepository.findOneBy(id);
+  }
+}
+```
