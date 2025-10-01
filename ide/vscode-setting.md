@@ -51,6 +51,12 @@
 
  <img src="https://github.com/programmer-sjk/TIL/blob/main/images/ide/enable-single-quote.png" width="600">
 
+## 생성자 cmd + 클릭으로 class로 이동하려는데 선택지가 뜨는 경우
+
+- 예를 들어 ProductResponse 구현부로 들어가려는데 class 이름으로 이동할지 생성자로 이동할지 뜨는 경우가 있다.
+- 이때는 사용자의 settings.json을 열고 아래 코드를 추가한다.
+- `"editor.gotoLocation.multipleDefinitions": "goto"`
+
 ## 단축키
 
 - 사용되지 않는 import 제거: shift + option + O
