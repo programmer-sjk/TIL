@@ -20,6 +20,12 @@
       "source.fixAll": true,
       "source.fixAll.eslint": true
     },
+
+    또는
+
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "always"
+    },
   ```
 
 ## import시 상대 경로로 바꾸고 싶을 때
