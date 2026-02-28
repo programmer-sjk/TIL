@@ -10,7 +10,7 @@ func main() {
 	basicGrammer()
 
 	fmt.Printf("\n")
-	
+
 	fmt.Println("===== collections ======")
 	collections()
 }
@@ -82,7 +82,6 @@ func (u User) greeting() string {
 	return "Greeting"
 }
 
-
 func collections() {
 	arr := []int{1, 2, 3}
 	arr = append(arr, 4)
@@ -106,5 +105,3 @@ func collections() {
 func changeAge(user *User) {
 	user.age = 21
 }
-
-\
